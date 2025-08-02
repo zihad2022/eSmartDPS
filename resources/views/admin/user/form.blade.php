@@ -1,8 +1,16 @@
 <x-admin.layout.app>
-    <div class="">
+    @php
+        $editing = isset($user);
+        $breadcrumbItems = [
+            ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+            ['label' => 'All Users', 'url' => route('admin.users.index')],
+            ['label' => $editing ? 'Edit User' : 'Add New User', 'url' => '#'],
+        ];
+    @endphp
+    <x-slot:title>{{ $editing ? 'Edit User' : 'Add New User' }}</x-slot:title>
+    <x-breadcrumb :items="$breadcrumbItems" />
+    <div>
         <div class="bg-white rounded-2xl shadow-sm p-8">
-            @php $editing = isset($user); @endphp
-
             <h2 class="text-2xl font-bold text-primary-900 mb-6">
                 {{ $editing ? 'Edit User' : 'Add New User' }}
             </h2>
