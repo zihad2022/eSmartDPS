@@ -11,9 +11,23 @@ class ClientsExport implements FromCollection, WithHeadings, WithMapping
 {
     private int $sl = 1;
 
+    private ?string $status = null;
+
+    public function __construct($status)
+    {
+        $this->status = $status;
+    }
+
     public function collection()
     {
-        return Client::all();
+        if ($this->status === 'active') {
+            return Client::active()->parent()->get();
+        }
+        if ($this->status === 'inactive') {
+            return Client::inactive()->parent()->get();
+        }
+
+        return Client::parent()->get();
     }
 
     public function headings(): array
@@ -38,7 +52,7 @@ class ClientsExport implements FromCollection, WithHeadings, WithMapping
 
     public function map($client): array
     {
-        $client->load('ClientSubscription.subscription');
+        $client->load('clientPakage.pakage');
 
         return [
             '#'.$this->sl++,
@@ -53,7 +67,7 @@ class ClientsExport implements FromCollection, WithHeadings, WithMapping
             $client->postal_code,
             $client->role,
             $client->status == 1 ? 'Active' : 'Inactive',
-            $client->ClientSubscription->subscription->name ?? 'N/A',
+            $client->clientPakage->pakage->name ?? 'N/A',
             $client->created_at->format('Y-m-d'),
         ];
     }
