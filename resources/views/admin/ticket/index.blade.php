@@ -1,33 +1,32 @@
 <x-admin.layout.app>
     @php
-        $breadcrumbItems = [
-            ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
-            ['label' => 'Tickets', 'url' => route('admin.tickets.index')],
+        $statuses = [
+            'open' => 'Open Tickets',
+            'closed' => 'Closed Tickets',
+            'in_progress' => 'In Progress Tickets',
+            'resolved' => 'Resolved Tickets',
         ];
 
-        if (request()->status === 'open') {
+        $status = request()->status;
+
+        $pageTitle = $statuses[$status] ?? 'All Tickets';
+
+        $breadcrumbItems = [
+            ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+            ['label' => 'All Tickets', 'url' => route('admin.tickets.index')],
+        ];
+
+        if (isset($statuses[$status])) {
             $breadcrumbItems[] = [
-                'label' => 'Open Tickets',
-                'url' => route('admin.tickets.index', ['status' => 'open']),
-            ];
-        } elseif (request()->status === 'closed') {
-            $breadcrumbItems[] = [
-                'label' => 'Closed Tickets',
-                'url' => route('admin.tickets.index', ['status' => 'closed']),
-            ];
-        } elseif (request()->status === 'in_progress') {
-            $breadcrumbItems[] = [
-                'label' => 'In Progress Tickets',
-                'url' => route('admin.tickets.index', ['status' => 'in_progress']),
-            ];
-        } elseif (request()->status === 'resolved') {
-            $breadcrumbItems[] = [
-                'label' => 'Resolved Tickets',
-                'url' => route('admin.tickets.index', ['status' => 'resolved']),
+                'label' => $statuses[$status],
+                'url' => route('admin.tickets.index', ['status' => $status]),
             ];
         }
     @endphp
+
+    <x-slot:title>{{ $pageTitle }}</x-slot:title>
     <x-breadcrumb :items="$breadcrumbItems" />
+
     <div>
         @if (session('success') || session('error'))
             <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
@@ -48,7 +47,7 @@
         <div class="bg-white rounded-xl shadow-sm">
             <div class="p-6 border-b border-gray-200">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                    <h3 class="text-lg font-semibold text-primary-900 mb-4 md:mb-0">All Tickets</h3>
+                    <h3 class="text-lg font-semibold text-primary-900 mb-4 md:mb-0">{{ $pageTitle }}</h3>
                     <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
                         <a href="{{ route('admin.tickets.create') }}"
                             class="bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent-600 transition">
