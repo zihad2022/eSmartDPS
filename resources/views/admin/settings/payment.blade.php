@@ -1,13 +1,11 @@
 <x-admin.settings.layout>
-    <x-breadcrumb :items="[['label' => 'Dashboard', 'url' => route('admin.dashboard')], ['label' => 'Payment Settings']]" />
-
     @if (session('success') || session('error'))
         <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
     @endif
 
     <div>
-        <h2 class="text-xl font-semibold text-primary-900 mb-6">Payment Settings</h2>
-
+        <h2 class="text-xl font-semibold text-primary-900 mb-6 bg-white rounded-2xl p-6 w-full mx-auto">Payment Settings
+        </h2>
         <form method="POST" action="{{ route('admin.settings.payments.update') }}" enctype="multipart/form-data"
             class="space-y-8">
             @csrf
