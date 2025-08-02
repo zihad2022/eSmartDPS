@@ -25,6 +25,7 @@ class EmailController extends Controller
             'mail_encryption' => 'required',
             'mail_from_address' => 'required',
             'mail_from_name' => 'required',
+            'email_message_template' => 'required',
         ]);
 
         $settings = AdminSetting::first();
@@ -36,6 +37,7 @@ class EmailController extends Controller
             'mail_encryption' => $request->mail_encryption,
             'mail_from_address' => $request->mail_from_address,
             'mail_from_name' => $request->mail_from_name,
+            'email_message_template' => $request->email_message_template,
         ]);
 
         return redirect()->route('admin.settings.email.edit')->with('success', 'Email settings updated successfully.');
