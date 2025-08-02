@@ -63,9 +63,19 @@ class Client extends Authenticatable
         return $this->hasMany(Client::class, 'parent_id');
     }
 
-    public function isParent(): bool
+    public function scopeActive($query)
     {
-        return is_null($this->parent_id);
+        return $query->where('status', true);
+    }
+
+    public function scopeInactive($query)
+    {
+        return $query->where('status', false);
+    }
+
+    public function scopeParent($query)
+    {
+        return $query->whereNull('parent_id');
     }
 
     public function members(): HasMany
@@ -125,14 +135,5 @@ class Client extends Authenticatable
     public function lastClientPakage(): HasOne
     {
         return $this->hasOne(ClientPakage::class)->latestOfMany();
-    }
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($client) {
-            $client->user_id = generate_client_user_id();
-        });
     }
 }
