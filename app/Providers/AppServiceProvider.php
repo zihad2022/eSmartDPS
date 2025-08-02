@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Client;
+use App\Models\Pakage;
+use App\Observers\ClientObserver;
+use App\Observers\PakageObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,5 +26,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::shouldBeStrict(! app()->isProduction());
         Model::unguard();
+        // observers
+        Client::observe(ClientObserver::class);
+        Pakage::observe(PakageObserver::class);
     }
 }
