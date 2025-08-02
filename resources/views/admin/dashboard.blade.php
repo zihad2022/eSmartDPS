@@ -161,7 +161,7 @@
         </div>
 
         <!-- Active Projects -->
-        <div class="bg-white rounded-xl shadow-sm p-6 dashboard-card">
+        {{-- <div class="bg-white rounded-xl shadow-sm p-6 dashboard-card">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-semibold text-primary-900">Active Projects</h3>
                 <a href="projects.html" class="text-accent-600 hover:text-accent-700 text-sm font-medium">View
@@ -201,6 +201,60 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 </x-admin.layout.app>
+
+<script>
+    const ctx = document.getElementById('financialChart').getContext('2d');
+    const financialChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                    label: 'Income',
+                    data: [200000, 250000, 220000, 280000, 320000, 350000],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'Expenses',
+                    data: [80000, 95000, 70000, 110000, 130000, 120000],
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'Loans',
+                    data: [50000, 75000, 60000, 85000, 90000, 82000],
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + (value / 1000) + 'K';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
