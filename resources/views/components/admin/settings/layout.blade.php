@@ -1,4 +1,21 @@
 <x-admin.layout.app>
+    @php
+        $pages = [
+            'admin.settings.general.edit' => 'General Settings',
+            'admin.settings.payments.edit' => 'Payment Settings',
+            'admin.settings.sms.edit' => 'SMS Settings',
+            'admin.settings.email.edit' => 'Email Settings',
+            'admin.settings.backup.edit' => 'Backup & Security',
+        ];
+
+        $currentRoute = collect($pages)->first(fn($label, $route) => request()->routeIs($route));
+    @endphp
+
+    @if ($currentRoute)
+        <x-breadcrumb :items="[['label' => 'Dashboard', 'url' => route('admin.dashboard')], ['label' => $currentRoute]]" />
+        <x-slot:title>{{ $currentRoute }}</x-slot:title>
+    @endif
+
     <!-- Settings Content -->
     <div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
