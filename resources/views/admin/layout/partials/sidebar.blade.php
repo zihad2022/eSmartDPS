@@ -138,6 +138,10 @@
                       'url' => route('admin.users.create'),
                       'label' => 'Add New User',
                   ],
+                  [
+                      'url' => route('admin.user.activities'),
+                      'label' => 'User Activities',
+                  ],
               ]" />
 
               <div class="pt-4 mt-4 border-t border-gray-200">
