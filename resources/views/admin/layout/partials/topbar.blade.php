@@ -96,7 +96,8 @@
                                 class="block px-4 py-2 text-sm text-primary-700 hover:bg-gray-50">
                                 <i class="fas fa-user mr-2"></i> Profile
                             </a>
-                            <a href="#" class="block px-4 py-2 text-sm text-primary-700 hover:bg-gray-50">
+                            <a href="{{ route('admin.settings.general.edit') }}"
+                                class="block px-4 py-2 text-sm text-primary-700 hover:bg-gray-50">
                                 <i class="fas fa-cog mr-2"></i> Settings
                             </a>
                             <a href="#" class="block px-4 py-2 text-sm text-primary-700 hover:bg-gray-50">
