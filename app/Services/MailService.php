@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Mail;
 
 class MailService
 {
-    public function sendMail($client)
+    public function sendMail($client, $password)
     {
         // Get settings from DB
         $settings = AdminSetting::first();
@@ -24,6 +24,6 @@ class MailService
         Config::set('mail.from.name', $settings->mail_from_name);
 
         // Send Email
-        Mail::to($client->email)->send(new ClientWelcomeMail($client));
+        Mail::to($client->email)->send(new ClientWelcomeMail($client, $password));
     }
 }
