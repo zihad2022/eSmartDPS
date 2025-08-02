@@ -1,6 +1,15 @@
 <x-admin.layout.app>
+    @php
+        $breadcrumbItems = [
+            ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+            ['label' => 'All Users', 'url' => route('admin.users.index')],
+        ];
+        $pageTitle = 'All Users';
+    @endphp
+    <x-slot:title>{{ $pageTitle }}</x-slot:title>
+    <x-breadcrumb :items="$breadcrumbItems" />
     <!-- Users Content -->
-    <div class="p-4 md:p-6">
+    <div>
         @if (session('success') || session('error'))
             <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
         @endif
