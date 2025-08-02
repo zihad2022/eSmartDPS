@@ -76,6 +76,7 @@ return new class extends Migration
             $table->string('mail_encryption')->nullable();
             $table->string('mail_from_address')->nullable();
             $table->string('mail_from_name')->nullable();
+            $table->text('email_message_template')->nullable();
 
             $table->timestamps();
         });
