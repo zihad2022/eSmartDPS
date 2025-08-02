@@ -79,6 +79,10 @@ class SettingsSeeder extends Seeder
             'mail_encryption' => 'tls',
             'mail_from_address' => 'zihadulislamafnan@gmail.com',
             'mail_from_name' => 'eSmartDPS',
+            'email_message_template' => "Welcome to our platform, {first_name} {last_name}!\n\nYour account has been created successfully.  
+Your **User ID** is: {user_id}\nYour temporary password is: {password}\n\nPlease use these credentials to log in to your account.\n\n⚠️ For your security, please log in as soon as possible and change your password immediately.  
+Anyone with this password could access your account, so do not share it with anyone.\n\nWe’re excited to have you on board!",
+
         ]);
     }
 }
