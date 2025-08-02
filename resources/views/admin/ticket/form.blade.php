@@ -1,4 +1,10 @@
 <x-admin.layout.app>
+    <x-slot:title>{{ $editing = isset($ticket) ? 'Edit Ticket' : 'Add New Ticket' }}</x-slot:title>
+    <x-breadcrumb :items="[
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'All Tickets', 'url' => route('admin.tickets.index')],
+        ['label' => $editing ? 'Edit Ticket' : 'Add New Ticket'],
+    ]" />
     <div>
         <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
             <h2 class="text-xl font-semibold text-primary-900 mb-6">
