@@ -1,5 +1,4 @@
 <x-admin.settings.layout>
-    <x-breadcrumb :items="[['label' => 'Dashboard', 'url' => route('admin.dashboard')], ['label' => 'General Settings']]" />
     @if (session('success') || session('error'))
         <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
     @endif
