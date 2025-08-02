@@ -1,5 +1,4 @@
 <x-admin.settings.layout>
-    <x-breadcrumb :items="[['label' => 'Dashboard', 'url' => route('admin.dashboard')], ['label' => 'Email Settings']]" />
     @if (session('success') || session('error'))
         <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
     @endif
@@ -38,8 +37,8 @@
             <x-form.input name="mail_from_name" label="Mail From Name" :value="old('mail_from_name', $settings->mail_from_name ?? '')"
                 placeholder="Enter from name (e.g. Company Name)" />
 
-            <x-form.textarea name="sms_message_template" label="SMS Message Template" :value="old('sms_message_template', $settings->sms_message_template ?? '')"
-                placeholder="Enter SMS message template" rows="4" />
+            <x-form.textarea name="email_message_template" label="Email Message Template" :value="old('email_message_template', $settings->email_message_template ?? '')"
+                placeholder="Enter email message template" rows="4" />
 
             <div class="flex justify-end space-x-4 pt-4">
                 <a href="{{ route('admin.settings.email.edit') }}"
