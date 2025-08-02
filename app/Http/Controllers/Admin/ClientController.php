@@ -10,24 +10,27 @@ use App\Models\Pakage;
 use App\Services\ImageService;
 use App\Services\MailService;
 use App\Services\PakageService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 class ClientController extends Controller
 {
     public function __construct(
-        protected ImageService $imageService,
-        protected PakageService $pakageService
+        private readonly ImageService $imageService,
+        private readonly PakageService $pakageService,
+        private readonly MailService $mailService
     ) {
     }
 
-    public function index(Request $request)
+    /** Display all clients */
+    public function index(Request $request): View
     {
         $clients = Client::query()
             ->whereNull('parent_id')
-            ->when($request->query('status'), fn ($q, $status) => $q->where('status', $status === 'active')
-            )
-            ->orderBy('id', 'desc')
+            ->when($request->get('status'), fn ($q, $status) => $q->where('status', $status === 'active'))
+            ->latest('id')
             ->paginate(10)
             ->appends($request->query());
 
@@ -39,7 +42,8 @@ class ClientController extends Controller
         ]);
     }
 
-    public function create()
+    /** Show create form */
+    public function create(): View
     {
         return view('admin.client.form', [
             'pakages' => Pakage::active()->get(),
@@ -47,30 +51,28 @@ class ClientController extends Controller
         ]);
     }
 
-    public function store(ClientRequest $request)
+    /** Store a new client */
+    public function store(ClientRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-        $pakageId = $validated['pakage_id'];
+        $validated = $this->prepareClientData($request->validated(), $request);
 
-        $validated = $this->processClientData($request, $validated);
-        $validated['role'] = 'admin';
-
-        $mailService = new MailService();
         $client = Client::create($validated);
 
-        $mailService->sendMail($client);
+        $this->mailService->sendMail($client, $request->password);
+        $this->pakageService->startPakage($client, Pakage::find($request->pakage_id));
 
-        $this->pakageService->startPakage($client, Pakage::find($pakageId));
-
-        return redirect()->route('admin.clients.index')->with('success', 'Client created successfully.');
+        return redirect()->route('admin.clients.index')
+            ->with('success', 'Client created successfully.');
     }
 
-    public function show(Client $client)
+    /** Show client details */
+    public function show(Client $client): View
     {
         return view('admin.client.show', compact('client'));
     }
 
-    public function edit(Client $client)
+    /** Show edit form */
+    public function edit(Client $client): View
     {
         abort_if($client->parent_id, 403);
 
@@ -80,60 +82,57 @@ class ClientController extends Controller
         ]);
     }
 
-    public function update(ClientRequest $request, Client $client)
+    /** Update client */
+    public function update(ClientRequest $request, Client $client): RedirectResponse
     {
         abort_if($client->parent_id, 403);
 
-        $validated = $request->validated();
-        $pakageId = $validated['pakage_id'] ?? null;
-
-        $validated = $this->processClientData($request, $validated, $client);
-
+        $validated = $this->prepareClientData($request->validated(), $request, $client);
         $client->update($validated);
 
-        if ($pakageId) {
-            $this->pakageService->startPakage($client, Pakage::find($pakageId));
+        if ($request->pakage_id) {
+            $this->pakageService->startPakage($client, Pakage::find($request->pakage_id));
         }
 
-        return redirect()->route('admin.clients.index')->with('success', 'Client updated successfully.');
+        return redirect()->route('admin.clients.index')
+            ->with('success', 'Client updated successfully.');
     }
 
-    public function destroy(Client $client)
+    /** Delete client */
+    public function destroy(Client $client): RedirectResponse
     {
         abort_if($client->parent_id, 403);
 
         $this->deleteClientImages($client);
         $client->delete();
 
-        return redirect()->route('admin.clients.index')->with('success', 'Client deleted successfully.');
+        return redirect()->route('admin.clients.index')
+            ->with('success', 'Client deleted successfully.');
     }
 
-    /** 🔹 Handles image uploads and password hashing */
-    private function processClientData(Request $request, array $data, Client $client = null): array
+    /** 🔹 Process input data for create/update */
+    private function prepareClientData(array $data, Request $request, Client $client = null): array
     {
         foreach (['profile_photo', 'nid_card_front', 'nid_card_back'] as $field) {
             if ($request->hasFile($field)) {
                 if ($client?->$field) {
                     $this->imageService->deleteImage($client->$field);
                 }
-                $data[$field] = $this->imageService->uploadImage($request->file($field), 'uploads/clients');
+                $data[$field] = $this->imageService->uploadImage(
+                    $request->file($field),
+                    'uploads/clients'
+                );
             }
         }
 
         $data['parent_id'] = null;
-        // Handle password
-        if (! empty($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        } else {
-            unset($data['password']);
-        }
-
+        $data['password'] = ! empty($data['password']) ? Hash::make($data['password']) : ($client->password ?? null);
         unset($data['pakage_id']);
 
         return $data;
     }
 
-    /** 🔹 Deletes all images of a client */
+    /** 🔹 Delete client images */
     private function deleteClientImages(Client $client): void
     {
         foreach (['profile_photo', 'nid_card_front', 'nid_card_back'] as $field) {
