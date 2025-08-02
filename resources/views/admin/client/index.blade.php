@@ -61,7 +61,7 @@
                             class="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
                             Add Client
                         </a>
-                        <a href="{{ route('admin.clients.export') }}"
+                        <a href="{{ route('admin.clients.export', ['status' => $status]) }}"
                             class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
                             <i class="fas fa-download mr-2"></i>Export
                         </a>
