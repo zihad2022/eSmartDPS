@@ -1,6 +1,4 @@
 <x-admin.settings.layout>
-    <x-breadcrumb :items="[['label' => 'Dashboard', 'url' => route('admin.dashboard')], ['label' => 'SMS Settings']]" />
-
     @if (session('success') || session('error'))
         <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
     @endif
@@ -31,7 +29,7 @@
                     placeholder="Enter SMS Balance API URL" />
             </div>
 
-            <x-form.textarea name="sms_message_template" label="Default SMS Template" :value="old('sms_message_template', $settings->sms_message_template ?? '')"
+            <x-form.textarea name="email_message_template" label="Default SMS Template" :value="old('email_message_template', $settings->email_message_template ?? '')"
                 placeholder="Enter default SMS message template" rows="4" />
 
             <div class="flex justify-end space-x-4 pt-4">
