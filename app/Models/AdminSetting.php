@@ -71,6 +71,7 @@ class AdminSetting extends Model
         'mail_encryption',
         'mail_from_address',
         'mail_from_name',
+        'email_message_template',
     ];
 
     // protected $casts = [
