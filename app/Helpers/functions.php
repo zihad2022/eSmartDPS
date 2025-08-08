@@ -4,6 +4,7 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Member;
 use App\Models\Payment;
+use App\Models\Ticket;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -107,5 +108,28 @@ if (! function_exists('authorize_owner')) {
         if ($model->{$column} !== owner_client_id()) {
             abort(403, 'You are not authorized to access this resource.');
         }
+    }
+}
+
+// Generate ticket number
+if (! function_exists('generate_ticket_number')) {
+    function generate_ticket_number(): string
+    {
+        return DB::transaction(function () {
+            $lastTicket = Ticket::where('ticket_number', 'like', 'TKT%')
+                ->lockForUpdate()
+                ->orderByRaw('CAST(SUBSTRING(ticket_number, 4) AS UNSIGNED) DESC')
+                ->first();
+
+            if ($lastTicket && preg_match('/TKT(\d+)/', $lastTicket->ticket_number, $matches)) {
+                $lastNumber = (int) $matches[1];
+            } else {
+                $lastNumber = 0;
+            }
+
+            $nextNumber = $lastNumber + 1;
+
+            return 'TKT'.str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        });
     }
 }
