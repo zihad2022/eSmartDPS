@@ -2,12 +2,12 @@
 
 namespace App\Enums;
 
-enum PaymentStatus: int
+enum PaymentStatus: string
 {
-    case PENDING = 1;
-    case DUE = 2;
-    case PAID = 3;
-    case CANCELLED = 4;
+    case PENDING = 'pending';
+    case DUE = 'due';
+    case PAID = 'paid';
+    case CANCELLED = 'cancelled';
 
     public function label(): string
     {
