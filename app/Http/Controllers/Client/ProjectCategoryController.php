@@ -9,12 +9,26 @@ use Illuminate\Support\Str;
 
 class ProjectCategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $clientId = auth('client')->id();
 
+        // Check if editing a category
+        if ($request->has('edit')) {
+            $editCategory = ProjectCategory::where('client_id', $clientId)
+                ->findOrFail($request->edit);
+
+            $categories = ProjectCategory::select('id', 'name', 'slug', 'created_at')
+                ->where('client_id', $clientId)
+                ->latest()
+                ->paginate(10);
+
+            return view('client.project-category.index', compact('editCategory', 'categories'));
+        }
+
+        // Default category list
         $categories = ProjectCategory::select('id', 'name', 'slug', 'created_at')
-            ->where('client_id', owner_client_id())
+            ->where('client_id', $clientId)
             ->latest()
             ->paginate(10);
 
