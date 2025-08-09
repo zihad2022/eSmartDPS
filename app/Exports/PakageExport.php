@@ -50,23 +50,23 @@ class PakageExport implements FromCollection, WithHeadings, WithMapping
         ];
     }
 
-    public function map($pakage): array
+    public function map($package): array
     {
         return [
             $this->sl++,
-            $pakage->name,
-            $pakage->description,
-            $pakage->price,
-            $pakage->discount_value,
-            $pakage->discount_type,
-            $pakage->billing_cycle,
-            $pakage->member_limit,
-            $pakage->user_limit,
-            $pakage->project_limit,
-            $pakage->is_active ? 'Active' : 'Inactive',
-            $pakage->has_trial ? 'Yes' : 'No',
-            $pakage->trial_days,
-            $pakage->created_at,
+            $package->name,
+            $package->description,
+            $package->price,
+            $package->discount_value,
+            $package->discount_type,
+            $package->billing_cycle,
+            $package->member_limit,
+            $package->user_limit,
+            $package->project_limit,
+            $package->is_active ? 'Active' : 'Inactive',
+            $package->has_trial ? 'Yes' : 'No',
+            $package->trial_days,
+            $package->created_at,
         ];
     }
 }
