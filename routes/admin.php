@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\Settings\EmailController;
 use App\Http\Controllers\Admin\Settings\GeneralController;
 use App\Http\Controllers\Admin\Settings\PaymentController;
 use App\Http\Controllers\Admin\Settings\SmsController;
+use App\Http\Controllers\Admin\Settings\SocialMediaController;
 use App\Http\Controllers\Admin\TicketChatController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\User\ActivityController;
@@ -71,6 +72,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
             Route::get('payments', [PaymentController::class, 'edit'])->name('payments.edit');
             Route::put('payments', [PaymentController::class, 'update'])->name('payments.update');
+
+            Route::get('social-media', [SocialMediaController::class, 'edit'])->name('social_media.edit');
+            Route::put('social-media', [SocialMediaController::class, 'update'])->name('social_media.update');
 
             Route::get('sms', [SmsController::class, 'edit'])->name('sms.edit');
             Route::put('sms', [SmsController::class, 'update'])->name('sms.update');
