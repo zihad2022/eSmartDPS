@@ -14,23 +14,23 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
 
-            // 🔗 Relation
+            // Relation
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
 
-            // 🧾 Invoice Details
+            // Invoice Details
             $table->string('invoice_number')->unique();
-            $table->decimal('invoice_amount', 10, 2);
+            $table->unsignedInteger('invoice_amount');
 
-            // 📌 Status (Use Enum for clarity: unpaid, paid, refunded, cancelled)
+            // Status (Use Enum for clarity: unpaid, paid, refunded, cancelled)
             $table->integer('status')->default(1);
 
-            // 💳 Payment Details
+            // Payment Details
             $table->string('payment_id')->nullable();
             $table->string('trx_id')->nullable();
             $table->string('payment_method')->nullable();
             $table->string('wallet_address')->nullable();
 
-            // 🕒 Timestamps
+            // Timestamps
             $table->timestamps();
         });
     }
