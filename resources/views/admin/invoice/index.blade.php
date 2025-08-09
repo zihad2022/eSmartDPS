@@ -26,9 +26,20 @@
         <!-- Invoices Table -->
         <div class="bg-white rounded-xl shadow-sm">
             <div class="p-6 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-primary-900">{{ $pageTitle }}</h3>
-                    <!-- Export / Filter Buttons could go here -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <h3 class="text-lg font-semibold text-primary-900 mb-4 md:mb-0">
+                        {{ $pageTitle }}
+                    </h3>
+                    <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
+                        <a href="{{ route('admin.invoices.create') }}"
+                            class="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
+                            Add Invoice
+                        </a>
+                        <a href="{{ route('admin.invoices.export', ['status' => $status]) }}"
+                            class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
+                            <i class="fas fa-download mr-2"></i>Export
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -60,7 +71,10 @@
                                     {{ $invoice->client->first_name }} {{ $invoice->client->last_name }}
                                 </td>
                                 <td class="px-6 py-4 text-sm text-primary-900 font-semibold">
-                                    ৳{{ number_format($invoice->invoice_amount, 2) }}
+                                    @php
+                                        $settings = \App\Models\AdminSetting::select('currency')->first();
+                                    @endphp
+                                    {{ $settings->currency }} {{ $invoice->invoice_amount }}
                                 </td>
                                 <td class="px-6 py-4">
                                     @php
