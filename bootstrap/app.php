@@ -12,10 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'admin' => App\Http\Middleware\AdminAuthenticated::class,
-            'client' => App\Http\Middleware\ClientAuthenticated::class,
+            'admin.auth' => App\Http\Middleware\AdminAuthenticated::class,
             'member' => App\Http\Middleware\MemberAuthenticated::class,
-            'client.role' => App\Http\Middleware\CheckClientRole::class,
+            'client' => App\Http\Middleware\ClientAuthenticated::class,
             'subscription' => App\Http\Middleware\SubscriptionMiddleware::class,
         ]);
     })
