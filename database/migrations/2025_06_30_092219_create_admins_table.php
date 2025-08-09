@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->string('profile_photo')->nullable();
-            $table->enum('role', ['admin', 'manager', 'editor'])->default('manager');
             $table->boolean('status')->default(true);
             $table->timestamps();
         });

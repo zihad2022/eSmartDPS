@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 class Admin extends Authenticatable
 {
     protected $fillable = [
-        'name', 'email', 'username', 'password', 'role',
+        'name', 'email', 'username', 'password',
     ];
 
     protected $casts = [
