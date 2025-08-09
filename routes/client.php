@@ -8,44 +8,68 @@ use App\Http\Controllers\Client\MemberController;
 use App\Http\Controllers\Client\PaymentController;
 use App\Http\Controllers\Client\ProjectCategoryController;
 use App\Http\Controllers\Client\ProjectController;
-use App\Http\Controllers\Client\ShareController;
+use App\Http\Controllers\Client\Settings\GeneralController;
 use App\Http\Controllers\Client\UserController;
 use App\Services\PakageService;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('client')->as('client.')->group(function () {
-    // Guest Routes
-    Route::middleware('guest:client')->group(function () {
-        Route::get('login', [LoginController::class, 'login'])->name('login');
-        Route::post('login', [LoginController::class, 'authenticate'])->name('authenticate');
+Route::prefix('client')->name('client.')->group(function () {
+
+    /**
+     * -------------------------
+     * Authentication Routes
+     * -------------------------
+     */
+    Route::controller(LoginController::class)->group(function () {
+        Route::get('login', 'login')->name('login');
+        Route::post('login', 'authenticate')->name('authenticate');
+        Route::post('logout', 'logout')->name('logout');
     });
 
-    // Authenticated Routes
+    /**
+     * ------------------------------
+     * Protected Client Panel Routes
+     * ------------------------------
+     */
     Route::middleware('client')->group(function () {
-        // Dashboard
-        Route::get('/', DashboardController::class)->name('dashboard')->middleware('subscription');
-        // Members
-        Route::resource('members', MemberController::class);
-        // shares
-        Route::resource('shares', ShareController::class)->only('index', 'create', 'store', 'edit', 'update', 'destroy');
-        // Projects
-        Route::resource('projects', ProjectController::class);
-        // Project Categories
-        Route::resource('project-categories', ProjectCategoryController::class);
-        // Payments
-        Route::resource('payments', PaymentController::class)->only('index', 'edit', 'update');
-        // Ledger Categories
-        Route::resource('ledger-categories', LedgerCategoryController::class);
-        // Ledgers
-        Route::resource('ledgers', LedgerController::class);
-        // Users
-        Route::resource('users', UserController::class)->only('index', 'create', 'store', 'show', 'edit', 'update', 'destroy')->middleware('client.role:admin,manager');
-        // Logout
-        Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
-        Route::get('subscription/expired', function () {
-            return view('client.subscription.expired');
-        })->name('subscription.expired');
+        // Dashboard (with subscription check)
+        Route::get('/', DashboardController::class)
+            ->name('dashboard')
+            ->middleware('subscription');
+
+        /**
+         * Resource Controllers
+         */
+        Route::resources([
+            'members' => MemberController::class,
+            'projects' => ProjectController::class,
+            'project-categories' => ProjectCategoryController::class,
+            'ledger-categories' => LedgerCategoryController::class,
+            'ledgers' => LedgerController::class,
+        ]);
+
+        // Payments (limited actions)
+        Route::resource('payments', PaymentController::class)
+            ->only(['index', 'edit', 'update']);
+
+        // Users (restricted by role)
+        Route::resource('users', UserController::class)
+            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+
+        /**
+         * Settings
+         */
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('general', [GeneralController::class, 'edit'])->name('general.edit');
+            Route::put('general', [GeneralController::class, 'update'])->name('general.update');
+        })->middleware('client.role:admin');
+
+        /**
+         * Subscription Management
+         */
+        Route::get('subscription/expired', fn () => view('client.subscription.expired'))
+            ->name('subscription.expired');
 
         Route::get('renew-subscription', function (PakageService $pakageService) {
             $client = auth('client')->user();
@@ -59,6 +83,5 @@ Route::prefix('client')->as('client.')->group(function () {
 
             return redirect()->route('client.dashboard');
         })->name('subscription.renew');
-
     });
 });
