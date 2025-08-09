@@ -7,10 +7,10 @@ use App\Http\Requests\Admin\ClientRequest;
 use App\Models\Client;
 use App\Models\ClientSetting;
 use App\Models\Member;
-use App\Models\Pakage;
+use App\Models\Package;
 use App\Services\ImageService;
 use App\Services\MailService;
-use App\Services\PakageService;
+use App\Services\PackageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +24,7 @@ class ClientController extends Controller
      */
     public function __construct(
         private readonly ImageService $imageService,
-        private readonly PakageService $pakageService,
+        private readonly PackageService $packageService,
         private readonly MailService $mailService
     ) {
     }
@@ -58,7 +58,7 @@ class ClientController extends Controller
     public function create(): View
     {
         return view('admin.client.form', [
-            'pakages' => Pakage::active()->get(),
+            'packages' => Package::active()->get(),
             'user_id' => generate_client_user_id(),
         ]);
     }
@@ -78,8 +78,8 @@ class ClientController extends Controller
         $this->mailService->sendMail($client, $request['password']);
 
         // Assign the selected package to the client
-        $pakage = Pakage::find($request['pakage_id']);
-        $this->pakageService->startPakage($client, $pakage);
+        $package = Package::find($request['package_id']);
+        $this->packageService->startPackage($client, $package);
 
         // Create client settings
         ClientSetting::create([
@@ -108,7 +108,7 @@ class ClientController extends Controller
 
         return view('admin.client.form', [
             'client' => $client,
-            'pakages' => Pakage::active()->get(),
+            'packages' => Package::active()->get(),
         ]);
     }
 
@@ -124,8 +124,8 @@ class ClientController extends Controller
         $client->update($validated);
 
         // If a package is selected, start it
-        if ($request['pakage_id']) {
-            $this->pakageService->startPakage($client, Pakage::find($request['pakage_id']));
+        if ($request['package_id']) {
+            $this->packageService->startPackage($client, Package::find($request['package_id']));
         }
 
         return redirect()
@@ -179,8 +179,8 @@ class ClientController extends Controller
             ? Hash::make($data['password'])
             : ($client->password ?? null);
 
-        // Remove pakage_id from client table (handled separately)
-        unset($data['pakage_id']);
+        // Remove package_id from client table (handled separately)
+        unset($data['package_id']);
 
         return $data;
     }
