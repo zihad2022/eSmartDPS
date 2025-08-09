@@ -4,8 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Client;
 use App\Models\Member;
-use App\Models\MemberShare;
-use App\Models\Share;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -71,13 +69,8 @@ class MemberSeeder extends Seeder
                 'phone' => $member['phone'],
                 'password' => $member['password'],
                 'status' => $member['status'],
-            ]);
-
-            // Create Member Share
-            MemberShare::create([
-                'member_id' => $member->id,
-                'share_id' => Share::all()->random()->id,
-                'shares_count' => rand(1, 10),
+                'share_quantity' => rand(1, 10),
+                'total_balance' => rand(100, 1000),
             ]);
         }
     }
