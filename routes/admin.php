@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\ClientExportController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\InvoiceExportController;
 use App\Http\Controllers\Admin\PakageController;
 use App\Http\Controllers\Admin\PakageExportController;
 use App\Http\Controllers\Admin\Settings\BackupSecurityController;
@@ -37,7 +38,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
      * Protected Admin Panel Routes
      * ------------------------------
      */
-    Route::middleware('admin')->group(function () {
+    Route::middleware('admin.auth')->group(function () {
 
         // Dashboard
         Route::get('/', DashboardController::class)->name('dashboard');
@@ -86,6 +87,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
          */
         Route::get('clients-export', ClientExportController::class)->name('clients.export');
         Route::get('pakages-export', PakageExportController::class)->name('pakages.export');
+        Route::get('invoices-export', InvoiceExportController::class)->name('invoices.export');
         Route::get('user-activities', ActivityController::class)->name('user.activities');
 
         /**
