@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('password');
             $table->boolean('status')->default(true);
 
+            $table->unsignedBigInteger('share_quantity')->default(0);
             $table->decimal('total_balance', 12, 2)->default(0);
             $table->timestamps();
         });
