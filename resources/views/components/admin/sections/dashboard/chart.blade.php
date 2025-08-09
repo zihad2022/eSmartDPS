@@ -1,0 +1,144 @@
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Financial Chart -->
+    <div class="bg-white rounded-xl shadow-sm p-6 lg:col-span-2 dashboard-card">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-primary-900">Financial Overview</h3>
+            <div class="flex space-x-2">
+                <button class="px-3 py-1 text-xs font-medium bg-accent-100 text-accent-600 rounded-lg">Monthly</button>
+                <button class="px-3 py-1 text-xs font-medium bg-gray-100 text-primary-600 rounded-lg">Yearly</button>
+            </div>
+        </div>
+        <div class="h-64">
+            <canvas id="financialChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="bg-white rounded-xl shadow-sm p-6 dashboard-card">
+        <h3 class="text-lg font-semibold text-primary-900 mb-6">Recent Activities</h3>
+        <div class="space-y-4">
+            <div class="flex items-start">
+                <div
+                    class="w-8 h-8 bg-accent-100 text-accent-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <i class="fas fa-user-plus text-xs"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-primary-900">New member joined</p>
+                    <p class="text-xs text-primary-500">Sarah Johnson with 5 shares</p>
+                    <p class="text-xs text-primary-400 mt-1">2 hours ago</p>
+                </div>
+            </div>
+
+            <div class="flex items-start">
+                <div
+                    class="w-8 h-8 bg-secondary-100 text-secondary-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <i class="fas fa-money-bill-wave text-xs"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-primary-900">Payment received</p>
+                    <p class="text-xs text-primary-500">$500 from Michael Brown</p>
+                    <p class="text-xs text-primary-400 mt-1">5 hours ago</p>
+                </div>
+            </div>
+
+            <div class="flex items-start">
+                <div
+                    class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <i class="fas fa-project-diagram text-xs"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-primary-900">New project created</p>
+                    <p class="text-xs text-primary-500">Real Estate Investment</p>
+                    <p class="text-xs text-primary-400 mt-1">1 day ago</p>
+                </div>
+            </div>
+        </div>
+        <a href="#" class="block text-center text-accent-600 hover:text-accent-700 text-sm font-medium mt-6">
+            View All Activities
+        </a>
+    </div>
+</div>
+
+
+{{-- <script>
+    const ctx = document.getElementById('financialChart').getContext('2d');
+    const financialChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                    label: 'Income',
+                    data: [200000, 250000, 220000, 280000, 320000, 350000],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'Expenses',
+                    data: [80000, 95000, 70000, 110000, 130000, 120000],
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'Loans',
+                    data: [50000, 75000, 60000, 85000, 90000, 82000],
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + (value / 1000) + 'K';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script> --}}
+
+<script>
+    const ctx = document.getElementById('financialChart').getContext('2d');
+    const chartData = @json($chartData);
+
+    const financialChart = new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + (value / 1000) + 'K';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
