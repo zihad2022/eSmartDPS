@@ -42,7 +42,7 @@ return new class extends Migration
 
             /* ========== Payment Settings ========== */
             $table->string('currency')->nullable();
-            $table->decimal('late_fee', 10, 2)->nullable();
+            $table->unsignedBigInteger('late_fee')->nullable();
 
             // bKash Payment
             $table->string('bkash_app_key')->nullable();
