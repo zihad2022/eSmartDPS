@@ -16,22 +16,21 @@ return new class extends Migration
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
 
-            // 👤 Ownership
+            // Ownership
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade'); // Main client account
 
-            // 📝 Ticket Info
+            // Ticket Info
             $table->string('ticket_number')->unique(); // Example: TKT-1001
             $table->string('subject');
             $table->text('message');
 
-            // 📌 Status & Priority
+            // Status & Priority
             $table->integer('status')->default(TicketStatus::OPEN->value); // Use Enum or constants
             $table->integer('priority')->default(TicketPriority::MEDIUM->value);
 
-            // 🛠 Admin Interaction
+            // Admin Interaction
             $table->text('admin_notes')->nullable();
 
-            // 🕒 Timestamps
             $table->timestamps();
         });
     }
