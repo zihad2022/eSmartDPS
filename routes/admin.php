@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\InvoiceExportController;
 use App\Http\Controllers\Admin\PakageController;
 use App\Http\Controllers\Admin\PakageExportController;
 use App\Http\Controllers\Admin\Settings\BackupSecurityController;
+use App\Http\Controllers\Admin\Settings\ContactInfoController;
 use App\Http\Controllers\Admin\Settings\EmailController;
 use App\Http\Controllers\Admin\Settings\GeneralController;
 use App\Http\Controllers\Admin\Settings\PaymentController;
@@ -72,6 +73,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
             Route::get('payments', [PaymentController::class, 'edit'])->name('payments.edit');
             Route::put('payments', [PaymentController::class, 'update'])->name('payments.update');
+
+            Route::get('contact-info', [ContactInfoController::class, 'edit'])->name('contact_info.edit');
+            Route::put('contact-info', [ContactInfoController::class, 'update'])->name('contact_info.update');
 
             Route::get('social-media', [SocialMediaController::class, 'edit'])->name('social_media.edit');
             Route::put('social-media', [SocialMediaController::class, 'update'])->name('social_media.update');
