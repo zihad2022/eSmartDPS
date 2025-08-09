@@ -54,17 +54,17 @@ class GenerateMonthlyInvoices extends Command
                     }
 
                     // Generate invoice
-                    $client->loadMissing('clientPakage.pakage');
-                    $pakage = $client->clientPakage->pakage ?? null;
+                    $client->loadMissing('clientPackage.package');
+                    $package = $client->clientPackage->package ?? null;
 
-                    if (! $pakage) {
-                        throw new \Exception("No active pakage found for Client ID {$client->id}");
+                    if (! $package) {
+                        throw new \Exception("No active package found for Client ID {$client->id}");
                     }
 
                     Invoice::create([
                         'client_id' => $client->id,
                         'invoice_number' => generate_invoice_number(),
-                        'invoice_amount' => $pakage->price,
+                        'invoice_amount' => $package->price,
                         'status' => InvoiceStatus::UNPAID->value,
                         'payment_id' => null,
                         'trx_id' => null,
