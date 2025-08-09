@@ -18,9 +18,9 @@ class PakageRequest extends FormRequest
             'description' => 'nullable|string',
 
             'price' => 'required|numeric|min:0',
-            'discount_value' => 'nullable|numeric|min:0',
-            'discount_type' => 'required|in:percentage,amount',
-            'billing_cycle' => 'required|in:monthly,yearly',
+            'discount_value' => 'nullable|numeric|min:0|max:100',
+            'discount_type' => 'required',
+            'billing_cycle' => 'required',
 
             'member_limit' => 'required|integer|min:0',
             'user_limit' => 'required|integer|min:0',
