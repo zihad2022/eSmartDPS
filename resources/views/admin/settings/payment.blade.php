@@ -1,20 +1,61 @@
+{{-- 
+|--------------------------------------------------------------------------
+| Admin Payment Settings Page
+|--------------------------------------------------------------------------
+| This view allows the admin to configure:
+| - General payment settings (currency, late fees)
+| - bKash payment gateway settings
+| - UddoktaPay payment gateway settings
+| - SSLCommerz payment gateway settings
+|
+| Structure:
+|   1. Flash messages for success/error
+|   2. Form with multiple sections
+|   3. Each section saves individually via "section" parameter
+|
+| Notes:
+| - Uses reusable Blade components for form fields: <x-form.input> and <x-form.select>
+| - Settings values are loaded from $settings (database or config)
+| - Old input values are preserved using old()
+--}}
+
 <x-admin.settings.layout>
+
+    {{-- 
+    --------------------------------------------------------------------------
+    | FLASH MESSAGES
+    | Shows success or error messages if available in session
+    | Uses custom <x-flash-message> component for consistency
+    --------------------------------------------------------------------------
+    --}}
     @if (session('success') || session('error'))
         <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
     @endif
 
     <div>
-        <h2 class="text-xl font-semibold text-primary-900 mb-6 bg-white rounded-2xl p-6 w-full mx-auto">Payment Settings
+        {{-- PAGE HEADER --}}
+        <h2 class="text-xl font-semibold text-primary-900 mb-6 bg-white rounded-2xl p-6 w-full mx-auto">
+            Payment Settings
         </h2>
+
+        {{-- MAIN FORM - Handles all payment settings --}}
         <form method="POST" action="{{ route('admin.settings.payments.update') }}" enctype="multipart/form-data"
             class="space-y-8">
             @csrf
             @method('PUT')
 
-            <!-- ✅ General Payment Settings -->
+            {{-- 
+            ==================================================================
+            ✅ 1. GENERAL PAYMENT SETTINGS
+            ==================================================================
+            --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
-                <h3 class="text-lg font-semibold text-primary-800 mb-4 border-b pb-2">General Payment Settings</h3>
+                <h3 class="text-lg font-semibold text-primary-800 mb-4 border-b pb-2">
+                    General Payment Settings
+                </h3>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{-- Currency Dropdown --}}
                     <x-form.select name="currency" label="Currency" :options="[
                         'USD' => 'USD - US Dollar',
                         'EUR' => 'EUR - Euro',
@@ -38,9 +79,12 @@
                         'ZAR' => 'ZAR - South African Rand',
                     ]" :selected="old('currency', $settings->currency ?? 'USD')" required />
 
+                    {{-- Late Fee Input --}}
                     <x-form.input name="late_fee" label="Late Fee" type="number" step="0.01" :value="old('late_fee', $settings->late_fee ?? '')"
                         placeholder="Enter late fee amount" />
                 </div>
+
+                {{-- Submit Button for General Settings --}}
                 <div class="flex justify-end pt-4">
                     <button type="submit" name="section" value="general"
                         class="px-4 py-2 bg-accent-500 text-white text-sm rounded-lg hover:bg-accent-600 transition">
@@ -49,7 +93,11 @@
                 </div>
             </div>
 
-            <!-- ✅ bKash Settings -->
+            {{-- 
+            ==================================================================
+            ✅ 2. BKASH PAYMENT SETTINGS
+            ==================================================================
+            --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
                 <h3 class="text-lg font-semibold text-primary-800 mb-4 border-b pb-2">bKash Settings</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -70,7 +118,11 @@
                 </div>
             </div>
 
-            <!-- ✅ UddoktaPay Settings -->
+            {{-- 
+            ==================================================================
+            ✅ 3. UDDOKTAPAY SETTINGS
+            ==================================================================
+            --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
                 <h3 class="text-lg font-semibold text-primary-800 mb-4 border-b pb-2">UddoktaPay Settings</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -89,7 +141,11 @@
                 </div>
             </div>
 
-            <!-- ✅ SSLCommerz Settings -->
+            {{-- 
+            ==================================================================
+            ✅ 4. SSLCOMMERZ SETTINGS
+            ==================================================================
+            --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
                 <h3 class="text-lg font-semibold text-primary-800 mb-4 border-b pb-2">SSLCommerz Settings</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
