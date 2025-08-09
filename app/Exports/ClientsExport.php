@@ -52,7 +52,7 @@ class ClientsExport implements FromCollection, WithHeadings, WithMapping
 
     public function map($client): array
     {
-        $client->load('clientPakage.pakage');
+        $client->load('ClientPackage.package');
 
         return [
             '#'.$this->sl++,
@@ -67,7 +67,7 @@ class ClientsExport implements FromCollection, WithHeadings, WithMapping
             $client->postal_code,
             $client->role,
             $client->status == 1 ? 'Active' : 'Inactive',
-            $client->clientPakage->pakage->name ?? 'N/A',
+            $client->ClientPackage->package->name ?? 'N/A',
             $client->created_at->format('Y-m-d'),
         ];
     }
