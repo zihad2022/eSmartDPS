@@ -136,4 +136,9 @@ class Client extends Authenticatable
     {
         return $this->hasOne(ClientPakage::class)->latestOfMany();
     }
+
+    public function settings(): HasOne
+    {
+        return $this->hasOne(ClientSetting::class);
+    }
 }
