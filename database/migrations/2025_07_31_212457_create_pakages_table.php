@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->decimal('price', 10, 2);
-            $table->decimal('discount_value', 10, 2)->default(0);
-            $table->enum('discount_type', ['percentage', 'amount'])->default('percentage');
-            $table->enum('billing_cycle', ['monthly', 'yearly'])->default('monthly');
+            $table->unsignedBigInteger('price');
+            $table->unsignedBigInteger('discount_value')->nullable()->default(0);
+            $table->unsignedBigInteger('discount_type')->nullable();
+            $table->unsignedBigInteger('billing_cycle')->nullable();
             $table->integer('member_limit')->default(0);
             $table->integer('user_limit')->default(0);
             $table->integer('project_limit')->default(0);
