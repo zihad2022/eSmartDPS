@@ -30,7 +30,7 @@ class ClientController extends Controller
     }
 
     /**
-     * 📄 Display a paginated list of all clients (excluding sub-clients).
+     * Display a paginated list of all clients (excluding sub-clients).
      */
     public function index(Request $request): View
     {
@@ -53,7 +53,7 @@ class ClientController extends Controller
     }
 
     /**
-     * 📄 Show the form to create a new client.
+     * Show the form to create a new client.
      */
     public function create(): View
     {
@@ -64,7 +64,7 @@ class ClientController extends Controller
     }
 
     /**
-     * ✅ Store a new client in the database.
+     * Store a new client in the database.
      */
     public function store(ClientRequest $request): RedirectResponse
     {
@@ -92,7 +92,7 @@ class ClientController extends Controller
     }
 
     /**
-     * 📄 Show a single client details page.
+     * Show a single client details page.
      */
     public function show(Client $client): View
     {
@@ -100,7 +100,7 @@ class ClientController extends Controller
     }
 
     /**
-     * 📄 Show the edit form for an existing client.
+     * Show the edit form for an existing client.
      */
     public function edit(Client $client): View
     {
@@ -113,7 +113,7 @@ class ClientController extends Controller
     }
 
     /**
-     * ✅ Update an existing client.
+     * Update an existing client.
      */
     public function update(ClientRequest $request, Client $client): RedirectResponse
     {
@@ -134,7 +134,7 @@ class ClientController extends Controller
     }
 
     /**
-     * ❌ Delete a client and remove related images.
+     * Delete a client and remove related images.
      */
     public function destroy(Client $client): RedirectResponse
     {
@@ -149,7 +149,7 @@ class ClientController extends Controller
     }
 
     /**
-     * 🔹 Helper: Prepare validated client data for create/update.
+     * Helper: Prepare validated client data for create/update.
      * - Handles image uploads
      * - Hashes password if provided
      * - Ensures parent_id is always null for main clients
@@ -186,7 +186,7 @@ class ClientController extends Controller
     }
 
     /**
-     * 🔹 Helper: Delete all uploaded images for a client.
+     * Helper: Delete all uploaded images for a client.
      */
     private function deleteClientImages(Client $client): void
     {
