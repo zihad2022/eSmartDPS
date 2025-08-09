@@ -33,19 +33,6 @@
                   <i class="fas fa-tachometer-alt w-5 text-center"></i>
                   <span>Dashboard</span>
               </a>
-
-              <!-- Shares Dropdown -->
-              <x-sidebar-dropdown id="shares-dropdown" :active="request()->routeIs('client.shares.*')" title="Shares" :icon="'fas fa-chart-line'"
-                  :items="[
-                      [
-                          'url' => route('client.shares.index'),
-                          'label' => 'All Shares',
-                      ],
-                      [
-                          'url' => route('client.shares.create'),
-                          'label' => 'Add New Share',
-                      ],
-                  ]" />
               <!-- Members Dropdown -->
               <x-sidebar-dropdown id="members-dropdown" :active="request()->routeIs('client.members.*')" title="Members" :icon="'fas fa-users'"
                   :items="[
@@ -66,24 +53,16 @@
                           'label' => 'Inactive Members',
                       ],
                   ]" />
-              <!-- Project Category Dropdown -->
-              <x-sidebar-dropdown id="project-category-dropdown" :active="request()->routeIs('client.project-categories.*')" title="Project Category"
-                  :icon="'fas fa-project-diagram'" :items="[
-                      [
-                          'url' => route('client.project-categories.index'),
-                          'label' => 'All Project Category',
-                      ],
-                      [
-                          'url' => route('client.project-categories.create'),
-                          'label' => 'Add New Project Category',
-                      ],
-                  ]" />
               <!-- Projects Dropdown -->
               @php
                   use App\Enums\ProjectStatus;
               @endphp
-              <x-sidebar-dropdown id="projects-dropdown" :active="request()->routeIs('client.projects.*')" title="Projects" :icon="'fas fa-tasks'"
+              <x-sidebar-dropdown id="projects-dropdown" :active="request()->routeIs('client.projects.*') || request()->routeIs('client.project-categories.*')" title="Projects" :icon="'fas fa-tasks'"
                   :items="[
+                      [
+                          'url' => route('client.project-categories.index'),
+                          'label' => 'All Categories',
+                      ],
                       [
                           'url' => route('client.projects.index'),
                           'label' => 'All Projects',
@@ -173,43 +152,47 @@
               </div>
 
               <!-- Users Dropdown -->
-              @if (in_array(Auth::guard('client')->user()->role, ['admin', 'manager']))
-                  <div>
-                      <button
-                          class="sidebar-link dropdown-toggle flex items-center justify-between w-full px-3 py-2 rounded-lg {{ request()->routeIs('client.users.*') ? 'active' : '' }}"
-                          data-target="users-dropdown">
-                          <div class="flex items-center space-x-3">
-                              <i class="fas fa-user-shield w-5 text-center"></i>
-                              <span>Users</span>
-                          </div>
-                          <i class="fas fa-chevron-down text-xs transition-transform"></i>
-                      </button>
-                      <div id="users-dropdown"
-                          class="dropdown-menu ml-8 mt-1 space-y-1 {{ request()->routeIs('client.users.*') ? 'active' : '' }}">
-                          <a href="{{ route('client.users.index') }}"
-                              class="block px-3 py-2 text-sm {{ request()->routeIs('client.users.index') ? 'text-accent-600' : 'text-primary-600' }} hover:text-accent-600 rounded">All
-                              Users</a>
-                          <a href="{{ route('client.users.create') }}"
-                              class="block px-3 py-2 text-sm {{ request()->routeIs('client.users.create') ? 'text-accent-600' : 'text-primary-600' }} hover:text-accent-600 rounded">Add
-                              New
-                              User</a>
+              <div>
+                  <button
+                      class="sidebar-link dropdown-toggle flex items-center justify-between w-full px-3 py-2 rounded-lg {{ request()->routeIs('client.users.*') ? 'active' : '' }}"
+                      data-target="users-dropdown">
+                      <div class="flex items-center space-x-3">
+                          <i class="fas fa-user-shield w-5 text-center"></i>
+                          <span>Users</span>
                       </div>
+                      <i class="fas fa-chevron-down text-xs transition-transform"></i>
+                  </button>
+                  <div id="users-dropdown"
+                      class="dropdown-menu ml-8 mt-1 space-y-1 {{ request()->routeIs('client.users.*') ? 'active' : '' }}">
+                      <a href="{{ route('client.users.index') }}"
+                          class="block px-3 py-2 text-sm {{ request()->routeIs('client.users.index') ? 'text-accent-600' : 'text-primary-600' }} hover:text-accent-600 rounded">All
+                          Users</a>
+                      <a href="{{ route('client.users.create') }}"
+                          class="block px-3 py-2 text-sm {{ request()->routeIs('client.users.create') ? 'text-accent-600' : 'text-primary-600' }} hover:text-accent-600 rounded">Add
+                          New
+                          User</a>
                   </div>
-              @endif
+              </div>
 
               <div class="pt-4 mt-4 border-t border-gray-200">
                   <a href="settings.html" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded-lg">
                       <i class="fas fa-shield w-5 text-center"></i>
                       <span>Subscription</span>
                   </a>
-                  <a href="settings.html" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded-lg">
-                      <i class="fas fa-cog w-5 text-center"></i>
-                      <span>Settings</span>
-                  </a>
-                  <a href="login.html" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded-lg">
-                      <i class="fas fa-sign-out-alt w-5 text-center"></i>
-                      <span>Logout</span>
-                  </a>
+                  @if (in_array(Auth::guard('client')->user()->role, ['admin', 'manager']))
+                      <a href="{{ route('client.settings.general.edit') }}"
+                          class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded-lg">
+                          <i class="fas fa-cog w-5 text-center"></i>
+                          <span>Settings</span>
+                      </a>
+                  @endif
+                  <form action="{{ route('client.logout') }}" method="POST">
+                      @csrf
+                      <button type="submit" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded-lg">
+                          <i class="fas fa-sign-out-alt w-5 text-center"></i>
+                          <span>Logout</span>
+                      </button>
+                  </form>
               </div>
           </nav>
       </div>
