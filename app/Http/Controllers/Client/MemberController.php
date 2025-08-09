@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\MemberRequest;
 use App\Models\Member;
-use App\Models\MemberShare;
-use App\Models\Share;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -36,23 +34,20 @@ class MemberController extends Controller
     {
         return view('client.member.form', [
             'memberId' => generate_member_id(),
-            'shares' => $this->getOwnerShares(),
         ]);
     }
 
     public function store(MemberRequest $request)
     {
-        $member = Member::create([
+        Member::create([
             'client_id' => owner_client_id(),
             'member_id' => generate_member_id(),
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'status' => $request->status,
+            'name' => $request['name'],
+            'email' => $request['email'],
+            'phone' => $request['phone'],
+            'password' => Hash::make($request['password']),
+            'status' => $request['status'],
         ]);
-
-        $this->storeOrUpdateMemberShare($member->id, $request);
 
         return redirect()
             ->route('client.members.index')
@@ -65,8 +60,6 @@ class MemberController extends Controller
 
         return view('client.member.form', [
             'member' => $member,
-            'shares' => $this->getOwnerShares(),
-            'memberShare' => $member->memberShares()->first(), // Pass current share info
         ]);
     }
 
@@ -75,43 +68,17 @@ class MemberController extends Controller
         authorize_owner($member);
 
         $member->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => $request->filled('password')
-                ? Hash::make($request->password)
+            'name' => $request['name'],
+            'email' => $request['email'],
+            'phone' => $request['phone'],
+            'password' => $request['password']
+                ? Hash::make($request['password'])
                 : $member->password,
-            'status' => $request->status,
+            'status' => $request['status'],
         ]);
-
-        $this->storeOrUpdateMemberShare($member->id, $request, true);
 
         return redirect()
             ->route('client.members.index')
             ->with('success', 'Member has been updated successfully.');
-    }
-
-    private function storeOrUpdateMemberShare(int $memberId, Request $request, bool $isUpdate = false): void
-    {
-        if ($isUpdate) {
-            MemberShare::updateOrCreate(
-                ['member_id' => $memberId],
-                [
-                    'share_id' => $request->share_id,
-                    'shares_count' => $request->shares_count,
-                ]
-            );
-        } else {
-            MemberShare::create([
-                'member_id' => $memberId,
-                'share_id' => $request->share_id,
-                'shares_count' => $request->shares_count,
-            ]);
-        }
-    }
-
-    private function getOwnerShares()
-    {
-        return Share::where('client_id', owner_client_id())->get();
     }
 }
