@@ -1,5 +1,6 @@
 <x-admin.layout.app>
     @php
+        $settings = \App\Models\AdminSetting::first();
         $status = request()->status;
         $titleMap = [
             'active' => 'Active Pakages',
@@ -149,21 +150,31 @@
                                 </td>
 
                                 <td class="px-6 py-4 text-sm text-primary-900 font-mono">
-                                    ${{ number_format($pakage->price, 2) }}
+                                    {{ $settings->currency }} {{ number_format($pakage->price, 2) }}
                                 </td>
 
                                 <td class="px-6 py-4 text-sm text-primary-900 font-mono">
-                                    @if ($pakage->discount_value > 0)
-                                        {{ $pakage->discount_type === 'percentage'
-                                            ? $pakage->discount_value . '%'
-                                            : '$' . number_format($pakage->discount_value, 2) }}
+                                    @php
+                                        $isDiscount = $pakage->discount_value > 0;
+                                    @endphp
+
+                                    @if ($isDiscount)
+                                        {{-- If discount type is FIXED → Show currency with amount --}}
+                                        @if ($pakage->discount_type === \App\Enums\Pakage\DiscountType::FIXED)
+                                            {{ $settings->currency . ' ' . $pakage->discount_value }}
+                                        @else
+                                            {{-- If discount type is PERCENT → Show percentage --}}
+                                            {{ $pakage->discount_value . '%' }}
+                                        @endif
                                     @else
-                                        -
+                                        <span class="text-gray-500">—</span>
                                     @endif
                                 </td>
 
+
+
                                 <td class="px-6 py-4 text-sm text-primary-900 font-semibold">
-                                    {{ ucfirst($pakage->billing_cycle) }}
+                                    {{ $pakage->billing_cycle->label() }}
                                 </td>
 
                                 <td class="px-6 py-4">
