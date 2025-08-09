@@ -3,6 +3,7 @@
         $pages = [
             'admin.settings.general.edit' => 'General Settings',
             'admin.settings.payments.edit' => 'Payment Settings',
+            'admin.settings.social_media.edit' => 'Social Media Settings',
             'admin.settings.sms.edit' => 'SMS Settings',
             'admin.settings.email.edit' => 'Email Settings',
             'admin.settings.backup.edit' => 'Backup & Security',
@@ -39,6 +40,12 @@
                             class="w-full text-left px-4 py-3 rounded-lg transition duration-300 
                                {{ request()->routeIs('admin.settings.payments.edit') ? 'bg-accent-500 text-white active' : '' }}">
                             <i class="fas fa-money-bill-wave mr-3"></i>Payment Settings
+                        </button>
+                        <button type="button"
+                            onclick="window.location.href='{{ route('admin.settings.social_media.edit') }}'"
+                            class="w-full text-left px-4 py-3 rounded-lg transition duration-300 
+                               {{ request()->routeIs('admin.settings.social_media.edit') ? 'bg-accent-500 text-white active' : '' }}">
+                            <i class="fas fa-money-bill-wave mr-3"></i>Social Media Settings
                         </button>
                         <button type="button" onclick="window.location.href='{{ route('admin.settings.sms.edit') }}'"
                             class="w-full text-left px-4 py-3 rounded-lg transition duration-300 
