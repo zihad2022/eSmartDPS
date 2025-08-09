@@ -4,7 +4,7 @@
         class="bg-gradient-to-r from-primary-900 to-primary-800 rounded-xl p-6 mb-6 text-white relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mt-10 -mr-10"></div>
         <div class="relative z-10">
-            <h2 class="text-xl md:text-2xl font-bold mb-2">Welcome back, {{ auth('client')->user()->name }}!</h2>
+            <h2 class="text-xl md:text-2xl font-bold mb-2">Welcome back, {{ auth('client')->user()->first_name }}!</h2>
             <p class="text-primary-100 mb-4 text-sm md:text-base">Here's what's happening with DYDS savings
                 management today.</p>
 
