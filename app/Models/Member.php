@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -35,11 +34,6 @@ class Member extends Authenticatable
         return $this->hasMany(Payment::class);
     }
 
-    public function shares()
-    {
-        return $this->hasMany(Share::class);
-    }
-
     public function scopeActive($query)
     {
         return $query->where('status', true);
@@ -48,11 +42,6 @@ class Member extends Authenticatable
     public function scopeInactive($query)
     {
         return $query->where('status', false);
-    }
-
-    public function memberShares(): HasMany
-    {
-        return $this->hasMany(MemberShare::class);
     }
 
     protected static function booted()
