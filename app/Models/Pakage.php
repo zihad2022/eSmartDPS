@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use App\Enums\Pakage\BillingCycle;
+use App\Enums\Pakage\DiscountType;
 use Illuminate\Database\Eloquent\Model;
 
 class Pakage extends Model
 {
+    /**
+     * The attributes that are mass assignable.
+     * These fields can be filled directly using create() or update().
+     */
     protected $fillable = [
         'name',
         'description',
@@ -19,32 +25,85 @@ class Pakage extends Model
         'is_active',
     ];
 
+    /**
+     * Cast attributes to specific types.
+     * - is_active, has_trial → boolean
+     * - discount_type, billing_cycle → custom PHP Enums
+     */
     protected $casts = [
         'is_active' => 'boolean',
         'has_trial' => 'boolean',
+        'discount_type' => DiscountType::class,
+        'billing_cycle' => BillingCycle::class,
     ];
 
+    /**
+     * Hidden attributes when converting to array/json.
+     * We hide `remember_token` (not really used for this model, but safe to hide).
+     */
     protected $hidden = [
         'remember_token',
     ];
 
+    /**
+     * 🔹 Query Scope: Get only active packages.
+     * Usage: Pakage::active()->get();
+     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
+    /**
+     * 🔹 Query Scope: Get only inactive packages.
+     * Usage: Pakage::inactive()->get();
+     */
     public function scopeInactive($query)
     {
         return $query->where('is_active', false);
     }
 
+    /**
+     * 🔹 Relationship: A package can have many clients.
+     */
     public function clients()
     {
         return $this->hasMany(Client::class);
     }
 
+    /**
+     * 🔹 Relationship: A package can have many client-package records.
+     * (Useful if you store package purchase history)
+     */
     public function clientPakages()
     {
         return $this->hasMany(ClientPakage::class);
+    }
+
+    /**
+     * 🔹 Accessor: Get final price after applying discount.
+     *
+     * If `discount_type` is percent → Subtract percentage from price.
+     * If `discount_type` is fixed → Subtract fixed amount from price.
+     *
+     * Usage: $pakage->final_price
+     */
+    public function getFinalPriceAttribute()
+    {
+        // Check if discount exists
+        if ($this->discount_value !== null && $this->discount_value !== 0) {
+
+            // Percentage-based discount
+            if ($this->discount_type === DiscountType::PERCENT) {
+                return $this->price - ($this->price * $this->discount_value / 100);
+            }
+            // Fixed amount discount
+            else {
+                return $this->price - $this->discount_value;
+            }
+        }
+
+        // If no discount, return original price
+        return $this->price;
     }
 }
