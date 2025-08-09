@@ -14,11 +14,9 @@ class DemoSeeder extends Seeder
         $this->call([
             PakageSeeder::class,
             ClientSeeder::class,
-            ShareSeeder::class,
             LedgerSeeder::class,
-            // InvoiceSeeder::class,
-            // TicketSeeder::class,
-            MemberSeeder::class,
+            InvoiceSeeder::class,
+            TicketSeeder::class,
             // ProjectCategorySeeder::class,
             // ProjectSeeder::class,
         ]);
