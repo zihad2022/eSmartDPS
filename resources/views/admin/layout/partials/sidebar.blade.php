@@ -23,7 +23,7 @@
                   class="w-10 h-10 rounded-full border-2 border-accent-500" alt="User">
               <div>
                   <p class="font-medium text-primary-900">{{ $user->name }}</p>
-                  <p class="text-xs text-primary-500">{{ $user->role }}</p>
+                  {{-- <p class="text-xs text-primary-500">{{ $user->role }}</p> --}}
               </div>
           </div>
 
@@ -54,21 +54,21 @@
                   ],
               ]" />
               <!-- Pakages Dropdown -->
-              <x-sidebar-dropdown id="pakages-dropdown" :active="request()->routeIs('admin.pakages.*')" title="Pakages" :items="[
+              <x-sidebar-dropdown id="packages-dropdown" :active="request()->routeIs('admin.packages.*')" title="Pakages" :items="[
                   [
-                      'url' => route('admin.pakages.index'),
+                      'url' => route('admin.packages.index'),
                       'label' => 'All Pakages',
                   ],
                   [
-                      'url' => route('admin.pakages.create'),
+                      'url' => route('admin.packages.create'),
                       'label' => 'Add New Pakages',
                   ],
                   [
-                      'url' => route('admin.pakages.index', ['status' => 'active']),
+                      'url' => route('admin.packages.index', ['status' => 'active']),
                       'label' => 'Active Pakages',
                   ],
                   [
-                      'url' => route('admin.pakages.index', ['status' => 'inactive']),
+                      'url' => route('admin.packages.index', ['status' => 'inactive']),
                       'label' => 'Inactive Pakages',
                   ],
               ]" />
