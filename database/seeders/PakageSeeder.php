@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Pakage\BillingCycle;
+use App\Enums\Pakage\DiscountType;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -15,8 +17,8 @@ class PakageSeeder extends Seeder
                 'description' => 'For individuals getting started.',
                 'price' => 500,
                 'discount_value' => 0,
-                'discount_type' => 'percentage',
-                'billing_cycle' => 'monthly',
+                'discount_type' => DiscountType::PERCENT,
+                'billing_cycle' => BillingCycle::MONTHLY,
                 'has_trial' => true,
                 'trial_days' => 7,
                 'member_limit' => 10,
@@ -31,8 +33,8 @@ class PakageSeeder extends Seeder
                 'description' => 'For small teams with growing needs.',
                 'price' => 1499,
                 'discount_value' => 10,
-                'discount_type' => 'percentage',
-                'billing_cycle' => 'monthly',
+                'discount_type' => DiscountType::PERCENT,
+                'billing_cycle' => BillingCycle::MONTHLY,
                 'has_trial' => true,
                 'trial_days' => 7,
                 'member_limit' => 100,
@@ -47,8 +49,8 @@ class PakageSeeder extends Seeder
                 'description' => 'For large organizations with custom needs.',
                 'price' => 2499,
                 'discount_value' => 100,
-                'discount_type' => 'amount',
-                'billing_cycle' => 'yearly',
+                'discount_type' => DiscountType::FIXED,
+                'billing_cycle' => BillingCycle::YEARLY,
                 'has_trial' => true,
                 'trial_days' => 7,
                 'member_limit' => 0,
