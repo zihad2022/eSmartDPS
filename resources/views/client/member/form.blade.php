@@ -94,7 +94,7 @@
                 </div>
 
                 <!-- 🟡 SHARE PURCHASE INFORMATION -->
-                <div class="bg-gray-50 p-4 rounded-lg border">
+                {{-- <div class="bg-gray-50 p-4 rounded-lg border">
                     <h3 class="text-lg font-semibold text-primary-900 mb-4">Share Information</h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -103,7 +103,7 @@
                         <x-form.input name="shares_count" label="Number of Shares" type="number" min="1"
                             :value="old('shares_count', $memberShare->shares_count ?? 1)" required />
                     </div>
-                </div>
+                </div> --}}
 
 
                 <!-- 🔵 ACTION BUTTONS -->
@@ -115,7 +115,7 @@
 
                     <button type="submit"
                         class="px-4 py-2 bg-accent-500 text-white text-sm rounded-lg hover:bg-accent-600 transition duration-300">
-                        {{ $editing ? 'Update Member & Share' : 'Add Member & Share' }}
+                        {{ $editing ? 'Update Member' : 'Add Member' }}
                     </button>
                 </div>
             </form>
