@@ -15,8 +15,29 @@
             <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
                 <h3 class="text-lg font-semibold text-primary-800 mb-4 border-b pb-2">General Payment Settings</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <x-form.input name="currency" label="Currency" :value="old('currency', $settings->currency ?? '')"
-                        placeholder="Enter currency code (e.g. USD, BDT)" />
+                    <x-form.select name="currency" label="Currency" :options="[
+                        'USD' => 'USD - US Dollar',
+                        'EUR' => 'EUR - Euro',
+                        'GBP' => 'GBP - British Pound',
+                        'BDT' => 'BDT - Bangladeshi Taka',
+                        'INR' => 'INR - Indian Rupee',
+                        'AUD' => 'AUD - Australian Dollar',
+                        'CAD' => 'CAD - Canadian Dollar',
+                        'JPY' => 'JPY - Japanese Yen',
+                        'CNY' => 'CNY - Chinese Yuan',
+                        'SGD' => 'SGD - Singapore Dollar',
+                        'MYR' => 'MYR - Malaysian Ringgit',
+                        'THB' => 'THB - Thai Baht',
+                        'SAR' => 'SAR - Saudi Riyal',
+                        'AED' => 'AED - UAE Dirham',
+                        'PKR' => 'PKR - Pakistani Rupee',
+                        'LKR' => 'LKR - Sri Lankan Rupee',
+                        'NZD' => 'NZD - New Zealand Dollar',
+                        'CHF' => 'CHF - Swiss Franc',
+                        'HKD' => 'HKD - Hong Kong Dollar',
+                        'ZAR' => 'ZAR - South African Rand',
+                    ]" :selected="old('currency', $settings->currency ?? 'USD')" required />
+
                     <x-form.input name="late_fee" label="Late Fee" type="number" step="0.01" :value="old('late_fee', $settings->late_fee ?? '')"
                         placeholder="Enter late fee amount" />
                 </div>
