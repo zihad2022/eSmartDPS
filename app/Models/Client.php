@@ -99,7 +99,7 @@ class Client extends Authenticatable
      */
     public function clientPackage(): HasOne
     {
-        return $this->hasOne(ClientPakage::class)->latestOfMany();
+        return $this->hasOne(ClientPackage::class)->latestOfMany();
     }
 
     /**
@@ -107,7 +107,7 @@ class Client extends Authenticatable
      */
     public function activeTrialClientPackage(): HasOne
     {
-        return $this->hasOne(ClientPakage::class)
+        return $this->hasOne(ClientPackage::class)
             ->where('is_active', true)
             ->where('is_trial', true)
             ->where('ends_at', '>', now());
@@ -118,7 +118,7 @@ class Client extends Authenticatable
      */
     public function activePaidClientPackage(): HasOne
     {
-        return $this->hasOne(ClientPakage::class)
+        return $this->hasOne(ClientPackage::class)
             ->where('is_active', true)
             ->where('is_trial', false)
             ->where('ends_at', '>', now());
@@ -129,7 +129,7 @@ class Client extends Authenticatable
      */
     public function lastClientPackage(): HasOne
     {
-        return $this->hasOne(ClientPakage::class)->latestOfMany();
+        return $this->hasOne(ClientPackage::class)->latestOfMany();
     }
 
     /**
