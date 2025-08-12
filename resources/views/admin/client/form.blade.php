@@ -106,7 +106,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <x-form.select name="status" label="Status" :options="['1' => 'Active', '0' => 'Inactive']" :selected="old('status', $client->status ?? '1')" required />
 
-                    <x-form.select name="pakage_id" label="Subscription Plan" :options="$pakages->pluck('name', 'id')" :selected="old('pakage_id', $client->clientPakage->pakage->id ?? '')"
+                    <x-form.select name="package_id" label="Subscription Plan" :options="$packages->pluck('name', 'id')" :selected="old('package_id', $client->ClientPackage->package->id ?? '')"
                         required :isOptionLabel="true" optionLabel="Select Subscription" />
                 </div>
 
