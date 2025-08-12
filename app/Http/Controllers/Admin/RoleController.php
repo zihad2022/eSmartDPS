@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -159,6 +160,9 @@ class RoleController extends Controller
             ->get();
 
         $role->syncPermissions($permissions);
+
+        // Log activity
+        ActivityLogger::log("Role '{$role->name}' was updated.");
 
         return back()->with('success', 'Role updated successfully with selected permissions.');
     }
