@@ -18,33 +18,31 @@ class DashboardController extends Controller
         $totalClients = Client::whereNull('parent_id')->count();
         $totalBalance = Invoice::sum('invoice_amount');
 
+        // Get monthly income for the current year
+        $monthlyIncome = Invoice::selectRaw('MONTH(created_at) as month, SUM(invoice_amount) as total')
+            ->whereYear('created_at', now()->year)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('total', 'month');
+
+        // Fill missing months with 0
+        $incomeData = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $incomeData[] = $monthlyIncome[$i] ?? 0;
+        }
+
         $chartData = [
             'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             'datasets' => [
                 [
                     'label' => 'Income',
-                    'data' => [200000, 250000, 220000, 280000, 320000, 350000, 200000, 250000, 220000, 280000, 320000, 350000],
+                    'data' => $incomeData,
                     'borderColor' => '#10b981',
                     'backgroundColor' => 'rgba(16, 185, 129, 0.1)',
                     'tension' => 0.3,
                     'fill' => true,
                 ],
-                [
-                    'label' => 'Expenses',
-                    'data' => [80000, 95000, 70000, 110000, 130000, 120000, 80000, 95000, 70000, 110000, 130000, 120000],
-                    'borderColor' => '#ef4444',
-                    'backgroundColor' => 'rgba(239, 68, 68, 0.1)',
-                    'tension' => 0.3,
-                    'fill' => true,
-                ],
-                [
-                    'label' => 'Loans',
-                    'data' => [50000, 75000, 60000, 85000, 90000, 82000, 50000, 75000, 60000, 85000, 90000, 82000],
-                    'borderColor' => '#f59e0b',
-                    'backgroundColor' => 'rgba(245, 158, 11, 0.1)',
-                    'tension' => 0.3,
-                    'fill' => true,
-                ],
+                // Keep your other datasets (Expenses, Loans) if needed
             ],
         ];
 
