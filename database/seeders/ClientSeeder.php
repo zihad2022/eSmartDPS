@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Client;
-use App\Models\ClientPakage;
+use App\Models\ClientPackage;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -112,9 +112,9 @@ class ClientSeeder extends Seeder
             ]);
 
             // ✅ Subscription for owner
-            ClientPakage::create([
+            ClientPackage::create([
                 'client_id' => $owner->id,
-                'pakage_id' => rand(1, 3),
+                'package_id' => rand(1, 3),
                 'starts_at' => now(),
                 'ends_at' => now()->addYear(),
                 'is_trial' => false,
