@@ -70,20 +70,6 @@
                     </div>
                 </div>
 
-                {{-- Location Info --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <x-form.input name="division" label="Division" :value="old('division', $user->division ?? '')" placeholder="Enter division" />
-
-                    <x-form.input name="district" label="District" :value="old('district', $user->district ?? '')" placeholder="Enter district" />
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <x-form.input name="address" label="Address" :value="old('address', $user->address ?? '')" placeholder="Enter address" />
-
-                    <x-form.input name="postal_code" label="Postal Code" :value="old('postal_code', $user->postal_code ?? '')"
-                        placeholder="Enter postal code" />
-                </div>
-
                 {{-- Status --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
