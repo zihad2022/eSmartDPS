@@ -11,9 +11,9 @@
                 class="bg-accent-600 hover:bg-accent-700 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition duration-300">
                 New Client
             </a>
-            <a href="{{ route('admin.pakages.create') }}"
+            <a href="{{ route('admin.packages.create') }}"
                 class="bg-white/10 hover:bg-white/20 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition duration-300">
-                New Pakage
+                New Package
             </a>
         </div>
     </div>
