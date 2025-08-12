@@ -72,21 +72,13 @@
                     <h3 class="text-lg font-semibold text-primary-900 mb-4 md:mb-0">System Users</h3>
                     <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
                         <!-- Role Filter -->
-                        <select
+                        {{-- <select
                             class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500">
                             <option>All Roles</option>
-                            <option>Administrator</option>
-                            <option>Manager</option>
-                            <option>Viewer</option>
-                        </select>
-
-                        <!-- Status Filter -->
-                        <select
-                            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500">
-                            <option>All Status</option>
-                            <option>Active</option>
-                            <option>Inactive</option>
-                        </select>
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->name }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select> --}}
 
                         <!-- Export Button -->
                         <button
@@ -135,13 +127,31 @@
                                         </div>
                                     </div>
                                 </td>
+
+                                {{-- Single Role --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
+                                    @php
+                                        $roleName = $user->getRoleNames()->first(); // returns a string or null
+                                    @endphp
+
                                     <span
-                                        class="px-2 py-1 text-xs font-medium rounded-full 
-                                    {{ $user->role === 'admin' ? 'bg-red-100 text-red-800' : ($user->role === 'manager' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800') }}">
-                                        {{ ucfirst($user->role) }}
+                                        class="px-2 py-1 text-xs font-medium rounded-full
+                                        {{ $roleName === 'admin' ? 'bg-red-100 text-red-800' : ($roleName === 'manager' ? 'bg-blue-100 text-blue-800' : ($roleName === 'super-admin' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800')) }}">
+                                        {{ ucfirst($roleName) }}
                                     </span>
                                 </td>
+
+                                {{-- Multiple Roles --}}
+                                {{-- <td class="px-6 py-4 whitespace-nowrap">
+                                    @foreach ($user->getRoleNames() as $role)
+                                        <span
+                                            class="px-2 py-1 text-xs font-medium rounded-full
+                                            {{ $role === 'admin' ? 'bg-red-100 text-red-800' : ($role === 'manager' ? 'bg-blue-100 text-blue-800' : ($role === 'super-admin' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800')) }}">
+                                            {{ ucfirst($role) }}
+                                        </span>
+                                    @endforeach
+                                </td> --}}
+
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-primary-600">—</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-primary-600">
                                     {{ $user->created_at->format('M d, Y h:i A') }}
