@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\Client;
 use App\Models\Package;
+use App\Models\Ticket;
 use App\Observers\ClientObserver;
 use App\Observers\PackageObserver;
+use App\Observers\TicketObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -50,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
          */
         Client::observe(ClientObserver::class);
         Package::observe(PackageObserver::class);
+        Ticket::observe(TicketObserver::class);
 
         /**
          * 4. Define a custom Blade directive `@adminCan('permission-name')`.
