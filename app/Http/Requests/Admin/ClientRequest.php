@@ -51,7 +51,7 @@ class ClientRequest extends FormRequest
 
             'status' => ['required', 'boolean'],
 
-            'pakage_id' => ['required', 'exists:pakages,id'],
+            'package_id' => ['required', 'exists:packages,id'],
         ];
     }
 }
