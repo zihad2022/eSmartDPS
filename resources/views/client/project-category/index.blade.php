@@ -2,38 +2,7 @@
     <div class="grid grid-cols-1 gap-8">
 
         {{-- 🔼 FORM SECTION --}}
-        <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
-            <h2 class="text-xl font-semibold text-primary-900 mb-6">
-                {{ isset($editCategory) ? 'Edit Category' : 'Add New Category' }}
-            </h2>
-
-            <form method="POST"
-                action="{{ isset($editCategory) ? route('client.project-categories.update', $editCategory) : route('client.project-categories.store') }}"
-                class="space-y-6">
-                @csrf
-                @if (isset($editCategory))
-                    @method('PUT')
-                @endif
-
-                <div>
-                    <x-form.input name="name" label="Category Name" :value="old('name', $editCategory->name ?? '')" required
-                        placeholder="Enter category name" />
-                </div>
-
-                <div class="flex justify-end space-x-4 pt-4">
-                    @if (isset($editCategory))
-                        <a href="{{ route('client.project-categories.index') }}"
-                            class="px-4 py-2 border border-gray-300 text-primary-700 rounded-lg hover:bg-gray-50 text-sm transition duration-300">
-                            Cancel
-                        </a>
-                    @endif
-                    <button type="submit"
-                        class="px-4 py-2 bg-accent-500 text-white text-sm rounded-lg hover:bg-accent-600 transition duration-300">
-                        {{ isset($editCategory) ? 'Update Category' : 'Add Category' }}
-                    </button>
-                </div>
-            </form>
-        </div>
+        @include('client.project-category.form')
 
         {{-- 🔽 TABLE SECTION --}}
         <div class="bg-white rounded-xl shadow-sm">
@@ -78,10 +47,6 @@
                                 <td class="px-6 py-4 text-sm text-primary-600">{{ $category->slug }}</td>
                                 <td class="px-6 py-4 text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <a href="{{ route('client.project-categories.show', $category) }}"
-                                            class="text-accent-600 hover:text-accent-900" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
                                         <a href="{{ route('client.project-categories.index', ['edit' => $category->id]) }}"
                                             class="text-secondary-600 hover:text-secondary-900" title="Edit">
                                             <i class="fas fa-edit"></i>
