@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\TicketChatController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\User\ActivityController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserExportController;
 use App\Http\Controllers\Admin\UserProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -265,6 +266,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('invoices-export', InvoiceExportController::class)
             ->name('invoices.export')
             ->middleware('permission:export invoices,admin');
+        Route::get('users-export', UserExportController::class)
+            ->name('users.export')
+            ->middleware('permission:export users,admin');
 
         // User activities
         Route::get('user-activities', ActivityController::class)
