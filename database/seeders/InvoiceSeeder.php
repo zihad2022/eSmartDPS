@@ -11,7 +11,7 @@ class InvoiceSeeder extends Seeder
     public function run(): void
     {
         $clients = Client::whereNull('parent_id')->get();
-        $clients->load('clientPakage.pakage');
+        $clients->load('ClientPackage.package');
         if ($clients->isEmpty()) {
             $this->command->warn('No clients found. Skipping invoice seeding.');
 
@@ -22,7 +22,7 @@ class InvoiceSeeder extends Seeder
             Invoice::create([
                 'client_id' => $client->id,
                 'invoice_number' => generate_invoice_number(),
-                'invoice_amount' => $client->clientPakage->pakage->price,
+                'invoice_amount' => $client->ClientPackage->package->price,
                 'status' => rand(1, 5),
                 'payment_id' => null,
                 'trx_id' => null,
