@@ -35,8 +35,8 @@ class SubscriptionMiddleware
             return redirect()->route('client.login');
         }
 
-        $trial = $client->activeTrialClientPakage;
-        $paid = $client->activePaidClientPakage;
+        $trial = $client->activeTrialClientPackage;
+        $paid = $client->activePaidClientPackage;
 
         if ($trial && $trial->ends_at->isFuture()) {
             return $next($request);
