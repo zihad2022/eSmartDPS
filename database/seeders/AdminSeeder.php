@@ -11,36 +11,41 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         Admin::create([
-            'name' => 'Super Admin',
-            'username' => 'superadmin',
+            'name' => 'ESmart Super Admin',
+            'username' => 'esmartsuperadmin',
             'password' => Hash::make('superadmin123'),
             'email' => 'superadmin@mail.com',
             'phone' => '01710000001',
             'profile_photo' => null,
-            'role' => 'admin',
             'status' => true,
         ]);
 
         Admin::create([
-            'name' => 'Branch Manager',
-            'username' => 'branchmanager',
+            'name' => 'ESmart Admin',
+            'username' => 'esmartadmin',
+            'password' => Hash::make('admin123'),
+            'email' => 'admin@mail.com',
+            'phone' => '01710000003',
+            'profile_photo' => null,
+            'status' => true,
+        ]);
+
+        Admin::create([
+            'name' => 'ESmart Manager',
+            'username' => 'esmartmanager',
             'password' => Hash::make('manager123'),
             'email' => 'manager@mail.com',
             'phone' => '01710000002',
             'profile_photo' => null,
-            'role' => 'manager',
             'status' => true,
         ]);
+        // Assign roles to users
+        $superAdmin = Admin::where('username', 'esmartsuperadmin')->first();
+        $admin = Admin::where('username', 'esmartadmin')->first();
+        $manager = Admin::where('username', 'esmartmanager')->first();
 
-        Admin::create([
-            'name' => 'Content Editor',
-            'username' => 'contenteditor',
-            'password' => Hash::make('editor123'),
-            'email' => 'editor@mail.com',
-            'phone' => '01710000003',
-            'profile_photo' => null,
-            'role' => 'editor',
-            'status' => true,
-        ]);
+        $superAdmin->assignRole('super-admin');
+        $manager->assignRole('manager');
+        $admin->assignRole('admin');
     }
 }
