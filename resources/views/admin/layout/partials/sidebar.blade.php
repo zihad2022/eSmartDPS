@@ -27,7 +27,7 @@
               </div>
           </div>
 
-          <nav class="space-y-1">
+          {{-- <nav class="space-y-1">
               <a href="{{ route('admin.dashboard') }}"
                   class="sidebar-link  flex items-center space-x-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                   <i class="fas fa-tachometer-alt w-5 text-center"></i>
@@ -53,23 +53,23 @@
                       'label' => 'Inactive Clients',
                   ],
               ]" />
-              <!-- Pakages Dropdown -->
-              <x-sidebar-dropdown id="packages-dropdown" :active="request()->routeIs('admin.packages.*')" title="Pakages" :items="[
+              <!-- Packages Dropdown -->
+              <x-sidebar-dropdown id="packages-dropdown" :active="request()->routeIs('admin.packages.*')" title="Packages" :items="[
                   [
                       'url' => route('admin.packages.index'),
-                      'label' => 'All Pakages',
+                      'label' => 'All Packages',
                   ],
                   [
                       'url' => route('admin.packages.create'),
-                      'label' => 'Add New Pakages',
+                      'label' => 'Add New Packages',
                   ],
                   [
                       'url' => route('admin.packages.index', ['status' => 'active']),
-                      'label' => 'Active Pakages',
+                      'label' => 'Active Packages',
                   ],
                   [
                       'url' => route('admin.packages.index', ['status' => 'inactive']),
-                      'label' => 'Inactive Pakages',
+                      'label' => 'Inactive Packages',
                   ],
               ]" />
 
@@ -135,6 +135,10 @@
                       'label' => 'All Users',
                   ],
                   [
+                      'url' => route('admin.roles.index'),
+                      'label' => 'User Roles',
+                  ],
+                  [
                       'url' => route('admin.users.create'),
                       'label' => 'Add New User',
                   ],
@@ -150,6 +154,102 @@
                       <i class="fas fa-cog w-5 text-center"></i>
                       <span>Settings</span>
                   </a>
+                  <form method="POST" action="{{ route('admin.logout') }}">
+                      @csrf
+                      <button type="submit"
+                          class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded-lg w-full text-left">
+                          <i class="fas fa-sign-out-alt w-5 text-center"></i>
+                          <span>Logout</span>
+                      </button>
+                  </form>
+              </div>
+          </nav> --}}
+          <nav class="space-y-1">
+
+              @adminCan('view dashboard')
+                  <a href="{{ route('admin.dashboard') }}"
+                      class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                      <i class="fas fa-tachometer-alt w-5 text-center"></i>
+                      <span>Dashboard</span>
+                  </a>
+              @endadminCan
+
+              @adminCan('view clients')
+                  <x-sidebar-dropdown id="clients-dropdown" :active="request()->routeIs('admin.clients.*')" title="Clients" :items="[
+                      ['url' => route('admin.clients.index'), 'label' => 'All Clients'],
+                      ['url' => route('admin.clients.create'), 'label' => 'Add New Clients'],
+                      ['url' => route('admin.clients.index', ['status' => 'active']), 'label' => 'Active Clients'],
+                      ['url' => route('admin.clients.index', ['status' => 'inactive']), 'label' => 'Inactive Clients'],
+                  ]" />
+              @endadminCan
+
+
+              @adminCan('view packages')
+                  <x-sidebar-dropdown id="packages-dropdown" :active="request()->routeIs('admin.packages.*')" title="Packages" :items="[
+                      ['url' => route('admin.packages.index'), 'label' => 'All Packages'],
+                      ['url' => route('admin.packages.create'), 'label' => 'Add New Packages'],
+                      ['url' => route('admin.packages.index', ['status' => 'active']), 'label' => 'Active Packages'],
+                      [
+                          'url' => route('admin.packages.index', ['status' => 'inactive']),
+                          'label' => 'Inactive Packages',
+                      ],
+                  ]" />
+              @endadminCan
+
+              @adminCan('view invoices')
+                  <x-sidebar-dropdown id="invoices-dropdown" :active="request()->routeIs('admin.invoices.*')" title="Invoices" :items="[
+                      ['url' => route('admin.invoices.index'), 'label' => 'All Invoices'],
+                      ['url' => route('admin.invoices.create'), 'label' => 'Add New Invoice'],
+                      ['url' => route('admin.invoices.index', ['status' => 'unpaid']), 'label' => 'Unpaid Invoices'],
+                      ['url' => route('admin.invoices.index', ['status' => 'paid']), 'label' => 'Paid Invoices'],
+                      [
+                          'url' => route('admin.invoices.index', ['status' => 'refunded']),
+                          'label' => 'Refunded Invoices',
+                      ],
+                      [
+                          'url' => route('admin.invoices.index', ['status' => 'cancelled']),
+                          'label' => 'Cancelled Invoices',
+                      ],
+                  ]" />
+              @endadminCan
+
+              @adminCan('view tickets')
+                  <x-sidebar-dropdown id="tickets-dropdown" :active="request()->routeIs('admin.tickets.*')" title="Tickets" :items="[
+                      ['url' => route('admin.tickets.index'), 'label' => 'All Tickets'],
+                      ['url' => route('admin.tickets.create'), 'label' => 'Add New Ticket'],
+                      ['url' => route('admin.tickets.index', ['status' => 'open']), 'label' => 'Open Tickets'],
+                      [
+                          'url' => route('admin.tickets.index', ['status' => 'in_progress']),
+                          'label' => 'In Progress Tickets',
+                      ],
+                      ['url' => route('admin.tickets.index', ['status' => 'resolved']), 'label' => 'Resolved Tickets'],
+                      ['url' => route('admin.tickets.index', ['status' => 'closed']), 'label' => 'Closed Tickets'],
+                  ]" />
+              @endadminCan
+
+              @adminCan('view users')
+                  <x-sidebar-dropdown id="users-dropdown" :active="request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*')" title="Users" :items="[
+                      ['url' => route('admin.users.index'), 'label' => 'All Users'],
+                      ['url' => route('admin.users.create'), 'label' => 'Add New User'],
+                      ['url' => route('admin.users.index', ['status' => 'active']), 'label' => 'Active Users'],
+                      ['url' => route('admin.users.index', ['status' => 'inactive']), 'label' => 'Inactive Users'],
+                      ['url' => route('admin.roles.index'), 'label' => 'User Roles'],
+                      ['url' => route('admin.user.activities'), 'label' => 'User Activities'],
+                  ]" />
+              @endadminCan
+
+              @adminCan('view settings')
+                  <div class="pt-4 mt-4 border-t border-gray-200">
+                      <a href="{{ route('admin.settings.general.edit') }}"
+                          class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.settings.general.edit') ? 'active' : '' }}">
+                          <i class="fas fa-cog w-5 text-center"></i>
+                          <span>Settings</span>
+                      </a>
+                  </div>
+              @endadminCan
+
+              <!-- Logout button always visible -->
+              <div class="pt-4 mt-4 border-t border-gray-200">
                   <form method="POST" action="{{ route('admin.logout') }}">
                       @csrf
                       <button type="submit"
