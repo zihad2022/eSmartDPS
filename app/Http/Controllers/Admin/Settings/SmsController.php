@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 
 class SmsController extends Controller
@@ -58,6 +59,9 @@ class SmsController extends Controller
             'sms_balance_api' => $request->sms_balance_api,
             'sms_message_template' => $request->sms_message_template,
         ]);
+
+        // Log activity
+        ActivityLogger::log('SMS Settings Updated');
 
         // Redirect back to the SMS settings edit page with a success message
         return redirect()

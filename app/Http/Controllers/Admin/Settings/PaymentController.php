@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -114,6 +115,9 @@ class PaymentController extends Controller
 
             return back()->with('success', 'SSLCommerz Settings updated successfully!');
         }
+
+        // Log activity
+        ActivityLogger::log('Payment Settings Updated');
 
         // Fallback: in case no section matched, return with generic success message
         return back()->with('success', 'Settings updated successfully!');

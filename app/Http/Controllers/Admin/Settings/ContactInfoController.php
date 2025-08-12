@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 
 class ContactInfoController extends Controller
@@ -54,6 +55,9 @@ class ContactInfoController extends Controller
             'office_address' => $request->office_address,
             'google_map' => $request->google_map,
         ]);
+
+        // Log activity
+        ActivityLogger::log('Contact Info Settings Updated');
 
         // Redirect back to the edit page with a success flash message.
         return redirect()

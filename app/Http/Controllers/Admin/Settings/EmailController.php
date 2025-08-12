@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 
 class EmailController extends Controller
@@ -61,6 +62,9 @@ class EmailController extends Controller
             'mail_from_name' => $request->mail_from_name,
             'email_message_template' => $request->email_message_template,
         ]);
+
+        // Log activity
+        ActivityLogger::log('Email Settings Updated');
 
         // Redirect back to the edit page with a success flash message
         return redirect()

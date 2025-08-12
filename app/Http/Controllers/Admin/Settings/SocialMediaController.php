@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 
 class SocialMediaController extends Controller
@@ -62,6 +63,9 @@ class SocialMediaController extends Controller
             'youtube' => $request->youtube,
             'tiktok' => $request->tiktok,
         ]);
+
+        // Log activity
+        ActivityLogger::log('Social Media Settings Updated');
 
         // Redirect back to the edit form with a success flash message
         return redirect()

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
+use App\Services\ActivityLogger;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 
@@ -102,6 +103,9 @@ class GeneralController extends Controller
             'favicon' => $images['favicon'] ?? $settings->favicon,
             'graph_thumbnail' => $images['graph_thumbnail'] ?? $settings->graph_thumbnail,
         ]);
+
+        // Log activity
+        ActivityLogger::log('General Settings Updated');
 
         // Redirect back to the edit page with a success flash message
         return redirect()
