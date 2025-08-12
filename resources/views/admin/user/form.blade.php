@@ -57,10 +57,10 @@
                         <x-form.label for="role">Role</x-form.label>
                         <select name="role" id="role"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-accent-500">
-                            @foreach (['admin', 'manager', 'editor'] as $role)
-                                <option value="{{ $role }}"
-                                    {{ old('role', $user->role ?? 'manager') == $role ? 'selected' : '' }}>
-                                    {{ ucfirst($role) }}
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->name }}"
+                                    {{ old('role', isset($user) && $user->roles->isNotEmpty() ? $user->roles->first()->name : '') == $role->name ? 'selected' : '' }}>
+                                    {{ ucfirst($role->name) }}
                                 </option>
                             @endforeach
                         </select>
