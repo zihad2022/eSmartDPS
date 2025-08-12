@@ -89,7 +89,7 @@
                         class="profile-dropdown absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                         <div class="p-4 border-b border-gray-200">
                             <p class="text-sm font-medium text-primary-900">{{ $user->name }}</p>
-                            <p class="text-xs text-primary-500">{{ $user->role }}</p>
+                            <p class="text-xs text-primary-500">{{ $user->roles->first()->name }}</p>
                         </div>
                         <div class="py-2">
                             <a href="{{ route('admin.profile.edit') }}"
