@@ -1,5 +1,6 @@
 <x-admin.layout.app>
     @php
+        $status = request()->status;
         $breadcrumbItems = [
             ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
             ['label' => 'All Users', 'url' => route('admin.users.index')],
@@ -81,10 +82,10 @@
                         </select> --}}
 
                         <!-- Export Button -->
-                        <button
+                        <a href="{{ route('admin.users.export', ['status' => $status]) }}"
                             class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
                             <i class="fas fa-download mr-2"></i>Export
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
