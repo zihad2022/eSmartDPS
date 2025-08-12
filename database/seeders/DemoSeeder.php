@@ -12,7 +12,9 @@ class DemoSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            PakageSeeder::class,
+            AdminRolePermissionSeeder::class,
+            AdminSeeder::class,
+            PackageSeeder::class,
             ClientSeeder::class,
             LedgerSeeder::class,
             InvoiceSeeder::class,
