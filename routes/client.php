@@ -10,7 +10,7 @@ use App\Http\Controllers\Client\ProjectCategoryController;
 use App\Http\Controllers\Client\ProjectController;
 use App\Http\Controllers\Client\Settings\GeneralController;
 use App\Http\Controllers\Client\UserController;
-use App\Services\PakageService;
+use App\Services\PackageService;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('client')->name('client.')->group(function () {
@@ -63,7 +63,7 @@ Route::prefix('client')->name('client.')->group(function () {
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::get('general', [GeneralController::class, 'edit'])->name('general.edit');
             Route::put('general', [GeneralController::class, 'update'])->name('general.update');
-        })->middleware('client.role:admin');
+        });
 
         /**
          * Subscription Management
@@ -71,7 +71,7 @@ Route::prefix('client')->name('client.')->group(function () {
         Route::get('subscription/expired', fn () => view('client.subscription.expired'))
             ->name('subscription.expired');
 
-        Route::get('renew-subscription', function (PakageService $pakageService) {
+        Route::get('renew-subscription', function (PackageService $packageService) {
             $client = auth('client')->user();
             $lastSubscription = $client->lastSubscription?->load('subscription');
 
@@ -79,7 +79,7 @@ Route::prefix('client')->name('client.')->group(function () {
                 abort(404, 'No valid subscription to renew.');
             }
 
-            $pakageService->renewSubscription($client, $lastSubscription->subscription);
+            $packageService->renewSubscription($client, $lastSubscription->subscription);
 
             return redirect()->route('client.dashboard');
         })->name('subscription.renew');
