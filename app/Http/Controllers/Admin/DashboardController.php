@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
@@ -48,6 +49,8 @@ class DashboardController extends Controller
 
         $recentPayments = Invoice::with('client')->where('created_at', '>=', now()->subDays(7))->orderBy('created_at', 'desc')->take(10)->get();
 
-        return view('admin.dashboard', compact('admin', 'totalClients', 'totalBalance', 'chartData', 'recentPayments'));
+        $recentActivities = Activity::with('causer')->where('causer_type', 'App\Models\Admin')->where('created_at', '>=', now()->subDays(7))->orderBy('created_at', 'desc')->take(10)->get();
+
+        return view('admin.dashboard', compact('admin', 'totalClients', 'totalBalance', 'chartData', 'recentPayments', 'recentActivities'));
     }
 }
