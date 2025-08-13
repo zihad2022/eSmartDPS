@@ -3,7 +3,8 @@
     <div class="bg-white rounded-xl shadow-sm p-6 dashboard-card">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-lg font-semibold text-primary-900">Recent Payments</h3>
-            <a href="payments.html" class="text-accent-600 hover:text-accent-700 text-sm font-medium">View
+            <a href="{{ route('admin.invoices.index') }}"
+                class="text-accent-600 hover:text-accent-700 text-sm font-medium">View
                 All</a>
         </div>
 
@@ -11,7 +12,7 @@
             <table class="min-w-full">
                 <thead>
                     <tr class="border-b border-gray-200">
-                        <th class="px-4 py-3 text-left text-xs font-medium text-primary-500 uppercase">Member
+                        <th class="px-4 py-3 text-left text-xs font-medium text-primary-500 uppercase">Client
                         </th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-primary-500 uppercase">Amount
                         </th>
@@ -20,34 +21,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="border-b border-gray-200">
-                        <td class="px-4 py-3">
-                            <div class="flex items-center">
-                                <img src="https://randomuser.me/api/portraits/men/32.jpg"
-                                    class="w-8 h-8 rounded-full mr-3" alt="Member">
-                                <span class="text-sm font-medium">John Doe</span>
-                            </div>
-                        </td>
-                        <td class="px-4 py-3 text-sm">$250.00</td>
-                        <td class="px-4 py-3">
-                            <span
-                                class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Completed</span>
-                        </td>
-                    </tr>
-                    <tr class="border-b border-gray-200">
-                        <td class="px-4 py-3">
-                            <div class="flex items-center">
-                                <img src="https://randomuser.me/api/portraits/women/44.jpg"
-                                    class="w-8 h-8 rounded-full mr-3" alt="Member">
-                                <span class="text-sm font-medium">Jane Smith</span>
-                            </div>
-                        </td>
-                        <td class="px-4 py-3 text-sm">$500.00</td>
-                        <td class="px-4 py-3">
-                            <span
-                                class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Pending</span>
-                        </td>
-                    </tr>
+                    @foreach ($recentPayments as $payment)
+                        <tr class="border-b border-gray-200">
+                            <td class="px-4 py-3">
+                                {{ $payment->client->first_name }} {{ $payment->client->last_name }}
+                            </td>
+                            <td class="px-4 py-3 text-sm">{{ $payment->invoice_amount }}</td>
+                            <td class="px-4 py-3">
+                                <span
+                                    class="px-2 py-1 text-xs font-medium rounded-full {{ $payment->status->color() }}">{{ $payment->status->label() }}</span>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
