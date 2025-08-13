@@ -23,6 +23,11 @@ class Invoice extends Model
         'status' => InvoiceStatus::class,
     ];
 
+    public function getInvoiceAmountAttribute($value)
+    {
+        return number_format($value);
+    }
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
