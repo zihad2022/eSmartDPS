@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InvoiceStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,6 +17,10 @@ class Invoice extends Model
         'trx_id',
         'payment_method',
         'wallet_address',
+    ];
+
+    protected $casts = [
+        'status' => InvoiceStatus::class,
     ];
 
     public function client(): BelongsTo
