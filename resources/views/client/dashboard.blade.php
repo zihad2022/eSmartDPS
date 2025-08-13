@@ -28,18 +28,8 @@
             textColor="text-accent-600" />
 
         <!-- Total Balance -->
-        <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 dashboard-card">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <p class="text-xs md:text-sm text-primary-500 font-medium">Total Balance</p>
-                    <h3 class="text-xl md:text-3xl font-bold text-primary-900">$24,500</h3>
-                </div>
-                <div
-                    class="w-10 h-10 md:w-12 md:h-12 bg-secondary-100 text-secondary-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-wallet text-lg md:text-xl"></i>
-                </div>
-            </div>
-        </div>
+        <x-card.stat-card label="Total Balance" :value="$totalBalance" icon="fas fa-wallet" bgColor="bg-secondary-100"
+            textColor="text-secondary-600" />
 
         <!-- Total Investments -->
         <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 dashboard-card">
@@ -49,8 +39,8 @@
                     <h3 class="text-xl md:text-3xl font-bold text-primary-900">$18,200</h3>
                 </div>
                 <div
-                    class="w-10 h-10 md:w-12 md:h-12 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-chart-line text-lg md:text-xl"></i>
+                    class="w-10 h-10 md:w-12 md:h-12 bg-secondary-100 text-secondary-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-wallet text-lg md:text-xl"></i>
                 </div>
             </div>
         </div>
