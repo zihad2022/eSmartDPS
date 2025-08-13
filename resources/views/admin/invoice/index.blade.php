@@ -101,12 +101,12 @@
                                             ],
                                         ];
 
-                                        $status = $statusColors[(int) $invoice->status] ?? [
+                                        // FIX: use ->value instead of casting to int
+                                        $status = $statusColors[$invoice->status->value] ?? [
                                             'label' => 'Unknown',
                                             'color' => 'gray',
                                         ];
                                     @endphp
-
 
                                     <span
                                         class="px-2 py-1 text-xs rounded-full bg-{{ $status['color'] }}-100 text-{{ $status['color'] }}-800 font-medium">
