@@ -19,6 +19,7 @@ class DemoSeeder extends Seeder
             LedgerSeeder::class,
             InvoiceSeeder::class,
             TicketSeeder::class,
+            MemberSeeder::class,
             // ProjectCategorySeeder::class,
             // ProjectSeeder::class,
         ]);
