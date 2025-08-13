@@ -15,6 +15,8 @@ class DashboardController extends Controller
     {
         $totalMembers = Member::where('client_id', owner_client_id())->count();
 
-        return view('client.dashboard', compact('totalMembers'));
+        $totalBalance = Member::where('client_id', owner_client_id())->sum('total_balance');
+
+        return view('client.dashboard', compact('totalMembers', 'totalBalance'));
     }
 }
