@@ -46,6 +46,8 @@ class DashboardController extends Controller
             ],
         ];
 
-        return view('admin.dashboard', compact('admin', 'totalClients', 'totalBalance', 'chartData'));
+        $recentPayments = Invoice::with('client')->where('created_at', '>=', now()->subDays(7))->orderBy('created_at', 'desc')->take(10)->get();
+
+        return view('admin.dashboard', compact('admin', 'totalClients', 'totalBalance', 'chartData', 'recentPayments'));
     }
 }
