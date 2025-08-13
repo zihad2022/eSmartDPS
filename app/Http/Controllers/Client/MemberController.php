@@ -27,6 +27,7 @@ class MemberController extends Controller
             'totalMembers' => Member::where('client_id', $ownerId)->count(),
             'activeMembers' => Member::where('client_id', $ownerId)->where('status', true)->count(),
             'inactiveMembers' => Member::where('client_id', $ownerId)->where('status', false)->count(),
+            'totalShares' => Member::where('client_id', $ownerId)->sum('share_quantity'),
         ]);
     }
 
