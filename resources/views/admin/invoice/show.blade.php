@@ -30,19 +30,15 @@
 
                     <div>
                         <p class="text-sm text-primary-600">Amount</p>
-                        <p class="font-medium text-primary-900">৳{{ number_format($invoice->invoice_amount, 2) }}</p>
+                        <p class="font-medium text-primary-900">৳{{ $invoice->invoice_amount }}</p>
                     </div>
-
-                    @php
-                        $statusEnum = \App\Enums\InvoiceStatus::tryFrom($invoice->status);
-                    @endphp
 
                     <div>
                         <p class="text-sm text-primary-600">Status</p>
 
-                        @if ($statusEnum)
-                            <p class="font-medium {{ $statusEnum->color() }}">
-                                {{ $statusEnum->label() }}
+                        @if ($invoice->status)
+                            <p class="font-medium">
+                                {{ $invoice->status->label() }}
                             </p>
                         @else
                             <p class="font-medium text-gray-600">Unknown</p>
