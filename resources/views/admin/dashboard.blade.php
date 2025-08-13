@@ -8,7 +8,7 @@
     <x-admin.sections.dashboard.stats :totalClients="$totalClients" :totalBalance="$totalBalance" />
 
     <!-- Charts and Recent Activities -->
-    <x-admin.sections.dashboard.chart :chartData="$chartData" />
+    <x-admin.sections.dashboard.chart :chartData="$chartData" :recentActivities="$recentActivities" />
 
     <!-- Recent Payments and Projects -->
     <x-admin.sections.dashboard.payment :recentPayments="$recentPayments" />
