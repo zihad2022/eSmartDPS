@@ -11,5 +11,5 @@
     <x-admin.sections.dashboard.chart :chartData="$chartData" />
 
     <!-- Recent Payments and Projects -->
-    <x-admin.sections.dashboard.payment />
+    <x-admin.sections.dashboard.payment :recentPayments="$recentPayments" />
 </x-admin.layout.app>
