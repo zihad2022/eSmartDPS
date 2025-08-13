@@ -53,7 +53,7 @@
                 <div>
                     <x-form.label>Role</x-form.label>
                     <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-sm"
-                        value="{{ ucfirst($user->role) }}" disabled>
+                        value="{{ $user->roles->first()->name }}" disabled>
                 </div>
 
                 {{-- Password (Optional) --}}
@@ -62,21 +62,6 @@
                         placeholder="Leave blank to keep current password" />
                     <p class="text-xs text-gray-500 mt-1">Leave empty if you don't want to change password.</p>
                 </div>
-
-                {{-- Status (Only editable by admins) --}}
-                @if (auth('admin')->user()->role === 'admin')
-                    <div>
-                        <x-form.label for="status">Status</x-form.label>
-                        <select name="status" id="status"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm">
-                            <option value="1" {{ old('status', $user->status) == 1 ? 'selected' : '' }}>Active
-                            </option>
-                            <option value="0" {{ old('status', $user->status) == 0 ? 'selected' : '' }}>Inactive
-                            </option>
-                        </select>
-                    </div>
-                @endif
-
                 {{-- Submit --}}
                 <div class="flex justify-end space-x-4">
                     <button type="submit"
