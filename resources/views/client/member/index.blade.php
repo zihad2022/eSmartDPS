@@ -9,7 +9,7 @@
             <x-card.stat-card label="Active Members" :value="$activeMembers" icon="fas fa-user-check" bgColor="bg-green-100"
                 textColor="text-green-600" />
 
-            <x-card.stat-card label="Total Shares" :value="546" icon="fas fa-chart-pie text-lg"
+            <x-card.stat-card label="Total Shares" :value="$totalShares" icon="fas fa-chart-pie text-lg"
                 bgColor="bg-secondary-100" textColor="text-secondary-600" />
 
             <x-card.stat-card label="Inactive Members" :value="$inactiveMembers" icon="fas fa-user-times" bgColor="bg-red-100"
