@@ -26,8 +26,6 @@ class MemberRequest extends FormRequest
             ],
             'phone' => ['nullable', 'string', 'max:20'],
             'status' => ['required', 'boolean'],
-            'share_id' => ['required', 'exists:shares,id'],
-            'shares_count' => ['required', 'integer', 'min:1'],
         ];
 
         if ($this->isMethod('post')) { // Store
@@ -43,8 +41,6 @@ class MemberRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'share_id.required' => 'Please select a share plan.',
-            'share_id.exists' => 'Select a valid share plan.',
         ];
     }
 }
