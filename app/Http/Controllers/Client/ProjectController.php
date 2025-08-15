@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\ProjectRequest;
+use App\Models\Client;
 use App\Models\Project;
 use App\Models\ProjectCategory;
 use Carbon\Carbon;
@@ -63,6 +64,10 @@ class ProjectController extends Controller
 
     public function store(ProjectRequest $request)
     {
+        $client = Client::findOrFail(owner_client_id());
+        if (! $client->canAddProject()) {
+            return back()->with('error', 'You have reached the maximum limit of projects for your package.');
+        }
         $validated = $request->validated();
         $validated['duration'] = $this->calculateDuration($validated['start_date'], $validated['end_date']);
         $validated['client_id'] = auth('client')->id();
