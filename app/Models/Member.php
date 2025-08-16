@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class Member extends Authenticatable
 {
@@ -51,5 +53,16 @@ class Member extends Authenticatable
         static::creating(function ($member) {
             $member->member_id = generate_member_id();
         });
+    }
+
+    /*--------------------------------
+    | ACCESSORS (Computed Attributes)
+    |--------------------------------*/
+
+    protected function profilePhotoUrl(): Attribute
+    {
+        return Attribute::get(
+            fn () => $this->profile_photo ? Storage::url($this->profile_photo) : null
+        );
     }
 }
