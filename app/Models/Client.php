@@ -3,178 +3,198 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Storage;
 
-/**
- * Class Client
- *
- * Represents a client account in the system.
- * Clients can have child clients, members, packages, and settings.
- */
 class Client extends Authenticatable
 {
-    /**
-     * The attributes that are mass assignable.
-     */
+    use HasFactory;
+
+    /*--------------------------------
+    | MASS ASSIGNABLE FIELDS
+    |--------------------------------*/
     protected $fillable = [
-        'parent_id',        // Reference to parent client (for hierarchy)
-        'user_id',          // Unique identifier for the client
-        'password',         // Hashed password
+        'parent_id',
+        'user_id',
+        'password',
         'first_name',
         'last_name',
-        'profile_photo',    // Path to profile image
+        'profile_photo',
         'email',
         'phone',
-        'nid_number',       // National ID number
-        'nid_card_front',   // Path to NID front image
-        'nid_card_back',    // Path to NID back image
+        'nid_number',
+        'nid_card_front',
+        'nid_card_back',
         'division',
         'district',
         'address',
         'postal_code',
-        'role',             // Role type (admin, manager, etc.)
-        'status',           // Active/Inactive status
+        'role',
+        'status',
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     */
+    /*--------------------------------
+    | HIDDEN FIELDS
+    |--------------------------------*/
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     */
+    /*--------------------------------
+    | ATTRIBUTE CASTS
+    |--------------------------------*/
     protected $casts = [
         'email_verified_at' => 'datetime',
         'created_at' => 'datetime',
-        'password' => 'hashed', // Automatically hash when set
+        'password' => 'hashed',
     ];
 
     /*--------------------------------
     | RELATIONSHIPS
     |--------------------------------*/
 
-    /**
-     * Get child clients under this client (Hierarchy: Parent → Children).
-     */
+    // A client can have child clients (multi-level accounts)
     public function children(): HasMany
     {
         return $this->hasMany(Client::class, 'parent_id');
     }
 
-    /**
-     * Alias for children() to avoid confusion (parent() method name was misleading).
-     * If you want parent client: use belongsTo instead.
-     */
-    public function parentClients(): HasMany
-    {
-        return $this->hasMany(Client::class, 'parent_id');
-    }
-
-    /**
-     * Get members that belong to this client.
-     */
+    // A client can have multiple members (users under them)
     public function members(): HasMany
     {
         return $this->hasMany(Member::class);
     }
 
-    /**
-     * Get payments for this client through its members.
-     */
+    // A client can have multiple projects
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    // Payments linked through members
     public function payments(): HasManyThrough
     {
         return $this->hasManyThrough(Payment::class, Member::class);
     }
 
-    /**
-     * Get latest assigned package for this client.
-     */
-    public function clientPackage(): HasOne
+    // All packages assigned to this client
+    public function clientPackages(): HasMany
+    {
+        return $this->hasMany(ClientPackage::class);
+    }
+
+    // Latest package ever assigned (trial or paid)
+    public function latestClientPackage(): HasOne
     {
         return $this->hasOne(ClientPackage::class)->latestOfMany();
     }
 
-    /**
-     * Get active trial package for this client.
-     */
+    // Currently active package (trial or paid)
+    public function activeClientPackage(): HasOne
+    {
+        return $this->hasOne(ClientPackage::class)
+            ->where('is_active', true)
+            ->where('ends_at', '>', now());
+    }
+
+    // Currently active trial package
     public function activeTrialClientPackage(): HasOne
     {
-        return $this->hasOne(ClientPackage::class)
-            ->where('is_active', true)
-            ->where('is_trial', true)
-            ->where('ends_at', '>', now());
+        return $this->activeClientPackage()->where('is_trial', true);
     }
 
-    /**
-     * Get active paid (non-trial) package for this client.
-     */
+    // Currently active paid package
     public function activePaidClientPackage(): HasOne
     {
-        return $this->hasOne(ClientPackage::class)
-            ->where('is_active', true)
-            ->where('is_trial', false)
-            ->where('ends_at', '>', now());
+        return $this->activeClientPackage()->where('is_trial', false);
     }
 
-    /**
-     * Get last package assigned to the client (active or not).
-     */
-    public function lastClientPackage(): HasOne
-    {
-        return $this->hasOne(ClientPackage::class)->latestOfMany();
-    }
-
-    /**
-     * Get settings related to this client.
-     */
+    // Client-specific settings
     public function settings(): HasOne
     {
         return $this->hasOne(ClientSetting::class);
     }
 
     /*--------------------------------
-    | QUERY SCOPES
+    | BUSINESS LOGIC METHODS
     |--------------------------------*/
 
     /**
-     * Scope: Only active clients.
+     * Check if the client add more users based on package limit.
      */
+    public function canAddChild(): bool
+    {
+        // Get the latest package (with related package details)
+        $lastPackage = $this->latestClientPackage()->with('package')->first();
+
+        if (! $lastPackage || ! $lastPackage->package) {
+            return false; // No package assigned
+        }
+
+        // Compare current user count with package user limit
+        return $this->children()->count() < $lastPackage->package->user_limit;
+    }
+
+    /**
+     * Check if the client can add more members based on package limit.
+     */
+    public function canAddMember(): bool
+    {
+        // Get the latest package (with related package details)
+        $lastPackage = $this->latestClientPackage()->with('package')->first();
+
+        if (! $lastPackage || ! $lastPackage->package) {
+            return false; // No package assigned
+        }
+
+        // Compare current member count with package member limit
+        return $this->members()->count() < $lastPackage->package->member_limit;
+    }
+
+    /**
+     * Check if the client add more projects based on package limit.
+     */
+    public function canAddProject(): bool
+    {
+        // Get the latest package (with related package details)
+        $lastPackage = $this->latestClientPackage()->with('package')->first();
+
+        if (! $lastPackage || ! $lastPackage->package) {
+            return false; // No package assigned
+        }
+
+        // Compare current project count with package project limit
+        return $this->projects()->count() < $lastPackage->package->project_limit;
+    }
+
+    /*--------------------------------
+    | QUERY SCOPES
+    |--------------------------------*/
+
     public function scopeActive($query)
     {
         return $query->where('status', true);
     }
 
-    /**
-     * Scope: Only inactive clients.
-     */
     public function scopeInactive($query)
     {
         return $query->where('status', false);
     }
 
-    /**
-     * Scope: Only parent clients (no parent_id set).
-     */
     public function scopeParent($query)
     {
         return $query->whereNull('parent_id');
     }
 
     /*--------------------------------
-    | ACCESSORS
+    | ACCESSORS (Computed Attributes)
     |--------------------------------*/
 
-    /**
-     * Get the full URL for profile photo.
-     */
     protected function profilePhotoUrl(): Attribute
     {
         return Attribute::get(
@@ -182,9 +202,6 @@ class Client extends Authenticatable
         );
     }
 
-    /**
-     * Get the full URL for NID front photo.
-     */
     protected function nidCardFrontUrl(): Attribute
     {
         return Attribute::get(
@@ -192,9 +209,6 @@ class Client extends Authenticatable
         );
     }
 
-    /**
-     * Get the full URL for NID back photo.
-     */
     protected function nidCardBackUrl(): Attribute
     {
         return Attribute::get(
