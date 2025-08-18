@@ -5,7 +5,6 @@
             <h3 class="text-lg font-semibold text-primary-900">Financial Overview</h3>
             <div class="flex space-x-2">
                 <button class="px-3 py-1 text-xs font-medium bg-accent-100 text-accent-600 rounded-lg">Monthly</button>
-                <button class="px-3 py-1 text-xs font-medium bg-gray-100 text-primary-600 rounded-lg">Yearly</button>
             </div>
         </div>
         <div class="h-64">
