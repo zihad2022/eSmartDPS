@@ -21,13 +21,13 @@ class ClientsExport implements FromCollection, WithHeadings, WithMapping
     public function collection()
     {
         if ($this->status === 'active') {
-            return Client::active()->parent()->get();
+            return Client::active()->parents()->get();
         }
         if ($this->status === 'inactive') {
-            return Client::inactive()->parent()->get();
+            return Client::inactive()->parents()->get();
         }
 
-        return Client::parent()->get();
+        return Client::parents()->get();
     }
 
     public function headings(): array
@@ -52,7 +52,7 @@ class ClientsExport implements FromCollection, WithHeadings, WithMapping
 
     public function map($client): array
     {
-        $client->load('ClientPackage.package');
+        $client->load('latestClientPackage.package');
 
         return [
             '#'.$this->sl++,
@@ -67,7 +67,7 @@ class ClientsExport implements FromCollection, WithHeadings, WithMapping
             $client->postal_code,
             $client->role,
             $client->status == 1 ? 'Active' : 'Inactive',
-            $client->ClientPackage->package->name ?? 'N/A',
+            $client->latestClientPackage->package->name ?? 'N/A',
             $client->created_at->format('Y-m-d'),
         ];
     }
