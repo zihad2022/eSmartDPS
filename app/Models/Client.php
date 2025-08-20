@@ -155,9 +155,18 @@ class Client extends Authenticatable
     {
         $lastPackage = $this->getLastPackage();
 
-        return $lastPackage && $lastPackage->package
-            ? $this->children()->count() < $lastPackage->package->user_limit
-            : false;
+        if (! $lastPackage || ! $lastPackage->package) {
+            return false;
+        }
+
+        $userLimit = $lastPackage->package->user_limit;
+
+        // If user_limit is 0 => unlimited
+        if ($userLimit == 0) {
+            return true;
+        }
+
+        return $this->children()->count() < $userLimit;
     }
 
     /**
@@ -168,9 +177,18 @@ class Client extends Authenticatable
     {
         $lastPackage = $this->getLastPackage();
 
-        return $lastPackage && $lastPackage->package
-            ? $this->members()->count() < $lastPackage->package->member_limit
-            : false;
+        if (! $lastPackage || ! $lastPackage->package) {
+            return false;
+        }
+
+        $memberLimit = $lastPackage->package->member_limit;
+
+        // If member_limit is 0 => unlimited
+        if ($memberLimit == 0) {
+            return true;
+        }
+
+        return $this->members()->count() < $memberLimit;
     }
 
     /**
@@ -181,9 +199,18 @@ class Client extends Authenticatable
     {
         $lastPackage = $this->getLastPackage();
 
-        return $lastPackage && $lastPackage->package
-            ? $this->projects()->count() < $lastPackage->package->project_limit
-            : false;
+        if (! $lastPackage || ! $lastPackage->package) {
+            return false;
+        }
+
+        $projectLimit = $lastPackage->package->project_limit;
+
+        // If project_limit is 0 => unlimited
+        if ($projectLimit == 0) {
+            return true;
+        }
+
+        return $this->projects()->count() < $projectLimit;
     }
 
     /*--------------------------------
