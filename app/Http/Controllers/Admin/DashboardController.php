@@ -66,7 +66,7 @@ class DashboardController extends Controller
         $recentPayments = Invoice::with('client')
             ->where('created_at', '>=', now()->subDays(7))
             ->latest()
-            ->take(10)
+            ->take(4)
             ->get();
 
         // Fetch recent admin activities (last 7 days) with related causer
@@ -74,7 +74,7 @@ class DashboardController extends Controller
             ->where('causer_type', \App\Models\Admin::class)
             ->where('created_at', '>=', now()->subDays(7))
             ->latest()
-            ->take(10)
+            ->take(3)
             ->get();
 
         // Render dashboard view with all collected data
