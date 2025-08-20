@@ -16,10 +16,11 @@ class InvoiceController extends Controller
 
         if ($status = $request->query('status')) {
             $statusMap = [
-                'pending' => InvoiceStatus::UNPAID,
+                'unpaid' => InvoiceStatus::UNPAID,
                 'paid' => InvoiceStatus::PAID,
                 'refunded' => InvoiceStatus::REFUNDED,
                 'cancelled' => InvoiceStatus::CANCELLED,
+                'refund-request' => InvoiceStatus::REFUND_REQUESTED,
             ];
 
             if (isset($statusMap[$status])) {
