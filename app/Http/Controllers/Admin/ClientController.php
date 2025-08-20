@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ClientRequest;
 use App\Models\Client;
 use App\Models\ClientSetting;
-use App\Models\Member;
 use App\Models\Package;
 use App\Services\ImageService;
 use App\Services\MailService;
@@ -46,9 +45,9 @@ class ClientController extends Controller
 
         return view('admin.client.index', [
             'clients' => $clients,
-            'totalMembers' => Member::count(),
-            'activeMembers' => Member::active()->count(),
-            'inactiveMembers' => Member::inactive()->count(),
+            'totalClients' => Client::parents()->count(),
+            'activeClients' => Client::activeParents()->count(),
+            'inactiveClients' => Client::inactiveParents()->count(),
         ]);
     }
 
