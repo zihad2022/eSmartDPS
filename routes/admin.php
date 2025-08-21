@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\Settings\SmsController;
 use App\Http\Controllers\Admin\Settings\SocialMediaController;
 use App\Http\Controllers\Admin\TicketChatController;
 use App\Http\Controllers\Admin\TicketController;
+use App\Http\Controllers\Admin\TicketExportController;
 use App\Http\Controllers\Admin\User\ActivityController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserExportController;
@@ -266,6 +267,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('invoices-export', InvoiceExportController::class)
             ->name('invoices.export')
             ->middleware('permission:export invoices,admin');
+        Route::get('tickets-export', TicketExportController::class)
+            ->name('tickets.export')
+            ->middleware('permission:export tickets,admin');
         Route::get('users-export', UserExportController::class)
             ->name('users.export')
             ->middleware('permission:export users,admin');

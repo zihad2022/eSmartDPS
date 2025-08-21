@@ -42,7 +42,7 @@ class AdminRolePermissionSeeder extends Seeder
             'view settings', 'edit settings',
 
             // Data Exports
-            'export clients', 'export packages', 'export invoices', 'export users',
+            'export clients', 'export packages', 'export invoices', 'export tickets', 'export users',
 
             // Profile
             'view profile', 'edit profile',
@@ -79,6 +79,8 @@ class AdminRolePermissionSeeder extends Seeder
                     'export clients',
                     'export packages',
                     'export invoices',
+                    'export tickets',
+                    'export users',
                 ])
                 ->get()
         );

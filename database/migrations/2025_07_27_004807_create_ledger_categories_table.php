@@ -17,9 +17,7 @@ return new class extends Migration
                 ->constrained('clients')
                 ->cascadeOnDelete();
             $table->string('name');
-            $table->enum('type', ['income', 'expense']);
             $table->text('description')->nullable();
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

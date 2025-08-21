@@ -1,5 +1,8 @@
 <x-client.layout.app>
     <div class="">
+        @if (session('success') || session('error'))
+            <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
+        @endif
         <div class="bg-white rounded-2xl shadow-sm p-6 max-w-3xl mx-auto">
             <h2 class="text-xl font-semibold text-primary-900 mb-6">
                 {{ isset($project) ? 'Edit Project' : 'Add New Project' }}

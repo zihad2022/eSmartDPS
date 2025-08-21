@@ -114,13 +114,15 @@
                       ],
                   ]" />
               <!-- Ledgers Dropdown -->
-              <x-sidebar-dropdown id="ledgers-dropdown" title="Ledgers" icon="fas fa-book" :items="[
-                  ['url' => route('client.ledgers.index', ['type' => 'entry']), 'label' => 'Ledger Entry'],
-                  ['url' => route('client.ledgers.index', ['type' => 'income']), 'label' => 'Ledger Income'],
-                  ['url' => route('client.ledgers.index', ['type' => 'expenses']), 'label' => 'Ledger Expenses'],
-                  ['url' => route('client.ledger-categories.index'), 'label' => 'Ledger Categories'],
-                  ['url' => route('client.ledgers.index', ['type' => 'reports']), 'label' => 'Ledger Reports'],
-              ]" />
+              <x-sidebar-dropdown id="ledgers-dropdown" :active="request()->routeIs('client.ledgers.*') || request()->routeIs('client.ledger-categories.*')" title="Ledgers" icon="fas fa-book"
+                  :items="[
+                      ['url' => route('client.ledgers.create'), 'label' => 'Ledger Entry'],
+                      ['url' => route('client.ledgers.index'), 'label' => 'All Ledgers'],
+                      ['url' => route('client.ledgers.index', ['type' => 'income']), 'label' => 'Ledger Income'],
+                      ['url' => route('client.ledgers.index', ['type' => 'expense']), 'label' => 'Ledger Expenses'],
+                      ['url' => route('client.ledger-categories.index'), 'label' => 'Ledger Categories'],
+                      ['url' => route('client.ledgers.index', ['type' => 'reports']), 'label' => 'Ledger Reports'],
+                  ]" />
               <!-- Tickets Dropdown -->
               <div>
                   <button
@@ -175,7 +177,8 @@
               </div>
 
               <div class="pt-4 mt-4 border-t border-gray-200">
-                  <a href="settings.html" class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded-lg">
+                  <a href="{{ route('client.subscription.packages') }}"
+                      class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded-lg">
                       <i class="fas fa-shield w-5 text-center"></i>
                       <span>Subscription</span>
                   </a>

@@ -3,8 +3,8 @@
     <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mt-10 -mr-10"></div>
     <div class="relative z-10">
         <h2 class="text-xl md:text-2xl font-bold mb-2">Welcome back, {{ $admin->name }}!</h2>
-        <p class="text-primary-100 mb-4 text-sm md:text-base">Here's what's happening with DYDS savings
-            management today.</p>
+        {{-- <p class="text-primary-100 mb-4 text-sm md:text-base">Here's what's happening with DYDS savings
+            management today.</p> --}}
 
         <div class="flex flex-wrap gap-2 md:gap-4 mt-4">
             <a href="{{ route('admin.clients.create') }}"

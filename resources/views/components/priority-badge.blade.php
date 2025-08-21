@@ -1,13 +1,13 @@
 @switch($priority)
-    @case(1)
+    @case(App\Enums\TicketPriority::LOW)
         <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Low</span>
     @break
 
-    @case(2)
+    @case(App\Enums\TicketPriority::MEDIUM)
         <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Medium</span>
     @break
 
-    @case(3)
+    @case(App\Enums\TicketPriority::HIGH)
         <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">High</span>
     @break
 

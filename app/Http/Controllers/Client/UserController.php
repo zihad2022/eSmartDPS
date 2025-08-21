@@ -9,21 +9,22 @@ use App\Services\ImageService;
 
 class UserController extends Controller
 {
-    public function __construct(protected ImageService $imageService)
-    {
+    public function __construct(
+        protected ImageService $imageService
+    ) {
     }
 
-    /** ✅ Show All Users */
+    /** Show All Users */
     public function index()
     {
-        $parentId = owner_client_id(); // Still use the helper for parent ID
-        $parent = Client::findOrFail($parentId);
+        $parent = Client::findOrFail(owner_client_id());
 
         $users = $parent->children()->get()->prepend($parent);
 
         return view('client.user.index', compact('users'));
     }
 
+    /** Show Create Form */
     public function create()
     {
         return view('client.user.form', [
@@ -31,20 +32,22 @@ class UserController extends Controller
         ]);
     }
 
+    /** Store New User */
     public function store(UserRequest $request)
     {
-        $client = Client::findOrFail(owner_client_id());
-        if (! $client->canAddChild()) {
-            return back()->with('error', 'You have reached the maximum limit of users for your package.');
-        }
-        $validated = $this->prepareUserData($request);
+        $client = $this->getOwner();
 
-        Client::create($validated);
+        if (! $client->canAddChild()) {
+            return back()->with('error', 'You have reached the maximum user limit for your package.');
+        }
+
+        Client::create($this->prepareUserData($request));
 
         return to_route('client.users.index')
             ->with('success', 'User has been added successfully.');
     }
 
+    /** Edit User */
     public function edit(Client $user)
     {
         $this->authorizeOwner($user);
@@ -52,6 +55,7 @@ class UserController extends Controller
         return view('client.user.form', compact('user'));
     }
 
+    /** Show User */
     public function show(Client $user)
     {
         $this->authorizeOwner($user);
@@ -59,43 +63,45 @@ class UserController extends Controller
         return view('client.user.show', compact('user'));
     }
 
+    /** Update User */
     public function update(UserRequest $request, Client $user)
     {
         $this->authorizeOwner($user);
 
-        $validated = $this->prepareUserData($request, $user);
-
-        $user->update($validated);
+        $user->update($this->prepareUserData($request, $user));
 
         return to_route('client.users.index')
             ->with('success', 'User has been updated successfully.');
     }
 
-    /** ✅ Authorization Logic */
+    /** -------------------- Helpers -------------------- */
+
+    /** Get the parent/owner client */
+    private function getOwner(): Client
+    {
+        return Client::findOrFail(owner_client_id());
+    }
+
+    /** Authorization Logic */
     private function authorizeOwner(Client $user): void
     {
-        $ownerId = owner_client_id(); // Get parent ID
+        $ownerId = owner_client_id();
 
         if ($user->id !== $ownerId && $user->parent_id !== $ownerId) {
             abort(403, 'Unauthorized access');
         }
     }
 
-    /** ✅ Prepare validated data (handle password + image) */
+    /** Prepare validated data (password + image + parent_id) */
     private function prepareUserData(UserRequest $request, Client $user = null): array
     {
         $data = $request->validated();
 
         if ($request->hasFile('profile_photo')) {
-            if ($user?->profile_photo) {
-                $this->imageService->deleteImage($user->profile_photo);
-            }
-
-            $data['profile_photo'] = $this->imageService->uploadImage(
-                $request->file('profile_photo'),
-                'uploads/clients/users'
-            );
+            $this->handleProfilePhoto($request, $user, $data);
         }
+
+        $data['parent_id'] = owner_client_id();
 
         if (! empty($data['password'])) {
             $data['password'] = bcrypt($data['password']);
@@ -104,5 +110,18 @@ class UserController extends Controller
         }
 
         return $data;
+    }
+
+    /** Handle profile photo upload */
+    private function handleProfilePhoto(UserRequest $request, ?Client $user, array &$data): void
+    {
+        if ($user?->profile_photo) {
+            $this->imageService->deleteImage($user->profile_photo);
+        }
+
+        $data['profile_photo'] = $this->imageService->uploadImage(
+            $request->file('profile_photo'),
+            'uploads/clients/users'
+        );
     }
 }

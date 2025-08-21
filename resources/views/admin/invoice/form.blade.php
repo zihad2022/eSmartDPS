@@ -24,11 +24,11 @@
 
                 {{-- 📋 Invoice Info --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <x-form.input name="invoice_number" label="Invoice Number" :value="isset($invoice) ? $invoice->invoice_number : $invoice_number" required
-                        placeholder="Auto-generated or custom number" :disabled="true" />
+                    <x-form.input name="invoice_number" label="Invoice Number" :value="old('invoice_number', $editing ? $invoice->invoice_number : $invoice_number)" required
+                        placeholder="Auto-generated or custom number" readonly />
 
-                    <x-form.input name="invoice_amount" label="Invoice Amount" type="number" step="0.01"
-                        :value="old('invoice_amount', $invoice->invoice_amount ?? '')" required placeholder="Enter invoice amount" />
+                    <x-form.input name="invoice_amount" label="Invoice Amount" type="text" step="0.01"
+                        :value="old('invoice_amount', $editing ? $invoice->invoice_amount : '')" required placeholder="Enter invoice amount" />
                 </div>
 
                 {{-- 🔗 Client --}}
@@ -40,8 +40,8 @@
                         <option value="">-- Select Client --</option>
                         @foreach ($clients as $client)
                             <option value="{{ $client->id }}"
-                                {{ old('client_id', $invoice->client_id ?? '') == $client->id ? 'selected' : '' }}>
-                                {{ $client->first_name }} {{ $client->last_name }} ({{ $client->user_id }})
+                                {{ old('client_id', $editing ? $invoice->client_id : '') == $client->id ? 'selected' : '' }}>
+                                {{ $client->first_name }} {{ $client->last_name }}
                             </option>
                         @endforeach
                     </select>
@@ -52,14 +52,14 @@
 
                 {{-- 💳 Payment Info --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <x-form.input name="payment_id" label="Internal Payment ID" :value="old('payment_id', $invoice->payment_id ?? '')"
+                    <x-form.input name="payment_id" label="Internal Payment ID" :value="old('payment_id', $editing ? $invoice->payment_id : '')"
                         placeholder="Optional" />
 
-                    <x-form.input name="trx_id" label="External Transaction ID" :value="old('trx_id', $invoice->trx_id ?? '')"
+                    <x-form.input name="trx_id" label="External Transaction ID" :value="old('trx_id', $editing ? $invoice->trx_id : '')"
                         placeholder="Optional" />
                 </div>
 
-                <x-form.input name="wallet_address" label="Wallet / Account Address" :value="old('wallet_address', $invoice->wallet_address ?? '')"
+                <x-form.input name="wallet_address" label="Wallet / Account Address" :value="old('wallet_address', $editing ? $invoice->wallet_address : '')"
                     placeholder="Optional" />
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -70,16 +70,16 @@
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-500">
                             <option value="">-- Select Method --</option>
                             <option value="bkash"
-                                {{ old('payment_method', $invoice->payment_method ?? '') == 'bkash' ? 'selected' : '' }}>
+                                {{ old('payment_method', $editing ? $invoice->payment_method : '') == 'bkash' ? 'selected' : '' }}>
                                 bKash</option>
                             <option value="nagad"
-                                {{ old('payment_method', $invoice->payment_method ?? '') == 'nagad' ? 'selected' : '' }}>
+                                {{ old('payment_method', $editing ? $invoice->payment_method : '') == 'nagad' ? 'selected' : '' }}>
                                 Nagad</option>
                             <option value="paypal"
-                                {{ old('payment_method', $invoice->payment_method ?? '') == 'paypal' ? 'selected' : '' }}>
+                                {{ old('payment_method', $editing ? $invoice->payment_method : '') == 'paypal' ? 'selected' : '' }}>
                                 PayPal</option>
                             <option value="manual"
-                                {{ old('payment_method', $invoice->payment_method ?? '') == 'manual' ? 'selected' : '' }}>
+                                {{ old('payment_method', $editing ? $invoice->payment_method : '') == 'manual' ? 'selected' : '' }}>
                                 Manual</option>
                         </select>
                         @error('payment_method')
@@ -93,7 +93,7 @@
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-500">
                             @foreach (App\Enums\InvoiceStatus::cases() as $status)
                                 <option value="{{ $status->value }}"
-                                    {{ old('status', $invoice->status ?? '') == $status->value ? 'selected' : '' }}>
+                                    {{ old('status', $editing ? $invoice->status : '') == $status->value ? 'selected' : '' }}>
                                     {{ $status->label() }}
                                 </option>
                             @endforeach

@@ -32,16 +32,59 @@
             <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
         @endif
         <!-- Stats Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
-            <x-card.stat-card label="Total Tickets" icon="fas fa-ticket-alt" :value="$totalTickets" bgColor="bg-primary-50"
-                textColor="text-primary-600" />
-            <x-card.stat-card label="Open Tickets" icon="fas fa-folder-open" :value="$openTickets" bgColor="bg-green-50"
-                textColor="text-green-600" />
+        {{-- <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
+            <x-card.stat-card label="Total Tickets" icon="fas fa-ticket-alt" :value="$totalTickets" iconBgColor="bg-primary-50"
+                iconTextColor="text-primary-600" />
+            <x-card.stat-card label="Open Tickets" icon="fas fa-folder-open" :value="$openTickets" iconBgColor="bg-green-50"
+                iconTextColor="text-green-600" />
             <x-card.stat-card label="High Priority" icon="fas fa-exclamation-circle" :value="$highPriorityTickets"
-                bgColor="bg-red-50" textColor="text-red-600" />
-            <x-card.stat-card label="Closed Tickets" icon="fas fa-check-circle" :value="$closedTickets" bgColor="bg-gray-50"
-                textColor="text-gray-600" />
+                iconBgColor="bg-red-50" iconTextColor="text-red-600" />
+            <x-card.stat-card label="Closed Tickets" icon="fas fa-check-circle" :value="$closedTickets"
+                iconBgColor="bg-gray-50" iconTextColor="text-gray-600" />
+        </div> --}}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
+            {{-- Ticket Status --}}
+            <x-card.stat-card label="Total Tickets" icon="fas fa-ticket-alt" :value="$totalTickets" iconBgColor="bg-primary-50"
+                iconTextColor="text-primary-600" />
+            @foreach (App\Enums\TicketStatus::cases() as $status)
+                <x-card.stat-card :label="$status->label() . ' Tickets'" :icon="match ($status) {
+                    App\Enums\TicketStatus::OPEN => 'fas fa-folder-open',
+                    App\Enums\TicketStatus::IN_PROGRESS => 'fas fa-spinner',
+                    App\Enums\TicketStatus::RESOLVED => 'fas fa-check-circle',
+                    App\Enums\TicketStatus::CLOSED => 'fas fa-lock',
+                }" :value="$statusCounts[$status->value] ?? 0" :iconBgColor="match ($status) {
+                    App\Enums\TicketStatus::OPEN => 'bg-green-50',
+                    App\Enums\TicketStatus::IN_PROGRESS => 'bg-yellow-50',
+                    App\Enums\TicketStatus::RESOLVED => 'bg-blue-50',
+                    App\Enums\TicketStatus::CLOSED => 'bg-gray-50',
+                }"
+                    :iconTextColor="match ($status) {
+                        App\Enums\TicketStatus::OPEN => 'text-green-600',
+                        App\Enums\TicketStatus::IN_PROGRESS => 'text-yellow-600',
+                        App\Enums\TicketStatus::RESOLVED => 'text-blue-600',
+                        App\Enums\TicketStatus::CLOSED => 'text-gray-600',
+                    }" />
+            @endforeach
+
+            {{-- Ticket Priority --}}
+            @foreach (App\Enums\TicketPriority::cases() as $priority)
+                <x-card.stat-card :label="$priority->label() . ' Priority Tickets'" :icon="match ($priority) {
+                    App\Enums\TicketPriority::LOW => 'fas fa-arrow-down',
+                    App\Enums\TicketPriority::MEDIUM => 'fas fa-equals',
+                    App\Enums\TicketPriority::HIGH => 'fas fa-exclamation-circle',
+                }" :value="$priorityCounts[$priority->value] ?? 0" :iconBgColor="match ($priority) {
+                    App\Enums\TicketPriority::LOW => 'bg-gray-50',
+                    App\Enums\TicketPriority::MEDIUM => 'bg-orange-50',
+                    App\Enums\TicketPriority::HIGH => 'bg-red-50',
+                }"
+                    :iconTextColor="match ($priority) {
+                        App\Enums\TicketPriority::LOW => 'text-gray-600',
+                        App\Enums\TicketPriority::MEDIUM => 'text-orange-600',
+                        App\Enums\TicketPriority::HIGH => 'text-red-600',
+                    }" />
+            @endforeach
         </div>
+
 
         <!-- Tickets Table -->
         <div class="bg-white rounded-xl shadow-sm">
@@ -51,7 +94,11 @@
                     <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
                         <a href="{{ route('admin.tickets.create') }}"
                             class="bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent-600 transition">
-                            <i class="fas fa-plus mr-2"></i>Create Ticket
+                            Add Ticket
+                        </a>
+                        <a href="{{ route('admin.tickets.export', ['status' => $status]) }}"
+                            class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                            <i class="fas fa-download mr-2"></i>Export
                         </a>
                     </div>
                 </div>

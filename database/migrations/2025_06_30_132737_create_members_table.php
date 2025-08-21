@@ -22,7 +22,7 @@ return new class extends Migration
             $table->boolean('status')->default(true);
             $table->string('profile_photo')->nullable();
             $table->unsignedBigInteger('share_quantity')->default(0);
-            $table->decimal('total_balance', 12, 2)->default(0);
+            $table->unsignedBigInteger('total_balance')->default(0);
             $table->timestamps();
         });
     }

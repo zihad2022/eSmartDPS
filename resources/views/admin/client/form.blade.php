@@ -25,6 +25,7 @@
             {{-- Form heading --}}
             <h2 class="text-xl font-semibold text-primary-900 mb-6">
                 {{ $editing ? 'Edit Client' : 'Add New Client' }}
+                {{-- {{ $client->activePaidClientPackage->package->name ?? 'No Package' }} --}}
             </h2>
 
             {{-- 
@@ -106,8 +107,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <x-form.select name="status" label="Status" :options="['1' => 'Active', '0' => 'Inactive']" :selected="old('status', $client->status ?? '1')" required />
 
-                    <x-form.select name="package_id" label="Subscription Plan" :options="$packages->pluck('name', 'id')" :selected="old('package_id', $client->ClientPackage->package->id ?? '')"
-                        required :isOptionLabel="true" optionLabel="Select Subscription" />
+                    <x-form.select name="package_id" label="Subscription Plan" :options="$packages->pluck('name', 'id')->toArray()" :selected="old('package_id', $editing ? $client->latestClientPackage?->package?->id : null)"
+                        required />
+
+
                 </div>
 
                 {{-- =================== Form Actions ===================

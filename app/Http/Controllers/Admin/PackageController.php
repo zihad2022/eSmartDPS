@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Package\BillingCycle;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PackageRequest;
 use App\Models\Package;
@@ -24,7 +25,12 @@ class PackageController extends Controller
             ->paginate(10) // Paginate results (10 per page)
             ->appends($request->query()); // Keep query parameters in pagination links
 
-        return view('admin.package.index', compact('packages'));
+        $activePackages = Package::active()->count();
+        $inactivePackages = Package::inactive()->count();
+        $monthlyPackages = Package::where('billing_cycle', BillingCycle::MONTHLY)->count();
+        $yearlyPackages = Package::where('billing_cycle', BillingCycle::YEARLY)->count();
+
+        return view('admin.package.index', compact('packages', 'activePackages', 'inactivePackages', 'monthlyPackages', 'yearlyPackages'));
     }
 
     /**

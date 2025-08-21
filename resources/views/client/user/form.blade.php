@@ -1,5 +1,8 @@
 <x-client.layout.app>
     <div class="">
+        @if (session('success') || session('error'))
+            <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
+        @endif
         <div class="bg-white rounded-2xl shadow-sm p-8">
             @php $editing = isset($user); @endphp
 

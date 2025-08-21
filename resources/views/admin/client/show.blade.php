@@ -55,12 +55,6 @@
                     </p>
                 </div>
                 <div>
-                    <p class="text-xs text-primary-500">Subscription</p>
-                    <p class="font-medium">
-                        {{-- {{ optional($client->subscription)->name ?? '-' }} --}}
-                    </p>
-                </div>
-                <div>
                     <p class="text-xs text-primary-500">Location</p>
                     <p class="font-medium">
                         {{ $client->division ?? '-' }}, {{ $client->district ?? '-' }}<br>

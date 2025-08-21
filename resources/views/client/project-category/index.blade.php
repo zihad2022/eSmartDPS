@@ -28,6 +28,10 @@
                         <tr>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
+                                sl
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
                                 Category Name
                             </th>
                             <th
@@ -41,8 +45,13 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
+                        @php
+                            // Initialize serial number starting from current pagination first item
+                            $sl = $categories->firstItem() ?? 1;
+                        @endphp
                         @forelse ($categories as $category)
                             <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-sm text-primary-900">#{{ $sl++ }}</td>
                                 <td class="px-6 py-4 text-sm text-primary-900">{{ $category->name }}</td>
                                 <td class="px-6 py-4 text-sm text-primary-600">{{ $category->slug }}</td>
                                 <td class="px-6 py-4 text-sm font-medium">
@@ -53,20 +62,22 @@
                                         </a>
                                         <form method="POST"
                                             action="{{ route('client.project-categories.destroy', $category) }}"
-                                            onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                            class="delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900"
+                                            <button type="button" class="text-red-600 hover:text-red-900 delete-btn"
                                                 title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
                                     </div>
                                 </td>
+                                {{-- Confirm modal component for deletion confirmation --}}
+                                <x-confirm-modal />
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="text-center py-4 text-primary-600">No categories found.</td>
+                                <td colspan="4" class="text-center py-4 text-primary-600">No categories found.</td>
                             </tr>
                         @endforelse
                     </tbody>

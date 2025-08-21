@@ -16,7 +16,7 @@
         @endif
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
+        {{-- <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
             <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
                 <div class="flex items-center justify-between">
                     <div>
@@ -64,7 +64,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <!-- Users Table -->
         <div class="bg-white rounded-xl shadow-sm">

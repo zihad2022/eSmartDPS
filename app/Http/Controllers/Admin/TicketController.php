@@ -29,23 +29,39 @@ class TicketController extends Controller
 
         $query = Ticket::with('client')->latest('id');
 
-        if ($filter = $request->query('status')) {
-            if (isset($statusMap[$filter])) {
-                $query->where('status', $statusMap[$filter]);
+        // Filter by status
+        if ($status = $request->query('status')) {
+            if (isset($statusMap[$status])) {
+                $query->where('status', $statusMap[$status]);
             }
-            if (isset($priorityMap[$filter])) {
-                $query->where('priority', $priorityMap[$filter]);
+        }
+
+        // Filter by priority
+        if ($priority = $request->query('priority')) {
+            if (isset($priorityMap[$priority])) {
+                $query->where('priority', $priorityMap[$priority]);
             }
         }
 
         $tickets = $query->paginate(10)->appends($request->query());
 
+        // ✅ Collect status counts
+        $statusCounts = [];
+        foreach (TicketStatus::cases() as $status) {
+            $statusCounts[$status->value] = Ticket::where('status', $status)->count();
+        }
+
+        // ✅ Collect priority counts
+        $priorityCounts = [];
+        foreach (TicketPriority::cases() as $priority) {
+            $priorityCounts[$priority->value] = Ticket::where('priority', $priority)->count();
+        }
+
         return view('admin.ticket.index', [
             'tickets' => $tickets,
             'totalTickets' => Ticket::count(),
-            'openTickets' => Ticket::where('status', TicketStatus::OPEN)->count(),
-            'closedTickets' => Ticket::where('status', TicketStatus::CLOSED)->count(),
-            'highPriorityTickets' => Ticket::where('priority', TicketPriority::HIGH)->count(),
+            'statusCounts' => $statusCounts,
+            'priorityCounts' => $priorityCounts,
         ]);
     }
 

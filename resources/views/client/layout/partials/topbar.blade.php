@@ -5,7 +5,38 @@
                     class="text-primary-500 hover:text-primary-700 focus:outline-none mr-4 md:hidden">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
-                <h1 class="text-xl font-semibold text-primary-900">Dashboard</h1>
+                <h1 class="text-xl font-semibold text-primary-900">Dashboard </h1>
+                @php
+                    $client = auth('client')->user();
+                    $activeClientPackage = $client->activeClientPackage;
+                    $activePackage = optional($activeClientPackage->package);
+                @endphp
+
+                @if ($activePackage)
+                    @php
+                        $endsAt = $activeClientPackage->ends_at;
+                        $remaining = $endsAt->isFuture()
+                            ? $endsAt->diffForHumans(now(), [
+                                'parts' => 2, // show up to 2 parts (e.g., "1 month 5 days")
+                                'short' => true, // short form: "1mo 5d"
+                                'syntax' => \Carbon\CarbonInterface::DIFF_RELATIVE_TO_NOW,
+                            ])
+                            : 'Expired';
+                    @endphp
+
+                    @if ($activePackage->has_trial && $activePackage->trial_days > 0)
+                        <span class="text-green-600 font-semibold">
+                            Free Trial ({{ $remaining }})
+                        </span>
+                    @else
+                        <span class="text-blue-600 font-semibold">
+                            Paid Subscription ({{ $remaining }})
+                        </span>
+                    @endif
+                @else
+                    <span class="text-gray-500">No Active Subscription</span>
+                @endif
+
             </div>
 
             <div class="flex items-center space-x-2 md:space-x-4">

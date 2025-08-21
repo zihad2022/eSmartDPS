@@ -33,59 +33,21 @@
         @endif
         <!-- Stats Cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
-            <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs md:text-sm text-primary-500 font-medium">Total Packages</p>
-                        <h3 class="text-xl md:text-2xl font-bold text-primary-900">{{ $packages->total() }}</h3>
-                    </div>
-                    <div class="w-10 h-10 bg-accent-100 text-accent-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-file-invoice-dollar text-lg"></i>
-                    </div>
-                </div>
-            </div>
 
-            <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs md:text-sm text-primary-500 font-medium">Active Packages</p>
-                        <h3 class="text-xl md:text-2xl font-bold text-primary-900">
-                            {{ $packages->where('is_active', true)->count() }}
-                        </h3>
-                    </div>
-                    <div class="w-10 h-10 bg-green-100 text-green-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-check-circle text-lg"></i>
-                    </div>
-                </div>
-            </div>
+            <x-card.stat-card :label="'Total Packages'" :value="number_format($packages->total())" :iconBgColor="'bg-primary-100'" :iconTextColor="'text-primary-600'"
+                :icon="'fas fa-file-invoice-dollar'" />
 
-            <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs md:text-sm text-primary-500 font-medium">Monthly Package</p>
-                        <h3 class="text-xl md:text-2xl font-bold text-primary-900">
-                            {{ $packages->where('billing_cycle', 'monthly')->count() }}
-                        </h3>
-                    </div>
-                    <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-calendar-alt text-lg"></i>
-                    </div>
-                </div>
-            </div>
+            <x-card.stat-card :label="'Active Packages'" :value="number_format($activePackages)" :iconBgColor="'bg-green-100'" :iconTextColor="'text-green-600'"
+                :icon="'fas fa-check-circle'" />
 
-            <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs md:text-sm text-primary-500 font-medium">Yearly Package</p>
-                        <h3 class="text-xl md:text-2xl font-bold text-primary-900">
-                            {{ $packages->where('billing_cycle', 'yearly')->count() }}
-                        </h3>
-                    </div>
-                    <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-calendar text-lg"></i>
-                    </div>
-                </div>
-            </div>
+            <x-card.stat-card :label="'Inactive Packages'" :value="number_format($inactivePackages)" :iconBgColor="'bg-red-100'" :iconTextColor="'text-red-600'"
+                :icon="'fas fa-times-circle'" />
+
+            <x-card.stat-card :label="'Monthly Package'" :value="number_format($monthlyPackages)" :iconBgColor="'bg-blue-100'" :iconTextColor="'text-blue-600'"
+                :icon="'fas fa-calendar-alt'" />
+
+            <x-card.stat-card :label="'Yearly Package'" :value="number_format($yearlyPackages)" :iconBgColor="'bg-purple-100'" :iconTextColor="'text-purple-600'"
+                :icon="'fas fa-calendar'" />
         </div>
 
         <!-- Packages Table -->

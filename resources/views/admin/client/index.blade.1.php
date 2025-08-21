@@ -159,10 +159,10 @@
                                 <td class="px-6 py-4 text-sm font-medium">
                                     <div class="flex space-x-2">
                                         {{-- View Client --}}
-                                        {{-- <a href="{{ route('admin.clients.show', $client->id) }}"
+                                        <a href="{{ route('admin.clients.show', $client->id) }}"
                                             class="text-accent-600 hover:text-accent-900" title="View">
                                             <i class="fas fa-eye"></i>
-                                        </a> --}}
+                                        </a>
 
                                         {{-- Edit Client --}}
                                         <a href="{{ route('admin.clients.edit', $client->id) }}"

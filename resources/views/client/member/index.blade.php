@@ -1,19 +1,24 @@
 <x-client.layout.app>
     <!-- Members Content -->
     <div class="">
+        {{-- Display flash messages (success or error) if any --}}
+        @if (session('success') || session('error'))
+            <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
+        @endif
+
         <!-- Stats Cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
-            <x-card.stat-card label="Total Members" :value="$totalMembers" icon="fas fa-users" bgColor="bg-accent-100"
-                textColor="text-accent-600" />
+            <x-card.stat-card label="Total Members" :value="$totalMembers" icon="fas fa-users" iconBgColor="bg-accent-100"
+                iconTextColor="text-accent-600" />
 
-            <x-card.stat-card label="Active Members" :value="$activeMembers" icon="fas fa-user-check" bgColor="bg-green-100"
-                textColor="text-green-600" />
+            <x-card.stat-card label="Active Members" :value="$activeMembers" icon="fas fa-user-check" iconBgColor="bg-green-100"
+                iconTextColor="text-green-600" />
 
             <x-card.stat-card label="Total Shares" :value="$totalShares" icon="fas fa-chart-pie text-lg"
-                bgColor="bg-secondary-100" textColor="text-secondary-600" />
+                iconBgColor="bg-secondary-100" iconTextColor="text-secondary-600" />
 
-            <x-card.stat-card label="Inactive Members" :value="$inactiveMembers" icon="fas fa-user-times" bgColor="bg-red-100"
-                textColor="text-red-600" />
+            <x-card.stat-card label="Inactive Members" :value="$inactiveMembers" icon="fas fa-user-times"
+                iconBgColor="bg-red-100" iconTextColor="text-red-600" />
         </div>
 
         <!-- Members Table -->
@@ -45,7 +50,7 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="min-w-full">
+                <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
                     <thead class="bg-gray-50">
                         <tr>
                             <th
@@ -54,6 +59,15 @@
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
                                 Member</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
+                                Phone</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
+                                Shares</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
+                                Balance</th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
                                 Join Date</th>
@@ -66,16 +80,21 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @php
-                            $sl = 1;
-                        @endphp
-                        @forelse ($members as $member)
+                        @forelse ($members as $index => $member)
                             <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">#{{ $sl++ }}</td>
+                                {{-- SL --}}
+                                <td class="px-6 py-4 whitespace-nowrap">#{{ $index + 1 }}</td>
+
+                                {{-- Name + Email --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <img src="https://randomuser.me/api/portraits/men/32.jpg"
-                                            class="w-10 h-10 rounded-full mr-4" alt="Member">
+                                        @if ($member->profile_photo)
+                                            <img src="{{ $member->profile_photo_url }}"
+                                                class="w-10 h-10 rounded-full mr-4" alt="Member Avatar">
+                                        @else
+                                            <img src="https://ui-avatars.com/api/?name={{ urlencode($member->name) }}&background=0D8ABC&color=fff"
+                                                class="w-10 h-10 rounded-full mr-4" alt="Member Avatar">
+                                        @endif
                                         <div>
                                             <div class="text-sm font-medium text-primary-900">{{ $member->name }}</div>
                                             <div class="text-sm text-primary-500">{{ $member->email }}</div>
@@ -83,53 +102,85 @@
                                     </div>
                                 </td>
 
+                                {{-- Phone --}}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-primary-600">
+                                    {{ $member->phone ?: 'N/A' }}
+                                </td>
+
+                                {{-- Share Quantity --}}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-primary-900">
+                                    {{ number_format($member->share_quantity) }}
+                                </td>
+
+                                {{-- Total Balance --}}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                                    ${{ number_format($member->total_balance, 2) }}
+                                </td>
+
                                 {{-- Join Date --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-primary-600">
                                     {{ $member->created_at->format('M d, Y') }}
                                 </td>
+
                                 {{-- Status --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if ($member->status)
                                         <span
-                                            class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Active</span>
+                                            class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                            Active
+                                        </span>
                                     @else
                                         <span
-                                            class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Inactive</span>
+                                            class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                            Inactive
+                                        </span>
                                     @endif
                                 </td>
 
                                 {{-- Actions --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <button class="text-accent-600 hover:text-accent-900">
+                                        <a href="{{ route('client.members.show', $member) }}"
+                                            class="text-accent-600 hover:text-accent-900">
                                             <i class="fas fa-eye"></i>
-                                        </button>
+                                        </a>
                                         <a href="{{ route('client.members.edit', $member) }}"
                                             class="text-secondary-600 hover:text-secondary-900">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="text-red-600 hover:text-red-900">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        <form action="{{ route('client.members.destroy', $member) }}" method="POST"
+                                            class="">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button" class="text-red-600 hover:text-red-900 delete-btn"
+                                                title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
+                                {{-- Confirm modal component for deletion confirmation --}}
+                                <x-confirm-modal />
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4">No members found.</td>
+                                <td colspan="8" class="text-center py-4 text-primary-500">
+                                    No members found.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
-
                 </table>
             </div>
+
 
             <!-- Pagination -->
             <div class="px-6 py-4 border-t border-gray-200">
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-primary-600">
                         @if ($members->total() > 0)
-                            Showing {{ $members->firstItem() }} to {{ $members->lastItem() }} of {{ $members->total() }}
+                            Showing {{ $members->firstItem() }} to {{ $members->lastItem() }} of
+                            {{ $members->total() }}
                             results
                         @else
                             No results found.

@@ -207,6 +207,10 @@
                           'label' => 'Refunded Invoices',
                       ],
                       [
+                          'url' => route('admin.invoices.index', ['status' => 'refund-request']),
+                          'label' => 'Refund Request Invoices',
+                      ],
+                      [
                           'url' => route('admin.invoices.index', ['status' => 'cancelled']),
                           'label' => 'Cancelled Invoices',
                       ],

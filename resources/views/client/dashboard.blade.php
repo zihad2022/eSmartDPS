@@ -24,15 +24,15 @@
     <!-- Stats Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
         <!-- Total Members -->
-        <x-card.stat-card label="Total Members" :value="$totalMembers" icon="fas fa-users" bgColor="bg-accent-100"
-            textColor="text-accent-600" />
+        <x-card.stat-card label="Total Members" :value="$totalMembers" icon="fas fa-users" iconBgColor="bg-accent-100"
+            iconTextColor="text-accent-600" />
 
         <!-- Total Balance -->
-        <x-card.stat-card label="Total Balance" :value="$totalBalance" icon="fas fa-wallet" bgColor="bg-secondary-100"
-            textColor="text-secondary-600" />
+        <x-card.stat-card label="Total Balance" :value="number_format($totalBalance)" icon="fas fa-wallet" iconBgColor="bg-secondary-100"
+            iconTextColor="text-secondary-600" />
 
         <!-- Total Investments -->
-        <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 dashboard-card">
+        {{-- <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 dashboard-card">
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <p class="text-xs md:text-sm text-primary-500 font-medium">Investments</p>
@@ -57,7 +57,7 @@
                     <i class="fas fa-trophy text-lg md:text-xl"></i>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 
     <!-- Charts and Recent Activities -->

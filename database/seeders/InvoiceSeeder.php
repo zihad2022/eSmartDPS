@@ -10,8 +10,10 @@ class InvoiceSeeder extends Seeder
 {
     public function run(): void
     {
-        $clients = Client::whereNull('parent_id')->get();
-        $clients->load('ClientPackage.package');
+        $clients = Client::whereNull('parent_id')
+            ->with('activePaidClientPackage.package')
+            ->get();
+
         if ($clients->isEmpty()) {
             $this->command->warn('No clients found. Skipping invoice seeding.');
 
@@ -19,10 +21,18 @@ class InvoiceSeeder extends Seeder
         }
 
         foreach ($clients as $client) {
+            $package = $client->activePaidClientPackage; // Single package
+
+            if (! $package || ! $package->package) {
+                $this->command->warn("No active paid package for client ID {$client->id}. Skipping.");
+
+                continue;
+            }
+
             Invoice::create([
                 'client_id' => $client->id,
                 'invoice_number' => generate_invoice_number(),
-                'invoice_amount' => $client->ClientPackage->package->price,
+                'invoice_amount' => $package->package->price,
                 'status' => rand(1, 5),
                 'payment_id' => null,
                 'trx_id' => null,

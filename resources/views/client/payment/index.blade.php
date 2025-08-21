@@ -169,7 +169,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4">No payments found.</td>
+                                <td colspan="8" class="text-center py-4">No payments found.</td>
                             </tr>
                         @endforelse
 

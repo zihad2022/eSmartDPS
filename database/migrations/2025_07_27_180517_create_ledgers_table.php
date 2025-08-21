@@ -13,27 +13,20 @@ return new class extends Migration
     {
         Schema::create('ledgers', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('category_id')
+            $table->foreignId('ledger_category_id')
                 ->constrained('ledger_categories')
                 ->cascadeOnDelete();
-
             $table->foreignId('client_id')
                 ->nullable()
                 ->constrained('clients')
-                ->cascadeOnDelete(); // If you want ledger per client
-
-            $table->string('title'); // Short title for the entry
-            $table->text('description')->nullable(); // Optional details
-
-            $table->decimal('amount', 12, 2); // Amount of entry
-            $table->enum('type', ['income', 'expense']); // Redundant but useful for filtering quickly
-
-            $table->date('entry_date'); // Date of transaction
-            $table->string('reference_no')->nullable(); // Invoice or reference number
-            $table->string('payment_method')->nullable(); // Cash, Bank, Card, etc.
-
+                ->cascadeOnDelete();
+            $table->unsignedBigInteger('type')->index();
+            $table->string('description', 255);
+            $table->integer('amount')->index();
+            $table->date('entry_date')->index();
+            $table->text('notes')->nullable();
             $table->timestamps();
+            $table->index(['client_id', 'entry_date']);
         });
     }
 

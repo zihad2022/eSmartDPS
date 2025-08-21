@@ -8,7 +8,11 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
     ],
-
+    safelist: [
+        // Add all dynamic classes you will use
+        'bg-orange-600',
+        'text-orange-100',
+    ],
     theme: {
         extend: {
             colors: {

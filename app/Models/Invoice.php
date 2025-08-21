@@ -32,4 +32,29 @@ class Invoice extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function scopePaid($query)
+    {
+        return $query->where('status', InvoiceStatus::PAID);
+    }
+
+    public function scopeUnpaid($query)
+    {
+        return $query->where('status', InvoiceStatus::UNPAID);
+    }
+
+    public function scopeRefunded($query)
+    {
+        return $query->where('status', InvoiceStatus::REFUNDED);
+    }
+
+    public function scopeRefundRequested($query)
+    {
+        return $query->where('status', InvoiceStatus::REFUND_REQUESTED);
+    }
+
+    public function scopeCancelled($query)
+    {
+        return $query->where('status', InvoiceStatus::CANCELLED);
+    }
 }
