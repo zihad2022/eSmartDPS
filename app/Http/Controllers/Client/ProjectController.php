@@ -43,6 +43,7 @@ class ProjectController extends Controller
             ->first();
 
         $totalInvestmentAmount = $projects->sum('investment_amount');
+        $totalExpectedReturn = $projects->sum('expected_return');
 
         return view('client.project.index', [
             'projects' => $projects,
@@ -51,6 +52,7 @@ class ProjectController extends Controller
             'completedProjects' => $counts->completed_count,
             'cancelledProjects' => $counts->cancelled_count,
             'totalInvestmentAmount' => $totalInvestmentAmount,
+            'totalExpectedReturn' => $totalExpectedReturn,
         ]);
     }
 
