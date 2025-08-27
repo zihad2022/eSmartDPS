@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
 
-            $table->decimal('investment_amount', 12, 2)->default(0);
-            $table->decimal('expected_return', 5, 2)->default(0);
+            $table->unsignedBigInteger('investment_amount')->default(0);
+            $table->unsignedBigInteger('expected_return')->default(0);
 
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
@@ -29,7 +29,7 @@ return new class extends Migration
 
             $table->text('description')->nullable();
 
-            $table->unsignedTinyInteger('status')->default(0);
+            $table->unsignedBigInteger('status')->default(0);
 
             $table->timestamps();
         });

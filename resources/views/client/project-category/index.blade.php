@@ -1,4 +1,8 @@
 <x-client.layout.app>
+{{-- Display flash messages (success or error) if any --}}
+        @if (session('success') || session('error'))
+            <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
+        @endif
     <div class="grid grid-cols-1 gap-8">
 
         {{-- 🔼 FORM SECTION --}}
