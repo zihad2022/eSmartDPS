@@ -13,57 +13,70 @@ use Illuminate\Support\Facades\Log;
 
 class GenerateMonthlyInvoices extends Command
 {
+    // Command signature (how to call this command)
     protected $signature = 'invoices:generator';
 
+    // Command description
     protected $description = 'Generate monthly invoices for clients who do not yet have an invoice for the current month.';
 
     public function handle(): int
     {
-        // Prevent concurrent command execution
-        $lock = Cache::lock('invoices:generate:lock', 600); // 10-minute lock
-        if (! $lock->get()) {
-            $this->error('⚠️ Command is already running in another process.');
+        // Prevent multiple instances of this command running concurrently
+        $lock = Cache::lock('invoices:generate:lock', 600); // 10 minutes lock
 
+        if (! $lock->get()) {
+            // If lock is already acquired by another process, exit gracefully
+            $this->error('Command is already running in another process.');
             return Command::FAILURE;
         }
 
         try {
+            // Get current year and month
             $now = Carbon::now();
             $year = $now->year;
             $month = $now->month;
 
-            $clients = Client::whereNull('parent_id')->where('status', true)->get();
+            // Fetch all root-level active clients
+            $clients = Client::parents()->active()->get();
 
             if ($clients->isEmpty()) {
-                $this->warn('⚠️ No root-level clients found.');
-
+                // Exit if no clients found
+                $this->warn('No root-level clients found.');
                 return Command::SUCCESS;
             }
 
+            // Loop through each client to generate invoice
             foreach ($clients as $client) {
+
+                // Wrap each invoice generation in a database transaction for safety
                 DB::transaction(function () use ($client, $year, $month) {
-                    // Atomic check for existing invoice
+
+                    // Check if an invoice already exists for this client in the current month
                     $exists = Invoice::where('client_id', $client->id)
                         ->whereRaw('YEAR(created_at) = ? AND MONTH(created_at) = ?', [$year, $month])
                         ->exists();
 
                     if ($exists) {
-                        $this->line("ℹ️ Invoice already exists for Client ID {$client->id}.");
-
+                        // Skip client if invoice already exists
+                        $this->line("Invoice already exists for Client ID {$client->id}.");
                         return;
                     }
 
-                    // Generate invoice
-                    $client->loadMissing('clientPackage.package');
-                    $package = $client->clientPackage->package ?? null;
+                    // Load client's active paid package relationship if not loaded
+                    $client->loadMissing('activePaidClientPackage.package');
+                    $package = $client->activePaidClientPackage->package ?? null;
 
                     if (! $package) {
+                        // Throw exception if client has no active package
                         throw new \Exception("No active package found for Client ID {$client->id}");
                     }
 
+                    // Create a new invoice record for the client
                     Invoice::create([
                         'client_id' => $client->id,
-                        'invoice_number' => generate_invoice_number(),
+                        'package_name' => $package->name,
+                        'package_description' => $package->description,
+                        'invoice_number' => generate_invoice_number(), // Custom helper for invoice numbers
                         'invoice_amount' => $package->price,
                         'status' => InvoiceStatus::UNPAID->value,
                         'payment_id' => null,
@@ -74,22 +87,29 @@ class GenerateMonthlyInvoices extends Command
                         'updated_at' => now(),
                     ]);
 
-                    $this->info("✅ Invoice generated for Client ID {$client->id}");
+                    // Inform in console that invoice is generated
+                    $this->info("Invoice generated for Client ID {$client->id}");
                 });
             }
 
-            $this->info('🎉 Monthly invoice generation completed.');
+            // All invoices processed
+            $this->info('Monthly invoice generation completed.');
 
             return Command::SUCCESS;
+
         } catch (\Throwable $e) {
-            Log::error('CRITICAL: Invoice generation failed - '.$e->getMessage(), [
+            // Log detailed error for debugging
+            Log::error('Invoice generation failed', [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);
-            $this->error('❌ Critical error: '.$e->getMessage());
 
+            // Show error in console
+            $this->error('Critical error: '.$e->getMessage());
             return Command::FAILURE;
+
         } finally {
+            // Always release lock even if error occurs
             $lock->release();
         }
     }
