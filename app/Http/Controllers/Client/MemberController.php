@@ -94,6 +94,16 @@ class MemberController extends Controller
     }
 
     /**
+     * Display the specified member.
+     */
+    public function show(Member $member)
+    {
+        authorize_owner($member);
+
+        return view('client.member.show', compact('member'));
+    }
+
+    /**
      * Show the form for editing the specified member.
      */
     public function edit(Member $member)
