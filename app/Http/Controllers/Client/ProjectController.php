@@ -16,19 +16,42 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $clientId = auth('client')->id();
-
+    
+        // Start query with eager loading for category relation
         $projectsQuery = Project::with('category')
             ->where('client_id', $clientId)
-            ->select('id', 'name', 'project_category_id', 'investment_amount', 'expected_return', 'start_date', 'end_date', 'duration', 'status', 'created_at');
-
-        // 🔹 Filter by status (if provided)
-        if ($request->filled('status')) {
-            $projectsQuery->where('status', $request->status);
+            ->select(
+                'id',
+                'name',
+                'project_category_id',
+                'investment_amount',
+                'expected_return',
+                'start_date',
+                'end_date',
+                'duration',
+                'status',
+                'created_at'
+            )
+            ->latest('id');
+    
+        // Map status string (from query param) to Enum values
+        $statusMap = [
+            'active'    => ProjectStatus::ACTIVE,
+            'completed' => ProjectStatus::COMPLETED,
+            'cancelled' => ProjectStatus::CANCELLED,
+        ];
+    
+        // Apply status filter if valid status is requested
+        if ($status = $request->query('status')) {
+            if (isset($statusMap[$status])) {
+                $projectsQuery->where('status', $statusMap[$status]);
+            }
         }
-
-        $projects = $projectsQuery->latest()->paginate(10);
-
-        // 🔹 Preload counts to reduce duplicate queries
+    
+        // Paginate with query string preserved
+        $projects = $projectsQuery->paginate(10)->withQueryString();
+    
+        // Preload counts for quick dashboard stats
         $counts = Project::where('client_id', $clientId)
             ->selectRaw('
                 COUNT(*) as total,
@@ -41,20 +64,22 @@ class ProjectController extends Controller
                 ProjectStatus::CANCELLED->value,
             ])
             ->first();
-
+    
+        // Totals (only for current page data)
         $totalInvestmentAmount = $projects->sum('investment_amount');
-        $totalExpectedReturn = $projects->sum('expected_return');
-
+        $totalExpectedReturn   = $projects->sum('expected_return');
+    
         return view('client.project.index', [
-            'projects' => $projects,
-            'totalProjects' => $counts->total,
-            'activeProjects' => $counts->active_count,
-            'completedProjects' => $counts->completed_count,
-            'cancelledProjects' => $counts->cancelled_count,
+            'projects'              => $projects,
+            'totalProjects'         => $counts->total,
+            'activeProjects'        => $counts->active_count,
+            'completedProjects'     => $counts->completed_count,
+            'cancelledProjects'     => $counts->cancelled_count,
             'totalInvestmentAmount' => $totalInvestmentAmount,
-            'totalExpectedReturn' => $totalExpectedReturn,
+            'totalExpectedReturn'   => $totalExpectedReturn,
         ]);
     }
+    
 
     public function create()
     {
