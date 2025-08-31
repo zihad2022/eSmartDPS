@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\InvoiceStatus;
+use App\Enums\PaymentMethod;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -21,12 +22,13 @@ class Invoice extends Model
 
     protected $casts = [
         'status' => InvoiceStatus::class,
+        'payment_method' => PaymentMethod::class,
     ];
 
-    public function getInvoiceAmountAttribute($value)
-    {
-        return number_format($value);
-    }
+    // public function getInvoiceAmountAttribute($value)
+    // {
+    //     return number_format($value);
+    // }
 
     public function client(): BelongsTo
     {
