@@ -1,13 +1,19 @@
 <x-client.layout.app>
-    <!-- Welcome Banner -->
+    {{-- Set Page Title --}}
+    <x-slot name="title">Dashboard</x-slot>
+
+    {{-- ================= Welcome Banner ================= --}}
     <div
         class="bg-gradient-to-r from-primary-900 to-primary-800 rounded-xl p-6 mb-6 text-white relative overflow-hidden">
+        {{-- Decorative Background Circle --}}
         <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mt-10 -mr-10"></div>
         <div class="relative z-10">
+            {{-- Welcome Message --}}
             <h2 class="text-xl md:text-2xl font-bold mb-2">Welcome back, {{ auth('client')->user()->first_name }}!</h2>
             <p class="text-primary-100 mb-4 text-sm md:text-base">Here's what's happening with DYDS savings
                 management today.</p>
 
+            {{-- Quick Action Buttons --}}
             <div class="flex flex-wrap gap-2 md:gap-4 mt-4">
                 <a href="{{ route('client.members.create') }}"
                     class="bg-accent-600 hover:bg-accent-700 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition duration-300">
@@ -21,70 +27,44 @@
         </div>
     </div>
 
-    <!-- Stats Cards -->
+    {{-- ================= Stats Cards ================= --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
-        <!-- Total Members -->
+        {{-- Total Members Card --}}
         <x-card.stat-card label="Total Members" :value="$totalMembers" icon="fas fa-users" iconBgColor="bg-accent-100"
             iconTextColor="text-accent-600" />
 
-        <!-- Total Balance -->
+        {{-- Total Balance Card --}}
         <x-card.stat-card label="Total Balance" :value="number_format($totalBalance)" icon="fas fa-wallet" iconBgColor="bg-secondary-100"
             iconTextColor="text-secondary-600" />
 
-        <!-- Total Investments -->
-        {{-- <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 dashboard-card">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <p class="text-xs md:text-sm text-primary-500 font-medium">Investments</p>
-                    <h3 class="text-xl md:text-3xl font-bold text-primary-900">$18,200</h3>
-                </div>
-                <div
-                    class="w-10 h-10 md:w-12 md:h-12 bg-secondary-100 text-secondary-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-wallet text-lg md:text-xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Profits -->
-        <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 dashboard-card">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <p class="text-xs md:text-sm text-primary-500 font-medium">Total Profits</p>
-                    <h3 class="text-xl md:text-3xl font-bold text-primary-900">$3,750</h3>
-                </div>
-                <div
-                    class="w-10 h-10 md:w-12 md:h-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-trophy text-lg md:text-xl"></i>
-                </div>
-            </div>
-        </div> --}}
+        {{-- Additional Cards can be added here if needed --}}
     </div>
 
-    <!-- Charts and Recent Activities -->
+    {{-- ================= Charts and Recent Activities ================= --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <!-- Financial Chart -->
+        {{-- Financial Chart --}}
         <div class="bg-white rounded-xl shadow-sm p-6 lg:col-span-2 dashboard-card">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-semibold text-primary-900">Financial Overview</h3>
                 <div class="flex space-x-2">
-                    <button
-                        class="px-3 py-1 text-xs font-medium bg-accent-100 text-accent-600 rounded-lg">Monthly</button>
-                    <button
-                        class="px-3 py-1 text-xs font-medium bg-gray-100 text-primary-600 rounded-lg">Yearly</button>
+                    {{-- Filter Buttons --}}
+                    <button class="px-3 py-1 text-xs font-medium bg-accent-100 text-accent-600 rounded-lg">Monthly</button>
+                    <button class="px-3 py-1 text-xs font-medium bg-gray-100 text-primary-600 rounded-lg">Yearly</button>
                 </div>
             </div>
+            {{-- Chart Canvas --}}
             <div class="h-64">
                 <canvas id="financialChart"></canvas>
             </div>
         </div>
 
-        <!-- Recent Activities -->
+        {{-- Recent Activities --}}
         <div class="bg-white rounded-xl shadow-sm p-6 dashboard-card">
             <h3 class="text-lg font-semibold text-primary-900 mb-6">Recent Activities</h3>
             <div class="space-y-4">
+                {{-- Activity Item 1 --}}
                 <div class="flex items-start">
-                    <div
-                        class="w-8 h-8 bg-accent-100 text-accent-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <div class="w-8 h-8 bg-accent-100 text-accent-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fas fa-user-plus text-xs"></i>
                     </div>
                     <div>
@@ -94,9 +74,9 @@
                     </div>
                 </div>
 
+                {{-- Activity Item 2 --}}
                 <div class="flex items-start">
-                    <div
-                        class="w-8 h-8 bg-secondary-100 text-secondary-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <div class="w-8 h-8 bg-secondary-100 text-secondary-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fas fa-money-bill-wave text-xs"></i>
                     </div>
                     <div>
@@ -106,9 +86,9 @@
                     </div>
                 </div>
 
+                {{-- Activity Item 3 --}}
                 <div class="flex items-start">
-                    <div
-                        class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fas fa-project-diagram text-xs"></i>
                     </div>
                     <div>
@@ -124,29 +104,26 @@
         </div>
     </div>
 
-    <!-- Recent Payments and Projects -->
+    {{-- ================= Recent Payments and Active Projects ================= --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Recent Payments -->
+        {{-- Recent Payments Table --}}
         <div class="bg-white rounded-xl shadow-sm p-6 dashboard-card">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-semibold text-primary-900">Recent Payments</h3>
-                <a href="payments.html" class="text-accent-600 hover:text-accent-700 text-sm font-medium">View
-                    All</a>
+                <a href="payments.html" class="text-accent-600 hover:text-accent-700 text-sm font-medium">View All</a>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="min-w-full">
                     <thead>
                         <tr class="border-b border-gray-200">
-                            <th class="px-4 py-3 text-left text-xs font-medium text-primary-500 uppercase">Member
-                            </th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-primary-500 uppercase">Amount
-                            </th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-primary-500 uppercase">Status
-                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-primary-500 uppercase">Member</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-primary-500 uppercase">Amount</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-primary-500 uppercase">Status</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {{-- Payment Row 1 --}}
                         <tr class="border-b border-gray-200">
                             <td class="px-4 py-3">
                                 <div class="flex items-center">
@@ -157,10 +134,11 @@
                             </td>
                             <td class="px-4 py-3 text-sm">$250.00</td>
                             <td class="px-4 py-3">
-                                <span
-                                    class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Completed</span>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Completed</span>
                             </td>
                         </tr>
+
+                        {{-- Payment Row 2 --}}
                         <tr class="border-b border-gray-200">
                             <td class="px-4 py-3">
                                 <div class="flex items-center">
@@ -171,8 +149,7 @@
                             </td>
                             <td class="px-4 py-3 text-sm">$500.00</td>
                             <td class="px-4 py-3">
-                                <span
-                                    class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Pending</span>
                             </td>
                         </tr>
                     </tbody>
@@ -180,24 +157,22 @@
             </div>
         </div>
 
-        <!-- Active Projects -->
+        {{-- Active Projects --}}
         <div class="bg-white rounded-xl shadow-sm p-6 dashboard-card">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-semibold text-primary-900">Active Projects</h3>
-                <a href="projects.html" class="text-accent-600 hover:text-accent-700 text-sm font-medium">View
-                    All</a>
+                <a href="projects.html" class="text-accent-600 hover:text-accent-700 text-sm font-medium">View All</a>
             </div>
 
             <div class="space-y-4">
+                {{-- Project 1 --}}
                 <div class="bg-gray-50 rounded-lg p-4">
                     <div class="flex justify-between items-start">
                         <div>
                             <h4 class="text-primary-900 font-medium">Real Estate Investment</h4>
                             <p class="text-sm text-primary-600 mt-1">Expected Return: 15%</p>
                         </div>
-                        <div class="bg-accent-100 text-accent-600 px-3 py-1 rounded-full text-xs font-medium">
-                            Active
-                        </div>
+                        <div class="bg-accent-100 text-accent-600 px-3 py-1 rounded-full text-xs font-medium">Active</div>
                     </div>
                     <div class="flex items-center mt-3 text-sm text-primary-600">
                         <i class="fas fa-dollar-sign mr-2"></i>
@@ -205,15 +180,14 @@
                     </div>
                 </div>
 
+                {{-- Project 2 --}}
                 <div class="bg-gray-50 rounded-lg p-4">
                     <div class="flex justify-between items-start">
                         <div>
                             <h4 class="text-primary-900 font-medium">Market Investment</h4>
                             <p class="text-sm text-primary-600 mt-1">Expected Return: 12%</p>
                         </div>
-                        <div class="bg-secondary-100 text-secondary-600 px-3 py-1 rounded-full text-xs font-medium">
-                            Planning
-                        </div>
+                        <div class="bg-secondary-100 text-secondary-600 px-3 py-1 rounded-full text-xs font-medium">Planning</div>
                     </div>
                     <div class="flex items-center mt-3 text-sm text-primary-600">
                         <i class="fas fa-dollar-sign mr-2"></i>
