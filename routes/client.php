@@ -5,6 +5,7 @@ use App\Http\Controllers\Client\DashboardController;
 use App\Http\Controllers\Client\LedgerCategoryController;
 use App\Http\Controllers\Client\LedgerController;
 use App\Http\Controllers\Client\MemberController;
+use App\Http\Controllers\Client\MemberExportController;
 use App\Http\Controllers\Client\PaymentController;
 use App\Http\Controllers\Client\ProjectCategoryController;
 use App\Http\Controllers\Client\ProjectController;
@@ -78,5 +79,9 @@ Route::prefix('client')->name('client.')->group(function () {
             Route::get('packages', [SubscriptionController::class, 'packages'])
                 ->name('packages');
         });
+
+        // Data Exports
+        Route::get('members-export', MemberExportController::class)
+            ->name('members.export');
     });
 });
