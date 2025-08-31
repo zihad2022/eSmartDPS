@@ -5,14 +5,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    {{-- Dynamic Title --}}
+    {{-- Dynamic Title for each page --}}
     <title>{{ $title ?? 'Dashboard' }} - {{ $settings->site_name ?? config('app.name') }}</title>
 
     {{-- SEO Meta Tags --}}
     <meta name="description" content="{{ $settings->site_description ?? 'Welcome to our website.' }}" />
     <meta name="keywords" content="{{ $settings->site_keywords ?? 'web, app, services' }}" />
 
-    {{-- Open Graph Meta Tags --}}
+    {{-- Open Graph Meta Tags (for Facebook, LinkedIn, etc.) --}}
     <meta property="og:title" content="{{ $title ?? $settings->site_name }}" />
     <meta property="og:description" content="{{ $settings->site_description ?? '' }}" />
     <meta property="og:image"
@@ -20,7 +20,7 @@
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:type" content="website" />
 
-    {{-- Twitter Card Meta --}}
+    {{-- Twitter Card Meta Tags --}}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{ $title ?? $settings->site_name }}" />
     <meta name="twitter:description" content="{{ $settings->site_description ?? '' }}" />
@@ -36,116 +36,42 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet" />
-    {{-- Styles & Scripts --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Main Styles & Scripts (compiled with Vite) --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js','resources/css/custom-styles.css'])
+
+    {{-- Chart.js for Graphs --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    {{-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> --}}
-    <style>
-        .sidebar-link {
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-link:hover {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-
-        .sidebar-link.active {
-            background-color: #10b981;
-            color: white;
-        }
-
-        .dashboard-card {
-            transition: all 0.3s ease;
-        }
-
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        .dropdown-menu {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .dropdown-menu.active {
-            max-height: 300px;
-        }
-
-        .notification-dropdown,
-        .profile-dropdown {
-            transform: translateY(-10px);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .notification-dropdown.active,
-        .profile-dropdown.active {
-            transform: translateY(0);
-            opacity: 1;
-            visibility: visible;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-        }
-
-        .pulse-dot {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        .progress-bar {
-            transition: width 1s ease-in-out;
-        }
-    </style>
 </head>
 
 <body class="font-sans bg-gray-50 text-primary-900">
     <div class="flex h-screen bg-gray-100">
-        <!-- Mobile Overlay -->
+        
+        {{-- Mobile Sidebar Overlay --}}
         <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
 
-        <!-- Sidebar -->
+        {{-- Sidebar --}}
         @include('admin.layout.partials.sidebar')
 
-        <!-- Main Content -->
+        {{-- Main Content Area --}}
         <main class="flex-1 md:ml-0 transition-all duration-300">
-            <!-- Top Navigation -->
+
+            {{-- Top Navigation --}}
             @include('admin.layout.partials.topbar')
 
-            <!-- Dashboard Content -->
+            {{-- Page Content (Injected via $slot) --}}
             <div class="p-4 md:p-6">
                 {{ $slot }}
             </div>
-            <!-- Footer -->
+
+            {{-- Footer --}}
             @include('admin.layout.partials.footer')
         </main>
     </div>
 
+    {{-- Core Scripts --}}
     <script>
-        // Mobile Sidebar Toggle
+        // Sidebar Controls (For Mobile)
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
         const mobileOverlay = document.getElementById('mobileOverlay');
@@ -165,29 +91,29 @@
         closeSidebar.addEventListener('click', closeSidebarFunc);
         mobileOverlay.addEventListener('click', closeSidebarFunc);
 
-        // Dropdown Toggle
+        // Dropdown Controls (Sidebar & Navigation)
         document.querySelectorAll('.dropdown-toggle').forEach(button => {
             button.addEventListener('click', function() {
                 const targetId = this.getAttribute('data-target');
                 const dropdown = document.getElementById(targetId);
                 const chevron = this.querySelector('.fa-chevron-down');
 
-                // Close other dropdowns
+                // Close all other dropdowns first
                 document.querySelectorAll('.dropdown-menu').forEach(menu => {
                     if (menu.id !== targetId) {
                         menu.classList.remove('active');
-                        const otherChevron = document.querySelector(
-                            `[data-target="${menu.id}"] .fa-chevron-down`);
+                        const otherChevron = document.querySelector(`[data-target="${menu.id}"] .fa-chevron-down`);
                         if (otherChevron) {
                             otherChevron.style.transform = 'rotate(0deg)';
                         }
                     }
                 });
 
-                // Toggle current dropdown
+                // Toggle the clicked dropdown
                 dropdown.classList.toggle('active');
-                chevron.style.transform = dropdown.classList.contains('active') ? 'rotate(180deg)' :
-                    'rotate(0deg)';
+                chevron.style.transform = dropdown.classList.contains('active') 
+                    ? 'rotate(180deg)' 
+                    : 'rotate(0deg)';
             });
         });
 
@@ -211,15 +137,15 @@
             notificationDropdown.classList.remove('active');
         });
 
-        // Close dropdowns when clicking outside
+        // Close dropdowns if user clicks outside
         document.addEventListener('click', function() {
             notificationDropdown.classList.remove('active');
             profileDropdown.classList.remove('active');
         });
     </script>
 
+    {{-- Extra Scripts (Injected using @push) --}}
     @stack('scripts')
 
 </body>
-
 </html>
