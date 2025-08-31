@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     {{-- Dynamic Title --}}
-    <title>{{ $title ?? 'Home' }} - {{ $settings->site_name ?? config('app.name') }}</title>
+    <title>{{ $title ?? 'Dashboard' }} - {{ $settings->site_name ?? config('app.name') }}</title>
 
     {{-- SEO Meta Tags --}}
     <meta name="description" content="{{ $settings->site_description ?? 'Welcome to our website.' }}" />
