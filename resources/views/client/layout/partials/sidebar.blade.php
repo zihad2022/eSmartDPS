@@ -72,15 +72,15 @@
                           'label' => 'Add New Project',
                       ],
                       [
-                          'url' => route('client.projects.index', ['status' => ProjectStatus::ACTIVE->value]),
+                          'url' => route('client.projects.index', ['status' => 'active']),
                           'label' => 'Active Projects',
                       ],
                       [
-                          'url' => route('client.projects.index', ['status' => ProjectStatus::CANCELLED->value]),
+                          'url' => route('client.projects.index', ['status' => 'cancelled']),
                           'label' => 'Cancelled Projects',
                       ],
                       [
-                          'url' => route('client.projects.index', ['status' => ProjectStatus::COMPLETED->value]),
+                          'url' => route('client.projects.index', ['status' => 'completed']),
                           'label' => 'Completed Projects',
                       ],
                   ]" />
