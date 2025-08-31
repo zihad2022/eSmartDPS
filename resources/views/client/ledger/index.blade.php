@@ -251,31 +251,34 @@
     </div>
 
     <script>
-        // Ledger Chart
-        const ctx = document.getElementById('ledgerChart').getContext('2d');
-        const chartData = @json($chartData);
-        const ledgerChart = new Chart(ctx, {
-            type: 'line',
-            data: chartData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '₹' + (value / 1000) + 'K';
+        const ledgerCanvas = document.getElementById('ledgerChart');
+    
+        if (ledgerCanvas) { // only run if element exists
+            const ctx = ledgerCanvas.getContext('2d');
+            const chartData = @json($chartData);
+            const ledgerChart = new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + (value / 1000) + 'K';
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
     </script>
 </x-client.layout.app>
