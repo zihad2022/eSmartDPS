@@ -11,41 +11,50 @@ use Illuminate\Http\Request;
 class LedgerController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource (all ledgers).
+     * Supports filtering by type (income/expense) and date range.
      */
     public function index(Request $request)
     {
         $clientId = owner_client_id();
-        if ($request->type == 'income') {
+
+        // Filter by type: income, expense, or all
+        if ($request->type === 'income') {
             $ledgers = Ledger::with('ledgerCategory')
                 ->where('client_id', $clientId)
                 ->where('type', LedgerType::INCOME->value)
-                ->when($request->date_from, fn ($q) => $q->whereDate('entry_date', '>=', $request->date_from))
-                ->when($request->date_to, fn ($q) => $q->whereDate('entry_date', '<=', $request->date_to))
+                ->when($request->date_from, fn($q) => $q->whereDate('entry_date', '>=', $request->date_from))
+                ->when($request->date_to, fn($q) => $q->whereDate('entry_date', '<=', $request->date_to))
                 ->latest('entry_date')
                 ->paginate(10);
-        } elseif ($request->type == 'expense') {
+        } elseif ($request->type === 'expense') {
             $ledgers = Ledger::with('ledgerCategory')
                 ->where('client_id', $clientId)
                 ->where('type', LedgerType::EXPENSE->value)
-                ->when($request->date_from, fn ($q) => $q->whereDate('entry_date', '>=', $request->date_from))
-                ->when($request->date_to, fn ($q) => $q->whereDate('entry_date', '<=', $request->date_to))
+                ->when($request->date_from, fn($q) => $q->whereDate('entry_date', '>=', $request->date_from))
+                ->when($request->date_to, fn($q) => $q->whereDate('entry_date', '<=', $request->date_to))
                 ->latest('entry_date')
                 ->paginate(10);
         } else {
             $ledgers = Ledger::with('ledgerCategory')
                 ->where('client_id', $clientId)
-                ->when($request->type, fn ($q) => $q->where('type', $request->type))
-                ->when($request->date_from, fn ($q) => $q->whereDate('entry_date', '>=', $request->date_from))
-                ->when($request->date_to, fn ($q) => $q->whereDate('entry_date', '<=', $request->date_to))
+                ->when($request->type, fn($q) => $q->where('type', $request->type))
+                ->when($request->date_from, fn($q) => $q->whereDate('entry_date', '>=', $request->date_from))
+                ->when($request->date_to, fn($q) => $q->whereDate('entry_date', '<=', $request->date_to))
                 ->latest('entry_date')
                 ->paginate(10);
         }
 
-        // Summary stats
-        $totalIncome = Ledger::where('client_id', $clientId)->where('type', LedgerType::INCOME)->sum('amount');
-        $totalExpense = Ledger::where('client_id', $clientId)->where('type', LedgerType::EXPENSE)->sum('amount');
+        // Summary totals
+        $totalIncome = Ledger::where('client_id', $clientId)
+            ->where('type', LedgerType::INCOME)
+            ->sum('amount');
 
+        $totalExpense = Ledger::where('client_id', $clientId)
+            ->where('type', LedgerType::EXPENSE)
+            ->sum('amount');
+
+        // Monthly income summary for current year
         $monthlyIncome = Ledger::selectRaw('MONTH(entry_date) as month, SUM(amount) as total')
             ->where('client_id', $clientId)
             ->where('type', LedgerType::INCOME)
@@ -54,6 +63,7 @@ class LedgerController extends Controller
             ->orderBy('month')
             ->pluck('total', 'month');
 
+        // Monthly expense summary for current year
         $monthlyExpense = Ledger::selectRaw('MONTH(entry_date) as month, SUM(amount) as total')
             ->where('client_id', $clientId)
             ->where('type', LedgerType::EXPENSE)
@@ -62,14 +72,21 @@ class LedgerController extends Controller
             ->orderBy('month')
             ->pluck('total', 'month');
 
+        // Normalize data for charts (fill empty months with 0)
         $incomeData = collect(range(1, 12))
-            ->map(fn ($month) => $monthlyIncome[$month] ?? 0)
+            ->map(fn($month) => $monthlyIncome[$month] ?? 0)
             ->toArray();
 
         $expenseData = collect(range(1, 12))
-            ->map(fn ($month) => $monthlyExpense[$month] ?? 0)
+            ->map(fn($month) => $monthlyExpense[$month] ?? 0)
             ->toArray();
 
+        // Fetch limited categories for dashboard overview
+        $ledgerCategories = LedgerCategory::where('client_id', $clientId)
+            ->take(8)
+            ->get();
+
+        // Chart.js dataset
         $chartData = [
             'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             'datasets' => [
@@ -92,14 +109,25 @@ class LedgerController extends Controller
             ],
         ];
 
-        return view('client.ledger.index', compact('ledgers', 'totalIncome', 'totalExpense', 'monthlyIncome', 'monthlyExpense', 'incomeData', 'expenseData', 'chartData'));
+        return view('client.ledger.index', compact(
+            'ledgers',
+            'totalIncome',
+            'totalExpense',
+            'monthlyIncome',
+            'monthlyExpense',
+            'incomeData',
+            'expenseData',
+            'chartData',
+            'ledgerCategories'
+        ));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new ledger entry.
      */
     public function create()
     {
+        // Fetch categories for dropdown
         $ledgerCategories = LedgerCategory::where('client_id', owner_client_id())
             ->pluck('name', 'id');
 
@@ -107,19 +135,21 @@ class LedgerController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created ledger entry.
      */
     public function store(Request $request)
     {
+        // Validate input
         $data = $request->validate([
             'ledger_category_id' => 'required|exists:ledger_categories,id',
-            'type' => 'required|in:'.LedgerType::INCOME->value.','.LedgerType::EXPENSE->value, // 1 = Income, 2 = Expense
+            'type' => 'required|in:' . LedgerType::INCOME->value . ',' . LedgerType::EXPENSE->value,
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',
             'entry_date' => 'required|date',
             'notes' => 'nullable|string',
         ]);
 
+        // Attach ledger to the client
         $data['client_id'] = owner_client_id();
 
         Ledger::create($data);
@@ -129,7 +159,18 @@ class LedgerController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Display the specified ledger entry.
+     */
+    public function show(Ledger $ledger)
+    {
+        // Ensure the ledger belongs to this client
+        $this->authorizeLedger($ledger);
+
+        return view('client.ledger.show', compact('ledger'));
+    }
+
+    /**
+     * Show the form for editing the specified ledger entry.
      */
     public function edit(Ledger $ledger)
     {
@@ -142,15 +183,16 @@ class LedgerController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified ledger entry.
      */
     public function update(Request $request, Ledger $ledger)
     {
         $this->authorizeLedger($ledger);
 
+        // Validate input
         $data = $request->validate([
             'ledger_category_id' => 'required|exists:ledger_categories,id',
-            'type' => 'required|in:'.LedgerType::INCOME->value.','.LedgerType::EXPENSE->value,
+            'type' => 'required|in:' . LedgerType::INCOME->value . ',' . LedgerType::EXPENSE->value,
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',
             'entry_date' => 'required|date',
@@ -164,7 +206,7 @@ class LedgerController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified ledger entry.
      */
     public function destroy(Ledger $ledger)
     {
@@ -177,7 +219,7 @@ class LedgerController extends Controller
     }
 
     /**
-     * Ensure ledger belongs to the authenticated client.
+     * Ensure the given ledger belongs to the authenticated client.
      */
     protected function authorizeLedger(Ledger $ledger)
     {
