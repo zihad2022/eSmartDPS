@@ -1,62 +1,71 @@
 <x-client.layout.app>
-    <div class="bg-white rounded-2xl shadow-sm p-8">
-        <h2 class="text-2xl font-bold text-primary-900 mb-6">User Details</h2>
+    @php
+        // Page title for showing ledger details
+        $pageTitle = 'Ledger Details';
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {{-- Profile Photo --}}
-            <div class="flex items-center space-x-4">
-                <img src="{{ $user->profile_photo_url }}" alt="Profile Photo"
-                    class="w-20 h-20 rounded-full border object-cover">
-                <div>
-                    <p class="text-lg font-semibold text-gray-900">
-                        {{ $user->first_name }} {{ $user->last_name }}
-                    </p>
-                    <p class="text-sm text-gray-500">User ID: {{ $user->user_id }}</p>
-                </div>
-            </div>
+        // Breadcrumb items: Dashboard > All Ledgers > Ledger Details
+        $breadcrumbItems = [
+            ['label' => 'Dashboard', 'url' => route('client.dashboard')],
+            ['label' => 'All Ledgers', 'url' => route('client.ledgers.index')],
+            ['label' => $pageTitle, 'url' => route('client.ledgers.show', $ledger)],
+        ];
+    @endphp
 
-            {{-- Status & Role --}}
-            <div class="flex flex-col space-y-2">
-                <p><span class="font-semibold">Role:</span>
-                    <span
-                        class="px-2 py-1 text-xs rounded-full 
-                        {{ $user->role === 'admin'
-                            ? 'bg-red-100 text-red-700'
-                            : ($user->role === 'manager'
-                                ? 'bg-blue-100 text-blue-700'
-                                : 'bg-gray-100 text-gray-700') }}">
-                        {{ ucfirst($user->role) }}
-                    </span>
-                </p>
+    {{-- Set HTML page title --}}
+    <x-slot:title>{{ $pageTitle }}</x-slot:title>
 
-                <p><span class="font-semibold">Status:</span>
-                    <span
-                        class="px-2 py-1 text-xs rounded-full 
-                        {{ $user->status ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700' }}">
-                        {{ $user->status ? 'Active' : 'Inactive' }}
-                    </span>
-                </p>
-            </div>
-        </div>
+    {{-- Render breadcrumb navigation --}}
+    <x-breadcrumb :items="$breadcrumbItems" />
 
-        {{-- User Info Grid --}}
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <x-display.field label="Email" :value="$user->email" />
-            <x-display.field label="Phone" :value="$user->phone ?? '—'" />
-            <x-display.field label="Division" :value="$user->division ?? '—'" />
-            <x-display.field label="District" :value="$user->district ?? '—'" />
-            <x-display.field label="Address" :value="$user->address ?? '—'" />
-            <x-display.field label="Postal Code" :value="$user->postal_code ?? '—'" />
-            <x-display.field label="Created At" :value="$user->created_at->format('M d, Y h:i A')" />
-            {{-- <x-display.field label="Last Login" :value="$user->last_login_at ? $user->last_login_at->format('M d, Y h:i A') : 'Never'" /> --}}
-        </div>
-
-        {{-- Actions --}}
-        <div class="flex justify-end mt-8">
-            <a href="{{ route('client.users.index') }}"
-                class="px-4 py-2 border border-gray-300 text-primary-700 rounded-lg hover:bg-gray-50 text-sm transition">
-                Back to Users
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm p-6">
+        {{-- Ledger Heading --}}
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-semibold text-primary-900">{{ $ledger->description }}</h2>
+            <a href="{{ route('client.ledgers.edit', $ledger) }}"
+               class="px-4 py-2 bg-accent-500 text-white text-sm rounded-lg hover:bg-accent-600 transition">
+                Edit Ledger
             </a>
+        </div>
+
+        {{-- Ledger Details Grid --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {{-- Category --}}
+            <div>
+                <p class="text-sm font-medium text-primary-500">Category</p>
+                <p class="text-sm text-primary-900">{{ $ledger->ledgerCategory->name ?? 'N/A' }}</p>
+            </div>
+
+            {{-- Type --}}
+            <div>
+                <p class="text-sm font-medium text-primary-500">Type</p>
+                <p class="text-sm text-primary-900">
+                    @if ($ledger->type == \App\Enums\Ledger\LedgerType::INCOME)
+                        Income
+                    @else
+                        Expense
+                    @endif
+                </p>
+            </div>
+
+            {{-- Amount --}}
+            <div>
+                <p class="text-sm font-medium text-primary-500">Amount</p>
+                <p class="text-sm {{ $ledger->type == \App\Enums\Ledger\LedgerType::INCOME ? 'text-green-600' : 'text-red-600' }} font-semibold">
+                    {{ $ledger->type == \App\Enums\Ledger\LedgerType::INCOME ? '+' : '-' }}${{ number_format($ledger->amount, 2) }}
+                </p>
+            </div>
+
+            {{-- Entry Date --}}
+            <div>
+                <p class="text-sm font-medium text-primary-500">Entry Date</p>
+                <p class="text-sm text-primary-900">{{ \Carbon\Carbon::parse($ledger->entry_date)->format('M d, Y') }}</p>
+            </div>
+
+            {{-- Notes --}}
+            <div class="md:col-span-2">
+                <p class="text-sm font-medium text-primary-500">Notes</p>
+                <p class="text-sm text-primary-900">{{ $ledger->notes ?? 'N/A' }}</p>
+            </div>
         </div>
     </div>
 </x-client.layout.app>
