@@ -1,4 +1,38 @@
 <x-client.layout.app>
+    @php
+        // Get the status query parameter from the request (e.g., 'income', 'expense')
+        $type = request()->type;
+
+        // Map type values to human-readable titles for the page
+        $titleMap = [
+            'income' => 'Ledger Income',
+            'expense' => 'Ledger Expenses',
+        ];
+
+        // Determine page title based on the type filter, default to 'All Ledgers'
+        $pageTitle = $titleMap[$type] ?? 'All Ledgers';
+
+        // Base breadcrumb items: Dashboard > All Ledgers
+        $breadcrumbItems = [
+            ['label' => 'Dashboard', 'url' => route('client.dashboard')],
+            ['label' => 'All Ledgers', 'url' => route('client.ledgers.index')],
+        ];
+
+        // Append specific type breadcrumb if a valid type is set
+        if (isset($titleMap[$type])) {
+            $breadcrumbItems[] = [
+                'label' => $pageTitle,
+                'url' => route('client.ledgers.index', ['type' => $type]),
+            ];
+        }
+    @endphp
+
+    {{-- Set the HTML page title dynamically --}}
+    <x-slot:title>{{ $pageTitle }}</x-slot:title>
+
+    {{-- Render breadcrumb navigation based on current page location --}}
+    <x-breadcrumb :items="$breadcrumbItems" />
+
     <div class="">
         {{-- ===========================================================
             FLASH MESSAGES (SUCCESS / ERROR)
@@ -17,7 +51,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
             <x-card.stat-card 
                 :label="'Total Income'" 
-                :value="$totalIncome" 
+                :value="number_format($totalIncome)" 
                 :bgColor="'bg-green-100'" 
                 :textColor="'text-green-600'" 
                 :icon="'fas fa-arrow-up'"
@@ -27,7 +61,7 @@
 
             <x-card.stat-card 
                 :label="'Total Expenses'" 
-                :value="$totalExpense" 
+                :value="number_format($totalExpense)" 
                 :bgColor="'bg-red-100'" 
                 :textColor="'text-red-600'"
                 :icon="'fas fa-arrow-down'" 
@@ -37,7 +71,7 @@
 
             <x-card.stat-card 
                 :label="'Net Balance'" 
-                :value="$totalIncome - $totalExpense" 
+                :value="number_format($totalIncome - $totalExpense)" 
                 :bgColor="'bg-primary-100'" 
                 :textColor="'text-primary-600'"
                 :icon="'fas fa-wallet'" 
@@ -70,58 +104,36 @@
             </div>
 
             {{-- =======================
-                EXPENSE CATEGORIES
+                All Categories
             ======================== --}}
-            <div class="bg-white rounded-xl shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-primary-900 mb-6">Expense Categories</h3>
+            {{-- <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-primary-900 mb-6">All Categories</h3>
+                
                 <div class="space-y-4">
-                    {{-- Example breakdown (replace with dynamic later if needed) --}}
+                    @foreach ($ledgerCategories as $ledgerCategory)
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
                             <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
-                            <span class="text-sm text-primary-700">Office Rent</span>
+                            <span class="text-sm text-primary-700">{{ $ledgerCategory->name }}</span>
                         </div>
                         <span class="text-sm font-medium text-primary-900">$5,200</span>
                     </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
-                            <span class="text-sm text-primary-700">Utilities</span>
-                        </div>
-                        <span class="text-sm font-medium text-primary-900">$1,850</span>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-                            <span class="text-sm text-primary-700">Marketing</span>
-                        </div>
-                        <span class="text-sm font-medium text-primary-900">$3,200</span>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
-                            <span class="text-sm text-primary-700">Supplies</span>
-                        </div>
-                        <span class="text-sm font-medium text-primary-900">$950</span>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-purple-500 rounded-full mr-3"></div>
-                            <span class="text-sm text-primary-700">Other</span>
-                        </div>
-                        <span class="text-sm font-medium text-primary-900">$1,200</span>
-                    </div>
+                    @endforeach
                 </div>
-            </div>
+            
+                <div class="mt-6 text-right">
+                    <a href="{{ route('client.ledger-categories.index') }}"
+                       class="inline-block px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg shadow hover:bg-primary-700 transition">
+                        View All Categories
+                    </a>
+                </div>
+            </div> --}}
+            
         </div>
 
         {{-- ===========================================================
-            TRANSACTIONS SECTION
-            Tabs (All, Income, Expenses) + Recent Transactions Table
+            Ledgers SECTION
+            Tabs (All, Income, Expenses) + Recent Ledgers Table
         ============================================================ --}}
         <div class="bg-white rounded-xl shadow-sm">
             {{-- =======================
@@ -129,11 +141,11 @@
             ======================== --}}
             <div class="border-b border-gray-200">
                 <div class="flex space-x-8 px-6">
-                    {{-- All Transactions Tab --}}
+                    {{-- All Ledgers Tab --}}
                     <a href="{{ route('client.ledgers.index') }}"
                        class="tab-button py-4 px-2 font-medium text-sm
                        {{ request()->query('type') === null ? 'border-b-2 border-accent-500' : '' }}">
-                        All Transactions
+                        All Ledgers
                     </a>
                 
                     {{-- Income Tab --}}
@@ -153,12 +165,12 @@
             </div>
 
             {{-- =======================
-                RECENT TRANSACTIONS
+                RECENT Ledgers
             ======================== --}}
             <div class="p-6">
                 {{-- Filters + Export --}}
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-primary-900 mb-4 md:mb-0">Recent Transactions</h3>
+                    <h3 class="text-lg font-semibold text-primary-900 mb-4 md:mb-0">Recent Ledgers</h3>
                     <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
                         {{-- Date Filter --}}
                         <input type="date"
@@ -185,7 +197,7 @@
                 </div>
 
                 {{-- =======================
-                    TRANSACTIONS TABLE
+                    Ledgers TABLE
                 ======================== --}}
                 <div class="overflow-x-auto">
                     <table class="min-w-full">
@@ -254,12 +266,15 @@
                                                 class="inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900" title="Delete">
+                                                <button type="button" class="text-red-600 hover:text-red-900 delete-btn"
+                                                    title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
                                         </div>
                                     </td>
+                                    {{-- Confirm modal component for deletion confirmation --}}
+                                    <x-confirm-modal />
                                 </tr>
                             @empty
                                 {{-- If no ledgers exist --}}
