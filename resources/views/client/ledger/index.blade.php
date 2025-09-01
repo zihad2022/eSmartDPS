@@ -1,31 +1,67 @@
 <x-client.layout.app>
     <div class="">
-        {{-- Display flash messages (success or error) if any --}}
+        {{-- ===========================================================
+            FLASH MESSAGES (SUCCESS / ERROR)
+            This section displays feedback messages after actions
+        ============================================================ --}}
         @if (session('success') || session('error'))
-            <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
+            <x-flash-message 
+                :type="session('success') ? 'success' : 'error'" 
+                :title="session('success') ? 'Success' : 'Error'" 
+                :message="session('success') ?? session('error')" />
         @endif
 
-        <!-- Summary Cards -->
+        {{-- ===========================================================
+            SUMMARY CARDS (Total Income, Expenses, Net Balance)
+        ============================================================ --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
-            <x-card.stat-card :label="'Total Income'" :value="$totalIncome" :bgColor="'bg-green-100'" :textColor="'text-green-600'" :icon="'fas fa-arrow-up'"
-                :iconBgColor="'bg-green-100'" :iconTextColor="'text-green-600'" :valueTextColor="'text-green-600'" />
+            <x-card.stat-card 
+                :label="'Total Income'" 
+                :value="$totalIncome" 
+                :bgColor="'bg-green-100'" 
+                :textColor="'text-green-600'" 
+                :icon="'fas fa-arrow-up'"
+                :iconBgColor="'bg-green-100'" 
+                :iconTextColor="'text-green-600'" 
+                :valueTextColor="'text-green-600'" />
 
-            <x-card.stat-card :label="'Total Expenses'" :value="$totalExpense" :bgColor="'bg-red-100'" :textColor="'text-red-600'"
-                :icon="'fas fa-arrow-down'" :iconBgColor="'bg-red-100'" :iconTextColor="'text-red-600'" :valueTextColor="'text-red-600'" />
+            <x-card.stat-card 
+                :label="'Total Expenses'" 
+                :value="$totalExpense" 
+                :bgColor="'bg-red-100'" 
+                :textColor="'text-red-600'"
+                :icon="'fas fa-arrow-down'" 
+                :iconBgColor="'bg-red-100'" 
+                :iconTextColor="'text-red-600'" 
+                :valueTextColor="'text-red-600'" />
 
-            <x-card.stat-card :label="'Net Balance'" :value="$totalIncome - $totalExpense" :bgColor="'bg-primary-100'" :textColor="'text-primary-600'"
-                :icon="'fas fa-wallet'" :iconBgColor="'bg-primary-100'" :iconTextColor="'text-primary-600'" :valueTextColor="'text-primary-600'" />
+            <x-card.stat-card 
+                :label="'Net Balance'" 
+                :value="$totalIncome - $totalExpense" 
+                :bgColor="'bg-primary-100'" 
+                :textColor="'text-primary-600'"
+                :icon="'fas fa-wallet'" 
+                :iconBgColor="'bg-primary-100'" 
+                :iconTextColor="'text-primary-600'" 
+                :valueTextColor="'text-primary-600'" />
         </div>
 
-        <!-- Chart and Recent Transactions -->
+        {{-- ===========================================================
+            CHART + CATEGORIES
+            Left: Income vs Expenses Chart
+            Right: Breakdown of Expense Categories
+        ============================================================ --}}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <!-- Income vs Expenses Chart -->
+            {{-- =======================
+                INCOME VS EXPENSES CHART
+            ======================== --}}
             <div class="bg-white rounded-xl shadow-sm p-6 lg:col-span-2">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-semibold text-primary-900">Income vs Expenses</h3>
                     <div class="flex space-x-2">
-                        <button
-                            class="px-3 py-1 text-xs font-medium bg-accent-100 text-accent-600 rounded-lg">Monthly</button>
+                        <button class="px-3 py-1 text-xs font-medium bg-accent-100 text-accent-600 rounded-lg">
+                            Monthly
+                        </button>
                     </div>
                 </div>
                 <div class="h-64">
@@ -33,10 +69,13 @@
                 </div>
             </div>
 
-            <!-- Categories Breakdown -->
+            {{-- =======================
+                EXPENSE CATEGORIES
+            ======================== --}}
             <div class="bg-white rounded-xl shadow-sm p-6">
                 <h3 class="text-lg font-semibold text-primary-900 mb-6">Expense Categories</h3>
                 <div class="space-y-4">
+                    {{-- Example breakdown (replace with dynamic later if needed) --}}
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
                             <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
@@ -80,37 +119,52 @@
             </div>
         </div>
 
-        <!-- Tabs for Different Views -->
+        {{-- ===========================================================
+            TRANSACTIONS SECTION
+            Tabs (All, Income, Expenses) + Recent Transactions Table
+        ============================================================ --}}
         <div class="bg-white rounded-xl shadow-sm">
+            {{-- =======================
+                TAB NAVIGATION
+            ======================== --}}
             <div class="border-b border-gray-200">
                 <div class="flex space-x-8 px-6">
+                    {{-- All Transactions Tab --}}
                     <a href="{{ route('client.ledgers.index') }}"
-                        class="tab-button active py-4 px-2 border-b-2 border-accent-500 font-medium text-sm"
-                        data-tab="all">
+                       class="tab-button py-4 px-2 font-medium text-sm
+                       {{ request()->query('type') === null ? 'border-b-2 border-accent-500' : '' }}">
                         All Transactions
                     </a>
+                
+                    {{-- Income Tab --}}
                     <a href="{{ route('client.ledgers.index', ['type' => 'income']) }}"
-                        class="tab-button py-4 active px-2 border-b-2 border-transparent font-medium text-sm text-primary-600 hover:text-primary-900"
-                        data-tab="income">
+                       class="tab-button py-4 px-2 font-medium text-sm
+                       {{ request()->query('type') === 'income' ? 'border-b-2 border-accent-500' : 'text-primary-600 hover:text-primary-900' }}">
                         Income
                     </a>
+                
+                    {{-- Expenses Tab --}}
                     <a href="{{ route('client.ledgers.index', ['type' => 'expense']) }}"
-                        class="tab-button py-4 px-2 border-b-2 border-transparent font-medium text-sm text-primary-600 hover:text-primary-900"
-                        data-tab="expenses">
+                       class="tab-button py-4 px-2 font-medium text-sm
+                       {{ request()->query('type') === 'expense' ? 'border-b-2 border-accent-500' : 'text-primary-600 hover:text-primary-900' }}">
                         Expenses
                     </a>
                 </div>
             </div>
 
+            {{-- =======================
+                RECENT TRANSACTIONS
+            ======================== --}}
             <div class="p-6">
+                {{-- Filters + Export --}}
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
                     <h3 class="text-lg font-semibold text-primary-900 mb-4 md:mb-0">Recent Transactions</h3>
                     <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
-                        <!-- Date Filter -->
+                        {{-- Date Filter --}}
                         <input type="date"
                             class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500">
 
-                        <!-- Category Filter -->
+                        {{-- Category Filter --}}
                         <select
                             class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500">
                             <option>All Categories</option>
@@ -122,7 +176,7 @@
                             <option>Investment Returns</option>
                         </select>
 
-                        <!-- Export Button -->
+                        {{-- Export Button --}}
                         <button
                             class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
                             <i class="fas fa-download mr-2"></i>Export
@@ -130,42 +184,32 @@
                     </div>
                 </div>
 
+                {{-- =======================
+                    TRANSACTIONS TABLE
+                ======================== --}}
                 <div class="overflow-x-auto">
                     <table class="min-w-full">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                    Date</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                    Description</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                    Category</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                    Type</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                    Amount</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                    Actions</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Description</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Category</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse ($ledgers as $ledger)
                                 <tr class="hover:bg-gray-50">
-                                    {{-- Date --}}
+                                    {{-- Transaction Date --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-primary-600">
                                         {{ \Carbon\Carbon::parse($ledger->entry_date)->format('M d, Y') }}
                                     </td>
 
                                     {{-- Description + Notes --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-primary-900">{{ $ledger->description }}
-                                        </div>
+                                        <div class="text-sm font-medium text-primary-900">{{ $ledger->description }}</div>
                                         @if ($ledger->notes)
                                             <div class="text-sm text-primary-500">{{ $ledger->notes }}</div>
                                         @endif
@@ -176,24 +220,25 @@
                                         {{ $ledger->ledgerCategory->name ?? '—' }}
                                     </td>
 
-                                    {{-- Type --}}
+                                    {{-- Type (Income/Expense) --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if ($ledger->type == App\Enums\Ledger\LedgerType::INCOME)
-                                            <span
-                                                class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Income</span>
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                                Income
+                                            </span>
                                         @else
-                                            <span
-                                                class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Expense</span>
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                                Expense
+                                            </span>
                                         @endif
                                     </td>
 
                                     {{-- Amount --}}
-                                    <td
-                                        class="px-6 py-4 whitespace-nowrap text-sm font-medium {{ $ledger->type == App\Enums\Ledger\LedgerType::INCOME ? 'text-green-600' : 'text-red-600' }}">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {{ $ledger->type == App\Enums\Ledger\LedgerType::INCOME ? 'text-green-600' : 'text-red-600' }}">
                                         {{ $ledger->type == App\Enums\Ledger\LedgerType::INCOME ? '+' : '-' }}${{ number_format($ledger->amount) }}
                                     </td>
 
-                                    {{-- Actions --}}
+                                    {{-- Actions (View, Edit, Delete) --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-2">
                                             <a href="{{ route('client.ledgers.show', $ledger) }}"
@@ -209,8 +254,7 @@
                                                 class="inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900"
-                                                    title="Delete">
+                                                <button type="submit" class="text-red-600 hover:text-red-900" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -218,6 +262,7 @@
                                     </td>
                                 </tr>
                             @empty
+                                {{-- If no ledgers exist --}}
                                 <tr>
                                     <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
                                         No ledger entries found.
@@ -227,20 +272,22 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- Pagination Controls and Showing Results Info -->
+
+                {{-- =======================
+                    PAGINATION + RESULTS INFO
+                ======================== --}}
                 <div class="px-6 py-4 border-t border-gray-200">
                     <div class="flex items-center justify-between">
-                        {{-- Showing items range and total count --}}
+                        {{-- Results Count --}}
                         <div class="text-sm text-primary-600">
                             @if ($ledgers->total() > 0)
-                                Showing {{ $ledgers->firstItem() }} to {{ $ledgers->lastItem() }} of
-                                {{ $ledgers->total() }} results
+                                Showing {{ $ledgers->firstItem() }} to {{ $ledgers->lastItem() }} of {{ $ledgers->total() }} results
                             @else
                                 No results found.
                             @endif
                         </div>
 
-                        {{-- Pagination links --}}
+                        {{-- Pagination Links --}}
                         <div class="flex space-x-2">
                             <x-pagination :paginator="$ledgers" />
                         </div>
@@ -250,12 +297,17 @@
         </div>
     </div>
 
+    {{-- ===========================================================
+        CHART INITIALIZATION SCRIPT
+        Chart.js for Income vs Expenses line graph
+    ============================================================ --}}
     <script>
         const ledgerCanvas = document.getElementById('ledgerChart');
     
-        if (ledgerCanvas) { // only run if element exists
+        if (ledgerCanvas) {
             const ctx = ledgerCanvas.getContext('2d');
             const chartData = @json($chartData);
+
             const ledgerChart = new Chart(ctx, {
                 type: 'line',
                 data: chartData,
