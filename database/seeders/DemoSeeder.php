@@ -21,8 +21,8 @@ class DemoSeeder extends Seeder
             InvoiceSeeder::class,
             TicketSeeder::class,
             MemberSeeder::class,
-            // ProjectCategorySeeder::class,
-            // ProjectSeeder::class,
+            ProjectCategorySeeder::class,
+            ProjectSeeder::class,
         ]);
     }
 }
