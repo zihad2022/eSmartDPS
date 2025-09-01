@@ -26,7 +26,7 @@ class ProjectSeeder extends Seeder
                 'start_date' => '2025-01-15',
                 'end_date' => '2025-12-15',
                 'description' => 'Development of a residential complex with high ROI due to urban demand.',
-                'status' => ProjectStatus::CANCELLED->value,
+                'status' =>rand(1, 3),
             ],
             [
                 'name' => 'Stock Market Portfolio',
@@ -36,7 +36,7 @@ class ProjectSeeder extends Seeder
                 'start_date' => '2025-02-20',
                 'end_date' => '2025-08-20',
                 'description' => 'Diversified equity investment focusing on tech and healthcare stocks.',
-                'status' => ProjectStatus::COMPLETED->value,
+                'status' =>rand(1, 3),
             ],
             [
                 'name' => 'Agricultural Expansion',
@@ -46,7 +46,7 @@ class ProjectSeeder extends Seeder
                 'start_date' => '2024-06-01',
                 'end_date' => '2025-06-01',
                 'description' => 'Organic farming initiative with export opportunities in EU markets.',
-                'status' => ProjectStatus::COMPLETED->value,
+                'status' =>rand(1, 3),
             ],
             [
                 'name' => 'Small Business Loan',
@@ -56,7 +56,7 @@ class ProjectSeeder extends Seeder
                 'start_date' => '2025-03-10',
                 'end_date' => '2026-09-10',
                 'description' => 'Microloan project for a local handmade crafts business.',
-                'status' => ProjectStatus::ACTIVE->value,
+                'status' =>rand(1, 3),
             ],
             [
                 'name' => 'Community Grocery Chain',
@@ -66,7 +66,7 @@ class ProjectSeeder extends Seeder
                 'start_date' => '2024-10-01',
                 'end_date' => '2025-10-01',
                 'description' => 'Opening a chain of local grocery shops in rural areas.',
-                'status' => ProjectStatus::CANCELLED->value,
+                'status' =>rand(1, 3),
             ],
         ];
 
