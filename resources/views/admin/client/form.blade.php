@@ -5,11 +5,7 @@
     @endphp
 
     {{-- Set dynamic page title based on editing or creating --}}
-    @if ($editing)
-        <x-slot:title>Edit Client</x-slot:title>
-    @else
-        <x-slot:title>Add New Client</x-slot:title>
-    @endif
+<x-slot:title>{{ $editing ? 'Edit Client' : 'Add New Client' }}</x-slot:title>
 
     {{-- Breadcrumb navigation to help users understand their location --}}
     <x-breadcrumb :items="[
