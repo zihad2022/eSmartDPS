@@ -6,28 +6,20 @@
 | It is loaded inside the admin settings layout.  
 | Sections:
 | 1. Flash message display
-| 2. General settings form (site name, slogan, SEO data, meta codes, images)
+| 2. General settings form (organization info, contact info, address, currency)
 | 3. Save and cancel actions
 |--------------------------------------------------------------------------
 --}}
 
-<x-admin.settings.layout>
+<x-client.settings.layout>
 
     {{-- Display success or error flash message --}}
     @if (session('success') || session('error'))
-        {{-- 
-            Component: <x-flash-message>
-            Props:
-                - type: 'success' or 'error'
-                - title: Success or Error
-                - message: The flash message content
-        --}}
         <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
     @endif
 
     {{-- Main container for General Settings form --}}
     <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
-        {{-- Section title --}}
         <h2 class="text-xl font-semibold text-primary-900 mb-6">General Settings</h2>
 
         {{-- 
@@ -36,50 +28,66 @@
             Action: admin.settings.general.update
             Includes: CSRF protection & method spoofing
         --}}
-        <form method="POST" action="{{ route('admin.settings.general.update') }}" enctype="multipart/form-data"
+        <form method="POST" action="{{ route('client.settings.general.update') }}" enctype="multipart/form-data"
             class="space-y-8">
             @csrf
             @method('PUT')
 
-            {{-- Site Name & Site Slogan fields --}}
+            {{-- Organization Information --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <x-form.input name="site_name" label="Site Name" :value="old('site_name', $settings->site_name ?? '')" placeholder="Enter website name" />
+                <x-form.input name="organization_name" label="Organization Name" :value="old('organization_name', $settings->organization_name ?? '')"
+                    placeholder="Enter organization name" />
 
-                <x-form.input name="site_slogan" label="Site Slogan" :value="old('site_slogan', $settings->site_slogan ?? '')"
-                    placeholder="Enter site slogan" />
+                <x-form.input name="short_name" label="Short Name" :value="old('short_name', $settings->short_name ?? '')"
+                    placeholder="Enter short name (abbr.)" />
             </div>
 
-            {{-- Site Description --}}
-            <x-form.textarea name="site_description" label="Site Description" :value="old('site_description', $settings->site_description ?? '')"
-                placeholder="Enter short description" rows="3" />
+            {{-- Contact Information --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <x-form.input name="contact_email" label="Contact Email" type="email" :value="old('contact_email', $settings->contact_email ?? '')"
+                    placeholder="Enter contact email" />
 
-            {{-- Site Keywords (SEO) --}}
-            <x-form.textarea name="site_keywords" label="Site Keywords" :value="old('site_keywords', $settings->site_keywords ?? '')"
-                placeholder="Enter SEO keywords (comma separated)" rows="2" />
+                <x-form.input name="contact_phone" label="Contact Phone" :value="old('contact_phone', $settings->contact_phone ?? '')"
+                    placeholder="Enter phone number" />
+            </div>
 
-            {{-- Meta Codes (Analytics, tracking scripts) --}}
-            <x-form.textarea name="meta_codes" label="Meta Codes" :value="old('meta_codes', $settings->meta_codes ?? '')"
-                placeholder="Paste analytics or tracking codes here" rows="4" />
+            {{-- Address --}}
+            <x-form.textarea name="address" label="Address" :value="old('address', $settings->address ?? '')" placeholder="Enter organization address"
+                rows="3" />
 
-            {{-- Logo, Favicon & Open Graph Thumbnail uploads --}}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <x-form.input name="site_logo" label="Site Logo" type="file" :editing="true" :previewUrl="$settings->site_logo_url ?? null" />
-
-                <x-form.input name="favicon" label="Favicon" type="file" :editing="true" :previewUrl="$settings->favicon_url ?? null" />
-
-                <x-form.input name="graph_thumbnail" label="Open Graph Thumbnail" type="file" :editing="true"
-                    :previewUrl="$settings->graph_thumbnail_url ?? null" />
+            {{-- Currency Dropdown --}}
+            <div class="w-full">
+                <x-form.select name="currency" label="Currency" :options="[
+                    'USD' => 'USD - US Dollar',
+                    'EUR' => 'EUR - Euro',
+                    'GBP' => 'GBP - British Pound',
+                    'BDT' => 'BDT - Bangladeshi Taka',
+                    'INR' => 'INR - Indian Rupee',
+                    'AUD' => 'AUD - Australian Dollar',
+                    'CAD' => 'CAD - Canadian Dollar',
+                    'JPY' => 'JPY - Japanese Yen',
+                    'CNY' => 'CNY - Chinese Yuan',
+                    'SGD' => 'SGD - Singapore Dollar',
+                    'MYR' => 'MYR - Malaysian Ringgit',
+                    'THB' => 'THB - Thai Baht',
+                    'SAR' => 'SAR - Saudi Riyal',
+                    'AED' => 'AED - UAE Dirham',
+                    'PKR' => 'PKR - Pakistani Rupee',
+                    'LKR' => 'LKR - Sri Lankan Rupee',
+                    'NZD' => 'NZD - New Zealand Dollar',
+                    'CHF' => 'CHF - Swiss Franc',
+                    'HKD' => 'HKD - Hong Kong Dollar',
+                    'ZAR' => 'ZAR - South African Rand',
+                ]" :selected="old('currency', $settings->currency ?? 'USD')" required />
             </div>
 
             {{-- Form action buttons: Cancel & Save --}}
             <div class="flex justify-end space-x-4 pt-4">
-                {{-- Cancel button: redirects back to edit page without saving --}}
                 <a href="{{ route('admin.settings.general.edit') }}"
                     class="px-4 py-2 border border-gray-300 text-primary-700 rounded-lg hover:bg-gray-50 text-sm transition duration-300">
                     Cancel
                 </a>
 
-                {{-- Save Changes button --}}
                 <button type="submit"
                     class="px-4 py-2 bg-accent-500 text-white text-sm rounded-lg hover:bg-accent-600 transition duration-300">
                     Save Changes
@@ -87,4 +95,4 @@
             </div>
         </form>
     </div>
-</x-admin.settings.layout>
+</x-client.settings.layout>
