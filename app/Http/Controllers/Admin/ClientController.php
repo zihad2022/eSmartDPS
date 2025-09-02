@@ -80,11 +80,6 @@ class ClientController extends Controller
         $package = Package::find($request['package_id']);
         $this->packageService->startPackage($client, $package);
 
-        // Create client settings
-        ClientSetting::create([
-            'client_id' => $client->id,
-        ]);
-
         return redirect()
             ->route('admin.clients.index')
             ->with('success', 'Client created successfully.');
