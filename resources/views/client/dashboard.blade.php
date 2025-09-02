@@ -32,9 +32,9 @@
         {{-- Total Members Card --}}
         <x-card.stat-card label="Total Members" :value="$totalMembers" icon="fas fa-users" iconBgColor="bg-accent-100"
             iconTextColor="text-accent-600" />
-
+            
         {{-- Total Balance Card --}}
-        <x-card.stat-card label="Total Balance" :value="number_format($totalBalance)" icon="fas fa-wallet" iconBgColor="bg-secondary-100"
+        <x-card.stat-card label="Total Balance" :value="$settings->currency . ' ' . number_format($totalBalance)" icon="fas fa-wallet" iconBgColor="bg-secondary-100"
             iconTextColor="text-secondary-600" />
 
         {{-- Additional Cards can be added here if needed --}}
