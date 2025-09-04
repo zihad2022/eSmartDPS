@@ -6,6 +6,7 @@ use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\ProjectRequest;
 use App\Models\Client;
+use App\Models\ClientSetting;
 use App\Models\Project;
 use App\Models\ProjectCategory;
 use Carbon\Carbon;
@@ -68,6 +69,8 @@ class ProjectController extends Controller
         // Totals (only for current page data)
         $totalInvestmentAmount = $projects->sum('investment_amount');
         $totalExpectedReturn   = $projects->sum('expected_return');
+
+        $settings = ClientSetting::where('client_id', $clientId)->first();
     
         return view('client.project.index', [
             'projects'              => $projects,
@@ -77,6 +80,7 @@ class ProjectController extends Controller
             'cancelledProjects'     => $counts->cancelled_count,
             'totalInvestmentAmount' => $totalInvestmentAmount,
             'totalExpectedReturn'   => $totalExpectedReturn,
+            'settings'              => $settings,
         ]);
     }
     
