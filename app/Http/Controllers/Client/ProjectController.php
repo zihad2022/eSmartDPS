@@ -19,7 +19,7 @@ class ProjectController extends Controller
         $clientId = auth('client')->id();
     
         // Start query with eager loading for category relation
-        $projectsQuery = Project::with('category')
+        $projectsQuery = Project::with('projectCategory')
             ->where('client_id', $clientId)
             ->select(
                 'id',
