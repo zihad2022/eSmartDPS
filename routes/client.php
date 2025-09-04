@@ -9,7 +9,11 @@ use App\Http\Controllers\Client\MemberExportController;
 use App\Http\Controllers\Client\PaymentController;
 use App\Http\Controllers\Client\ProjectCategoryController;
 use App\Http\Controllers\Client\ProjectController;
+use App\Http\Controllers\Client\Settings\BackupSecurityController;
 use App\Http\Controllers\Client\Settings\GeneralController;
+use App\Http\Controllers\Client\Settings\NotificationController;
+use App\Http\Controllers\Client\Settings\PaymentController as SettingsPaymentController;
+use App\Http\Controllers\Client\Settings\ShareController;
 use App\Http\Controllers\Client\SubscriptionController;
 use App\Http\Controllers\Client\UserController;
 use Illuminate\Support\Facades\Route;
@@ -62,8 +66,25 @@ Route::prefix('client')->name('client.')->group(function () {
          * Settings
          */
         Route::prefix('settings')->name('settings.')->group(function () {
+            // General
             Route::get('general', [GeneralController::class, 'edit'])->name('general.edit');
             Route::put('general', [GeneralController::class, 'update'])->name('general.update');
+
+            // Share
+            Route::get('share', [ShareController::class, 'edit'])->name('share.edit');
+            Route::put('share', [ShareController::class, 'update'])->name('share.update');
+
+            // Payment
+            Route::get('payment', [SettingsPaymentController::class, 'edit'])->name('payment.edit');
+            Route::put('payment', [SettingsPaymentController::class, 'update'])->name('payment.update');
+
+            // Notification
+            Route::get('notification', [NotificationController::class, 'edit'])->name('notification.edit');
+            Route::put('notification', [NotificationController::class, 'update'])->name('notification.update');
+
+            // Backup & Security
+            Route::get('backup-security', [BackupSecurityController::class, 'edit'])->name('backup-security.edit');
+            Route::put('backup-security', [BackupSecurityController::class, 'update'])->name('backup-security.update');
         });
 
         /**
