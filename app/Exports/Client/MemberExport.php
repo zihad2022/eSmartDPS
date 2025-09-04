@@ -48,15 +48,15 @@ class MemberExport implements FromCollection, WithHeadings, WithMapping
     public function collection()
     {
         if ($this->status === 'active') {
-            return Member::active()->get();
+            return Member::active()->where('client_id', owner_client_id())->get();
         }
 
         if ($this->status === 'inactive') {
-            return Member::inactive()->get();
+            return Member::inactive()->where('client_id', owner_client_id())->get();
         }
 
         // If no status filter provided, return all members
-        return Member::all();
+        return Member::where('client_id', owner_client_id())->get();
     }
 
     /**
