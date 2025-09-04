@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\HasSlug;
+use App\Enums\ProjectStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,7 +33,7 @@ class Project extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function category()
+    public function projectCategory()
     {
         return $this->belongsTo(ProjectCategory::class, 'project_category_id');
     }
@@ -40,6 +41,7 @@ class Project extends Model
     public function casts(): array
     {
         return [
+            'status' => ProjectStatus::class,
             'start_date' => 'datetime',
             'end_date' => 'datetime',
         ];
@@ -74,5 +76,20 @@ class Project extends Model
         $elapsed = $now->diffInSeconds($start);
 
         return (int) round(($elapsed / $totalDuration) * 100);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', ProjectStatus::ACTIVE->value);
+    }
+
+    public function scopeInactive($query)
+    {
+        return $query->where('status', ProjectStatus::COMPLETED->value);
+    }
+
+    public function scopeCancelled($query)
+    {
+        return $query->where('status', ProjectStatus::CANCELLED->value);
     }
 }
