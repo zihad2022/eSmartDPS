@@ -30,17 +30,17 @@ return new class extends Migration
             // -----------------------
             // Share Settings
             // -----------------------
-            $table->decimal('share_price', 10, 2)->nullable();
+            $table->integer('share_price')->nullable();
             $table->integer('minimum_shares')->nullable();
             $table->integer('maximum_shares')->nullable();
-            $table->decimal('share_transfer_fee', 10, 2)->nullable();
+            $table->integer('share_transfer_fee')->nullable();
             $table->boolean('allow_partial_shares')->default(false);
         
             // -----------------------
             // Payment Settings
             // -----------------------
             $table->string('payment_due_date')->nullable(); // e.g., '1', '15', '30'
-            $table->decimal('late_payment_fee', 10, 2)->nullable();
+            $table->integer('late_payment_fee')->nullable();
             $table->integer('grace_period_days')->nullable();
             $table->json('payment_methods')->nullable(); // store multiple methods as JSON
         
@@ -49,11 +49,11 @@ return new class extends Migration
             // -----------------------
             $table->string('sms_api_provider')->nullable();
             $table->string('sms_api_key')->nullable();
-            $table->boolean('email_payments')->default(false);
-            $table->boolean('email_reminders')->default(false);
-            $table->boolean('email_reports')->default(false);
-            $table->boolean('sms_payments')->default(false);
-            $table->boolean('sms_reminders')->default(false);
+            $table->boolean('email_payment_confirmations')->default(false);
+            $table->boolean('email_payment_reminders')->default(false);
+            $table->boolean('email_payment_reports')->default(false);
+            $table->boolean('sms_payment_confirmations')->default(false);
+            $table->boolean('sms_payment_reminders')->default(false);
         
             // -----------------------
             // Backup & Security
