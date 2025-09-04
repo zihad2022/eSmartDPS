@@ -60,6 +60,6 @@ class GeneralController extends Controller
         // Redirect back to the edit page with success message
         return redirect()
             ->route('client.settings.general.edit')
-            ->with('success', 'Settings updated successfully.');
+            ->with('success', 'General settings updated successfully.');
     }
 }
