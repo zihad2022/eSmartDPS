@@ -29,7 +29,7 @@
             Includes: CSRF protection & method spoofing
         --}}
         <form method="POST" action="{{ route('client.settings.general.update') }}" enctype="multipart/form-data"
-            class="space-y-8">
+            class="space-y-6">
             @csrf
             @method('PUT')
 
@@ -82,17 +82,10 @@
             </div>
 
             {{-- Form action buttons: Cancel & Save --}}
-            <div class="flex justify-end space-x-4 pt-4">
-                <a href="{{ route('admin.settings.general.edit') }}"
-                    class="px-4 py-2 border border-gray-300 text-primary-700 rounded-lg hover:bg-gray-50 text-sm transition duration-300">
-                    Cancel
-                </a>
-
-                <button type="submit"
-                    class="px-4 py-2 bg-accent-500 text-white text-sm rounded-lg hover:bg-accent-600 transition duration-300">
-                    Save Changes
-                </button>
-            </div>
+            <button type="submit"
+                class="px-4 py-2 bg-accent-500 text-white text-sm rounded-lg hover:bg-accent-600 transition duration-300">
+                Save Changes
+            </button>
         </form>
     </div>
 </x-client.settings.layout>
