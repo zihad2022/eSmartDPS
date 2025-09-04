@@ -1,69 +1,87 @@
-<div id="notifications" class="settings-content bg-white rounded-xl shadow-sm p-6 hidden">
-    <h3 class="text-lg font-semibold text-primary-900 mb-6">Notification Settings</h3>
+<x-client.settings.layout>
+    {{-- Display success or error flash message --}}
+    @if (session('success') || session('error'))
+        <x-flash-message 
+            :type="session('success') ? 'success' : 'error'" 
+            :title="session('success') ? 'Success' : 'Error'" 
+            :message="session('success') ?? session('error')" 
+        />
+    @endif
 
-    <form class="space-y-6">
-        <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2">SMS API Provider</label>
-            <select
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500">
-                <option value="">Select SMS Provider</option>
-                <option value="twilio">Twilio</option>
-                <option value="nexmo">Nexmo</option>
-                <option value="africastalking">Africa's Talking</option>
-            </select>
-        </div>
+    <x-slot name="title">Settings</x-slot>
 
+    <div id="settings" class="settings-content bg-white rounded-xl shadow-sm p-6 space-y-10">
+     
+        {{-- ===============================
+            Notification Settings Section
+        =============================== --}}
         <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2">SMS API Key</label>
-            <input type="password" placeholder="Enter your SMS API key"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500">
-        </div>
+            <h3 class="text-lg font-semibold text-primary-900 mb-6">Notification Settings</h3>
 
-        <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2">Email Notifications</label>
-            <div class="space-y-2">
-                <div class="flex items-center">
-                    <input type="checkbox" id="emailPayments" checked
-                        class="w-4 h-4 text-accent-500 bg-gray-100 border-gray-300 rounded focus:ring-accent-500">
-                    <label for="emailPayments" class="ml-2 text-sm text-primary-700">Payment
-                        confirmations</label>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" id="emailReminders" checked
-                        class="w-4 h-4 text-accent-500 bg-gray-100 border-gray-300 rounded focus:ring-accent-500">
-                    <label for="emailReminders" class="ml-2 text-sm text-primary-700">Payment
-                        reminders</label>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" id="emailReports"
-                        class="w-4 h-4 text-accent-500 bg-gray-100 border-gray-300 rounded focus:ring-accent-500">
-                    <label for="emailReports" class="ml-2 text-sm text-primary-700">Monthly
-                        reports</label>
-                </div>
+            <form class="space-y-6" action="{{ route('client.settings.notification.update') }}" method="POST">
+                @csrf
+                @method('PUT')
+
+                {{-- SMS API Provider --}}
+                <x-form.input 
+                    name="sms_api_provider" 
+                    label="SMS API Provider" 
+                    :value="old('sms_api_provider', $settings->sms_api_provider ?? '')" 
+                    placeholder="Enter SMS API provider (e.g., Twilio)" 
+                />
+
+                {{-- SMS API Key --}}
+                <x-form.input 
+                    name="sms_api_key" 
+                    label="SMS API Key" 
+                    :value="old('sms_api_key', $settings->sms_api_key ?? '')" 
+                    placeholder="Enter SMS API key" 
+                />
+
+            <div>
+                <label class="block text-sm font-medium text-primary-700 mb-2">Email Notifications</label>
+                {{-- Email Notifications --}}
+                <x-form.checkbox 
+                    name="email_payment_confirmations" 
+                    label="Email Notifications for Payments" 
+                    :checked="old('email_payment_confirmations', $settings->email_payment_confirmations)" 
+                />
+
+                <x-form.checkbox 
+                    name="email_payment_reminders" 
+                    label="Email Notifications for Reminders" 
+                    :checked="old('email_payment_reminders', $settings->email_payment_reminders)" 
+                />
+
+                <x-form.checkbox 
+                    name="email_payment_reports" 
+                    label="Email Notifications for Reports" 
+                    :checked="old('email_payment_reports', $settings->email_payment_reports)" 
+                />
             </div>
-        </div>
 
-        <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2">SMS Notifications</label>
-            <div class="space-y-2">
-                <div class="flex items-center">
-                    <input type="checkbox" id="smsPayments"
-                        class="w-4 h-4 text-accent-500 bg-gray-100 border-gray-300 rounded focus:ring-accent-500">
-                    <label for="smsPayments" class="ml-2 text-sm text-primary-700">Payment
-                        confirmations</label>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" id="smsReminders" checked
-                        class="w-4 h-4 text-accent-500 bg-gray-100 border-gray-300 rounded focus:ring-accent-500">
-                    <label for="smsReminders" class="ml-2 text-sm text-primary-700">Payment
-                        reminders</label>
-                </div>
+            {{-- SMS Notifications --}}
+            <div>
+                <label class="block text-sm font-medium text-primary-700 mb-2">SMS Notifications</label>
+                <x-form.checkbox 
+                    name="sms_payment_confirmations" 
+                    label="SMS Notifications for Payments" 
+                    :checked="old('sms_payment_confirmations', $settings->sms_payment_confirmations)" 
+                />
+
+                <x-form.checkbox 
+                    name="sms_payment_reminders" 
+                    label="SMS Notifications for Reminders" 
+                    :checked="old('sms_payment_reminders', $settings->sms_payment_reminders)" 
+                />
             </div>
-        </div>
 
-        <button type="submit"
-            class="bg-accent-500 hover:bg-accent-600 text-white px-6 py-2 rounded-lg transition duration-300">
-            Save Changes
-        </button>
-    </form>
-</div>
+                {{-- Submit --}}
+                <button type="submit"
+                    class="bg-accent-500 hover:bg-accent-600 text-white px-6 py-2 rounded-lg transition duration-300">
+                    Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+</x-client.settings.layout>
