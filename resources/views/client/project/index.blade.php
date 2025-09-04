@@ -38,56 +38,21 @@
         {{-- Statistics Cards Section --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
             {{-- Total Projects --}}
-            <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs md:text-sm text-primary-500 font-medium">Total Projects</p>
-                        <h3 class="text-xl md:text-2xl font-bold text-primary-900">{{ $totalProjects }}</h3>
-                    </div>
-                    <div class="w-10 h-10 bg-accent-100 text-accent-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-project-diagram text-lg"></i>
-                    </div>
-                </div>
-            </div>
+            <x-card.stat-card label="Total Projects" :value="number_format($totalProjects)" icon="fas fa-project-diagram" iconBgColor="bg-accent-100"
+                iconTextColor="text-accent-600" />
 
             {{-- Active Projects --}}
-            <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs md:text-sm text-primary-500 font-medium">Active Projects</p>
-                        <h3 class="text-xl md:text-2xl font-bold text-primary-900">{{ $activeProjects }}</h3>
-                    </div>
-                    <div class="w-10 h-10 bg-green-100 text-green-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-play-circle text-lg"></i>
-                    </div>
-                </div>
-            </div>
+            <x-card.stat-card label="Active Projects" :value="number_format($activeProjects)" icon="fas fa-play-circle" iconBgColor="bg-green-100"
+                iconTextColor="text-green-600" />
 
             {{-- Total Investment --}}
-            <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs md:text-sm text-primary-500 font-medium">Total Invested</p>
-                        <h3 class="text-xl md:text-2xl font-bold text-primary-900">${{ $totalInvestmentAmount }}</h3>
-                    </div>
-                    <div class="w-10 h-10 bg-secondary-100 text-secondary-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-dollar-sign text-lg"></i>
-                    </div>
-                </div>
-            </div>
+            <x-card.stat-card label="Total Investment" :value="$settings->currency .' '. number_format($totalInvestmentAmount)" icon="fas fa-dollar-sign" iconBgColor="bg-secondary-100"
+                iconTextColor="text-secondary-600" />
 
             {{-- Total Profits --}}
-            <div class="bg-white rounded-xl shadow-sm p-4 md:p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs md:text-sm text-primary-500 font-medium">Total Profits</p>
-                        <h3 class="text-xl md:text-2xl font-bold text-primary-900">${{ $totalExpectedReturn }}</h3>
-                    </div>
-                    <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-chart-line text-lg"></i>
-                    </div>
-                </div>
-            </div>
+            <x-card.stat-card label="Total Profits" :value="$settings->currency .' '. number_format($totalExpectedReturn)" icon="fas fa-chart-line" iconBgColor="bg-purple-100"
+                iconTextColor="text-purple-600" />
+
         </div>
 
         {{-- Projects Table Section --}}
@@ -139,7 +104,7 @@
 
                                 {{-- Invested Amount --}}
                                 <td class="px-6 py-4 text-sm font-semibold text-primary-900">
-                                    ${{ number_format($project->investment_amount, 2) }}
+                                    {{ $settings->currency }} {{ number_format($project->investment_amount) }}
                                 </td>
 
                                 {{-- Expected Return (percentage) --}}
