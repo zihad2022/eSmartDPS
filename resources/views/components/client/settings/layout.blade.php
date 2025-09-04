@@ -2,10 +2,10 @@
     @php
         $pages = [
             'client.settings.general.edit' => 'General Settings',
-            'admin.settings.payments.edit' => 'Payment Settings',
-            'admin.settings.sms.edit' => 'SMS Settings',
-            'admin.settings.email.edit' => 'Email Settings',
-            'admin.settings.backup.edit' => 'Backup & Security',
+            'client.settings.share.edit' => 'Share Settings',
+            'client.settings.payment.edit' => 'Payment Settings',
+            'client.settings.notification.edit' => 'Notification Settings',
+            'client.settings.backup-security.edit' => 'Backup & Security',
         ];
 
         $currentRoute = collect($pages)->first(fn($label, $route) => request()->routeIs($route));
@@ -30,31 +30,25 @@
                                {{ request()->routeIs('client.settings.general.edit') ? 'bg-accent-500 text-white active' : '' }}">
                             <i class="fas fa-cog mr-3"></i> General Settings
                         </button>
-                        {{-- <button type="button" onclick="window.location.href='{{ route('admin.settings.shares.edit') }}'"
-                            class="w-full text-left px-4 py-3 rounded-lg transition duration-300 
-                               {{ request()->routeIs('admin.settings.shares.edit') ? 'bg-accent-500 text-white active' : '' }}">
-                            <i class="fas fa-chart-pie mr-3"></i>Share Settings
-                        </button> --}}
                         <button type="button"
-                            onclick="window.location.href='{{ route('admin.settings.payments.edit') }}'"
+                            onclick="window.location.href='{{ route('client.settings.share.edit') }}'"
                             class="w-full text-left px-4 py-3 rounded-lg transition duration-300 
-                               {{ request()->routeIs('admin.settings.payments.edit') ? 'bg-accent-500 text-white active' : '' }}">
+                               {{ request()->routeIs('client.settings.share.edit') ? 'bg-accent-500 text-white active' : '' }}">
+                            <i class="fas fa-chart-pie mr-3"></i>Share Settings
+                        </button>
+                        <button type="button" onclick="window.location.href='{{ route('client.settings.payment.edit') }}'"
+                            class="w-full text-left px-4 py-3 rounded-lg transition duration-300 
+                               {{ request()->routeIs('client.settings.payment.edit') ? 'bg-accent-500 text-white active' : '' }}">
                             <i class="fas fa-money-bill-wave mr-3"></i>Payment Settings
                         </button>
-                        <button type="button" onclick="window.location.href='{{ route('admin.settings.sms.edit') }}'"
+                        <button type="button" onclick="window.location.href='{{ route('client.settings.notification.edit') }}'"
                             class="w-full text-left px-4 py-3 rounded-lg transition duration-300 
-                               {{ request()->routeIs('admin.settings.sms.edit') ? 'bg-accent-500 text-white active' : '' }}">
-                            <i class="fas fa-sms mr-3"></i>SMS Settings
+                               {{ request()->routeIs('client.settings.notification.edit') ? 'bg-accent-500 text-white active' : '' }}">
+                            <i class="fas fa-bell mr-3"></i>Notification Settings
                         </button>
-                        <button type="button" onclick="window.location.href='{{ route('admin.settings.email.edit') }}'"
+                        <button type="button" onclick="window.location.href='{{ route('client.settings.backup-security.edit') }}'"
                             class="w-full text-left px-4 py-3 rounded-lg transition duration-300 
-                               {{ request()->routeIs('admin.settings.email.edit') ? 'bg-accent-500 text-white active' : '' }}">
-                            <i class="fas fa-envelope mr-3"></i>Email Settings
-                        </button>
-                        <button type="button"
-                            onclick="window.location.href='{{ route('admin.settings.backup.edit') }}'"
-                            class="w-full text-left px-4 py-3 rounded-lg transition duration-300 
-                               {{ request()->routeIs('admin.settings.backup.edit') ? 'bg-accent-500 text-white active' : '' }}">
+                               {{ request()->routeIs('client.settings.backup-security.edit') ? 'bg-accent-500 text-white active' : '' }}">
                             <i class="fas fa-database mr-3"></i>Backup & Security
                         </button>
                     </nav>
