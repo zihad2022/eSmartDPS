@@ -16,4 +16,22 @@ enum ProjectStatus: int
             self::CANCELLED => 'Cancelled',
         };
     }
+
+    public function bgColor(): string
+    {
+        return match ($this) {
+            self::ACTIVE => 'bg-green-100',
+            self::COMPLETED => 'bg-gray-100',
+            self::CANCELLED => 'bg-red-100',
+        };
+    }
+
+    public function color(): string
+    {
+        return match ($this) {
+            self::ACTIVE => 'text-green-600',
+            self::COMPLETED => 'text-gray-600',
+            self::CANCELLED => 'text-red-600',
+        };
+    }
 }
