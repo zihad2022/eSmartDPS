@@ -77,7 +77,7 @@
                 <!-- Total Balance -->
                 <div class="bg-gray-50 p-4 rounded-lg shadow">
                     <p class="text-sm text-gray-500 font-medium">Total Balance</p>
-                    <h3 class="text-lg font-semibold text-gray-800">${{ number_format($member->total_balance, 2) }}</h3>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ $settings->currency . ' ' . number_format($member->total_balance) }}</h3>
                 </div>
 
                 <!-- Join Date -->
