@@ -61,10 +61,16 @@
             {{-- Table Header with Add Button --}}
             <div class="p-6 border-b border-gray-200 flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-primary-900">All Projects</h3>
+                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
                 <a href="{{ route('client.projects.create') }}"
                     class="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
                     Add Project
                 </a>
+                <a href="{{ route('client.projects.export', ['status' => $status]) }}"
+                    class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
+                    <i class="fas fa-download mr-2"></i>Export
+                </a>
+                </div>
             </div>
 
             {{-- Projects Table --}}
@@ -99,7 +105,7 @@
 
                                 {{-- Category --}}
                                 <td class="px-6 py-4 text-sm text-primary-600">
-                                    {{ $project->category->name ?? 'N/A' }}
+                                    {{ $project->projectCategory->name ?? 'N/A' }}
                                 </td>
 
                                 {{-- Invested Amount --}}
@@ -119,18 +125,10 @@
 
                                 {{-- Status Badge --}}
                                 <td class="px-6 py-4">
-                                    @php
-                                        $status = \App\Enums\ProjectStatus::from($project->status);
-                                        $statusLabel = $status->label();
-                                        $statusClasses = match ($status) {
-                                            \App\Enums\ProjectStatus::ACTIVE => 'bg-green-100 text-green-800',
-                                            \App\Enums\ProjectStatus::COMPLETED => 'bg-gray-100 text-gray-800',
-                                            \App\Enums\ProjectStatus::CANCELLED => 'bg-red-100 text-red-800',
-                                        };
-                                    @endphp
-                                    <span class="px-2 py-1 text-xs font-medium rounded-full {{ $statusClasses }}">
-                                        {{ $statusLabel }}
-                                    </span>
+                                    <span
+                                    class="px-2 py-1 text-xs font-medium rounded {{ $project->status->bgColor() }} {{ $project->status->color() }}">
+                                    {{ $project->status->label() }}
+                                </span>
                                 </td>
 
                                 {{-- Progress Bar --}}
@@ -138,16 +136,25 @@
                                     <div class="w-32 bg-gray-200 rounded-full h-2">
                                         @php
                                             $progress = $project->progress_percent ?? 0;
+                                
+                                            // Ensure progress is between 0 and 100
+                                            $progress = max(0, min(100, $progress));
+                                
                                             $progressColor = match (true) {
                                                 $progress >= 80 => 'bg-green-500',
                                                 $progress >= 50 => 'bg-yellow-500',
-                                                $progress > 0 => 'bg-red-500',
-                                                default => 'bg-gray-300',
+                                                $progress > 0  => 'bg-red-500',
+                                                default        => 'bg-gray-300',
                                             };
                                         @endphp
+                                
                                         <div class="h-2 rounded-full {{ $progressColor }}" style="width: {{ $progress }}%"></div>
                                     </div>
+                                
+                                    {{-- Optional: show numeric progress --}}
+                                    <span class="text-xs text-primary-700 ml-2">{{ $progress }}%</span>
                                 </td>
+                                
 
                                 {{-- Action Buttons (View, Edit, Delete) --}}
                                 <td class="px-6 py-4 text-sm font-medium">
