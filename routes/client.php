@@ -9,6 +9,7 @@ use App\Http\Controllers\Client\MemberExportController;
 use App\Http\Controllers\Client\PaymentController;
 use App\Http\Controllers\Client\ProjectCategoryController;
 use App\Http\Controllers\Client\ProjectController;
+use App\Http\Controllers\Client\ProjectExportController;
 use App\Http\Controllers\Client\Settings\BackupSecurityController;
 use App\Http\Controllers\Client\Settings\GeneralController;
 use App\Http\Controllers\Client\Settings\NotificationController;
@@ -104,5 +105,7 @@ Route::prefix('client')->name('client.')->group(function () {
         // Data Exports
         Route::get('members-export', MemberExportController::class)
             ->name('members.export');
+        Route::get('projects-export', ProjectExportController::class)
+            ->name('projects.export');
     });
 });
