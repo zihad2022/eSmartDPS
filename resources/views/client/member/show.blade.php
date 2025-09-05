@@ -1,9 +1,6 @@
 <x-client.layout.app>
     @php
-        // Page is for viewing a single member
         $pageTitle = 'Member Details';
-
-        // Breadcrumb items: Dashboard > Members > Member Details
         $breadcrumbItems = [
             ['label' => 'Dashboard', 'url' => route('client.dashboard')],
             ['label' => 'Members', 'url' => route('client.members.index')],
@@ -11,74 +8,92 @@
         ];
     @endphp
 
-    {{-- Set HTML page title --}}
     <x-slot:title>{{ $pageTitle }}</x-slot:title>
-
-    {{-- Render breadcrumb navigation --}}
     <x-breadcrumb :items="$breadcrumbItems" />
 
-    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm p-6">
-        {{-- Member Heading --}}
-        <div class="flex items-center space-x-4 mb-6">
-            {{-- Member Avatar --}}
-            @if ($member->profile_photo)
-                <img src="{{ $member->profile_photo_url }}" alt="Member Avatar" class="w-20 h-20 rounded-full">
-            @else
-                <img src="https://ui-avatars.com/api/?name={{ urlencode($member->name) }}&background=0D8ABC&color=fff"
-                    alt="Member Avatar" class="w-20 h-20 rounded-full">
-            @endif
+    <div>
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2 md:mb-0">{{ $pageTitle }}</h1>
+        </div>
 
-            {{-- Member Name and Status --}}
-            <div>
-                <h2 class="text-2xl font-semibold text-primary-900">{{ $member->name }}</h2>
-                <p class="text-sm text-primary-500">{{ $member->email }}</p>
-
-                {{-- Status Badge --}}
-                @if ($member->status)
-                    <span class="mt-1 inline-block px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Active</span>
-                @else
-                    <span class="mt-1 inline-block px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Inactive</span>
-                @endif
+        <!-- Main Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gray-50 border-l-4 border-green-500 p-4 rounded-lg shadow hover:shadow-lg transition">
+                <p class="text-sm text-gray-500 font-medium">Member ID</p>
+                <h3 class="text-lg font-semibold text-gray-800">{{ $member->member_id }}</h3>
+            </div>
+            <div class="bg-gray-50 border-l-4 border-green-500 p-4 rounded-lg shadow hover:shadow-lg transition">
+                <p class="text-sm text-gray-500 font-medium">Name</p>
+                <h3 class="text-lg font-semibold text-gray-800">{{ $member->name }}</h3>
+            </div>
+            <div class="bg-gray-50 border-l-4 border-green-500 p-4 rounded-lg shadow hover:shadow-lg transition">
+                <p class="text-sm text-gray-500 font-medium">Email</p>
+                <h3 class="text-lg font-semibold text-gray-800">{{ $member->email }}</h3>
             </div>
         </div>
 
-        {{-- Member Details Grid --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {{-- Member ID --}}
-            <div>
-                <p class="text-sm font-medium text-primary-500">Member ID</p>
-                <p class="text-sm text-primary-900">{{ $member->member_id }}</p>
-            </div>
+        <!-- Details Section -->
+        <div class="bg-white rounded-xl shadow p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            {{-- Phone Number --}}
-            <div>
-                <p class="text-sm font-medium text-primary-500">Phone</p>
-                <p class="text-sm text-primary-900">{{ $member->phone ?? 'N/A' }}</p>
-            </div>
+                <!-- Avatar -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow flex items-center space-x-4">
+                    @if ($member->profile_photo)
+                        <img src="{{ $member->profile_photo_url }}" alt="Avatar" class="w-20 h-20 rounded-full">
+                    @else
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode($member->name) }}&background=007BFF&color=fff"
+                             alt="Avatar" class="w-20 h-20 rounded-full">
+                    @endif
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Avatar</p>
+                        <h3 class="text-lg font-semibold text-gray-800">{{ $member->name }}</h3>
+                    </div>
+                </div>
 
-            {{-- Share Quantity --}}
-            <div>
-                <p class="text-sm font-medium text-primary-500">Share Quantity</p>
-                <p class="text-sm text-primary-900">{{ number_format($member->share_quantity) }}</p>
-            </div>
+                <!-- Status -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow flex flex-col justify-center">
+                    <p class="text-sm text-gray-500 font-medium">Status</p>
+                    @if ($member->status)
+                        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Active</span>
+                    @else
+                        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Inactive</span>
+                    @endif
+                </div>
 
-            {{-- Total Balance --}}
-            <div>
-                <p class="text-sm font-medium text-primary-500">Total Balance</p>
-                <p class="text-sm text-green-600 font-semibold">${{ number_format($member->total_balance, 2) }}</p>
-            </div>
+                <!-- Phone -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow">
+                    <p class="text-sm text-gray-500 font-medium">Phone</p>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ $member->phone ?? 'N/A' }}</h3>
+                </div>
 
-            {{-- Join Date --}}
-            <div>
-                <p class="text-sm font-medium text-primary-500">Join Date</p>
-                <p class="text-sm text-primary-900">{{ $member->created_at->format('M d, Y') }}</p>
-            </div>
+                <!-- Share Quantity -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow">
+                    <p class="text-sm text-gray-500 font-medium">Share Quantity</p>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ number_format($member->share_quantity) }}</h3>
+                </div>
 
-            {{-- Status (repeated for clarity) --}}
-            <div>
-                <p class="text-sm font-medium text-primary-500">Status</p>
-                <p class="text-sm text-primary-900">{{ $member->status ? 'Active' : 'Inactive' }}</p>
+                <!-- Total Balance -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow">
+                    <p class="text-sm text-gray-500 font-medium">Total Balance</p>
+                    <h3 class="text-lg font-semibold text-gray-800">${{ number_format($member->total_balance, 2) }}</h3>
+                </div>
+
+                <!-- Join Date -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow">
+                    <p class="text-sm text-gray-500 font-medium">Join Date</p>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ $member->created_at->format('M d, Y') }}</h3>
+                </div>
             </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end space-x-4">
+            <a href="{{ route('client.members.index') }}"
+               class="px-4 py-2 border border-gray-400 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition">Back</a>
+            <a href="{{ route('client.members.edit', $member) }}"
+               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition">Edit</a>
         </div>
     </div>
 </x-client.layout.app>
