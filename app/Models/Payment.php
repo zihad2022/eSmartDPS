@@ -20,7 +20,8 @@ class Payment extends Model
 
     protected $casts = [
         'date' => 'date',
-        'amount' => 'decimal:2',
+        'due_date' => 'date',
+        'amount' => 'integer',
         'payment_method' => PaymentMethod::class,
         'status' => PaymentStatus::class,
     ];
