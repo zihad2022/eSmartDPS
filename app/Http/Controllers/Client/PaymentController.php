@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
+use App\Models\ClientSetting;
 use App\Models\Member;
 use App\Models\Payment;
 use Illuminate\Http\Request;
@@ -32,6 +33,8 @@ class PaymentController extends Controller
         $totals = Payment::whereHas('member', fn ($q) => $q->where('client_id', $client))
             ->sum('amount');
 
+        $settings = ClientSetting::where('client_id', $client)->first();
+
         return view('client.payment.index', [
             'payments' => $payments,
             'totalPayments' => $summary->sum(),
@@ -40,7 +43,20 @@ class PaymentController extends Controller
             'paidCount' => $summary[PaymentStatus::PAID->value] ?? 0,
             'cancelledCount' => $summary[PaymentStatus::CANCELLED->value] ?? 0,
             'totalAmount' => $totals,
+            'settings' => $settings,
         ]);
+    }
+
+    public function show($id)
+    {
+        $clientId = owner_client_id();
+
+        $payment = Payment::with('member')
+            ->where('id', $id)
+            ->whereHas('member', fn ($q) => $q->where('client_id', $clientId))
+            ->firstOrFail();
+
+        return view('client.payment.show', compact('payment'));
     }
 
     public function edit($id)
