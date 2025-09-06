@@ -3,8 +3,18 @@
     use App\Enums\PaymentStatus;
     $editing = isset($payment); // define before any Blade logic
 @endphp
+ 
 
 <x-client.layout.app>
+       {{-- Set dynamic page title based on editing or creating --}}
+       <x-slot:title>{{ $editing ? 'Edit Payment' : 'Add New Payment' }}</x-slot:title>
+
+       {{-- Breadcrumb navigation to help users understand their location --}}
+       <x-breadcrumb :items="[
+        ['label' => 'Dashboard', 'url' => route('client.dashboard')],
+        ['label' => 'All Payments', 'url' => route('client.payments.index')],
+        ['label' => $editing ? 'Edit Payment' : 'Add New Payment'],
+    ]" />
     <div class="">
         <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
             <h2 class="text-xl font-semibold text-primary-900 mb-6">
@@ -20,9 +30,12 @@
                 @endif
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <x-form.input name="payment_id" label="Payment ID" :value="old('payment_id', $payment->payment_id ?? '')" required
+                    <!-- Payment ID -->
+                    <x-form.input name="payment_id" label="Payment ID"
+                        :value="old('payment_id', $payment->payment_id ?? generate_payment_id())" required
                         placeholder="Enter Payment ID" :disabled="true" />
 
+                    <!-- Member -->
                     <div>
                         <label for="member_id" class="block text-sm font-medium text-primary-700 mb-2">Member</label>
                         <select name="member_id" id="member_id"
@@ -43,23 +56,27 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <x-form.input name="amount" label="Amount" type="number" step="0.01" :value="old('amount', $payment->amount ?? '')" required
-                        placeholder="Enter amount" :disabled="$editing" />
+                    <!-- Amount -->
+                    <x-form.input name="amount" label="Amount" type="number" step="0.01"
+                        :value="old('amount', $payment->amount ?? '')" required
+                        placeholder="Enter amount" />
 
-                    <x-form.input name="date" label="Payment Date" type="date" :value="old('date', isset($payment->date) ? $payment->date->format('Y-m-d') : '')" required
-                        :disabled="$editing" />
+                    <!-- Currency -->
+                    <x-form.input name="currency" label="Currency" type="text"
+                        :value="old('currency', $payment->currency ?? 'USD')" required
+                        placeholder="Enter currency code (e.g., USD)" />
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Payment Method -->
                     <div>
-                        <label for="payment_method" class="block text-sm font-medium text-primary-700 mb-2">Payment
-                            Method</label>
+                        <label for="payment_method" class="block text-sm font-medium text-primary-700 mb-2">Payment Method</label>
                         <select name="payment_method" id="payment_method"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
-                            required @if ($editing) disabled @endif>
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-500">
+                            <option value="">-- Select Method --</option>
                             @foreach (PaymentMethod::cases() as $method)
                                 <option value="{{ $method->value }}"
-                                    {{ old('payment_method', $payment->payment_method->value ?? 1) == $method->value ? 'selected' : '' }}>
+                                    {{ old('payment_method', $payment->payment_method->value ?? '') == $method->value ? 'selected' : '' }}>
                                     {{ $method->label() }}
                                 </option>
                             @endforeach
@@ -69,15 +86,14 @@
                         @enderror
                     </div>
 
+                    <!-- Payment Status -->
                     <div>
-                        <label for="status" class="block text-sm font-medium text-primary-700 mb-2">Payment
-                            Status</label>
+                        <label for="status" class="block text-sm font-medium text-primary-700 mb-2">Payment Status</label>
                         <select name="status" id="status"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
-                            required>
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-500" required>
                             @foreach (PaymentStatus::cases() as $status)
                                 <option value="{{ $status->value }}"
-                                    {{ old('status', $payment->status->value ?? 1) == $status->value ? 'selected' : '' }}>
+                                    {{ old('status', $payment->status->value ?? '') == $status->value ? 'selected' : '' }}>
                                     {{ $status->label() }}
                                 </option>
                             @endforeach
@@ -86,6 +102,39 @@
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Transaction ID -->
+                    <x-form.input name="transaction_id" label="Transaction ID"
+                        :value="old('transaction_id', $payment->transaction_id ?? '')"
+                        placeholder="Payment gateway transaction ID" />
+
+                    <!-- Reference -->
+                    <x-form.input name="reference" label="Reference"
+                        :value="old('reference', $payment->reference ?? '')"
+                        placeholder="Internal/external reference" />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Paid At -->
+                    <x-form.input name="paid_at" label="Paid Date" type="datetime-local"
+                        :value="old('paid_at', isset($payment->paid_at) ? $payment->paid_at->format('Y-m-d\TH:i') : '')"
+                        placeholder="When payment was made" />
+
+                    <!-- Due Date -->
+                    <x-form.input name="due_date" label="Due Date" type="date"
+                        :value="old('due_date', isset($payment->due_date) ? $payment->due_date->format('Y-m-d') : '')"
+                        placeholder="Payment due date" />
+                </div>
+
+                <!-- Meta / Notes -->
+                <div>
+                    <x-form.textarea name="meta" label="Notes / Meta JSON" rows="3"
+                        placeholder='Optional: {"note": "example"}'>{{ old('meta', $payment->meta ?? '') }}</x-form.textarea>
+                    @error('meta')
+                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div class="flex justify-end space-x-4 pt-4">
