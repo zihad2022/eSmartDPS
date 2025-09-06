@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\MemberRequest;
 use App\Models\Client;
+use App\Models\ClientSetting;
 use App\Models\Member;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
@@ -99,8 +100,9 @@ class MemberController extends Controller
     public function show(Member $member)
     {
         authorize_owner($member);
+        $settings = ClientSetting::where('client_id', owner_client_id())->first();
 
-        return view('client.member.show', compact('member'));
+        return view('client.member.show', compact('member', 'settings'));
     }
 
     /**
