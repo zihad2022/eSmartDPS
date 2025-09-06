@@ -57,7 +57,7 @@ Route::prefix('client')->name('client.')->group(function () {
 
         // Payments (limited actions)
         Route::resource('payments', PaymentController::class)
-            ->only(['index', 'edit', 'update']);
+            ->only(['index', 'edit', 'update', 'show']);
 
         // Users (restricted by role)
         Route::resource('users', UserController::class)
@@ -109,3 +109,8 @@ Route::prefix('client')->name('client.')->group(function () {
             ->name('projects.export');
     });
 });
+
+
+Route::get('design', function () {
+    return view('design');
+})->name('design');
