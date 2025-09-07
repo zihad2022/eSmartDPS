@@ -56,9 +56,9 @@
                 <div class="bg-gray-50 p-4 rounded-lg shadow flex flex-col justify-center">
                     <p class="text-sm text-gray-500 font-medium">Status</p>
                     @if ($member->status)
-                        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Active</span>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full w-fit bg-green-100 text-green-800">Active</span>
                     @else
-                        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Inactive</span>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full w-fit bg-red-100 text-red-800">Inactive</span>
                     @endif
                 </div>
 
