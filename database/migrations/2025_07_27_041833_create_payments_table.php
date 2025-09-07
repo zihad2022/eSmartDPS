@@ -20,8 +20,7 @@ return new class extends Migration
             $table->foreignId('client_id')->constrained()->onDelete('cascade'); // Linked client
             $table->foreignId('member_id')->constrained()->onDelete('cascade'); // Linked member/customer
         
-            $table->decimal('amount', 12, 2); // Payment amount
-            $table->string('currency', 10)->default('USD'); // Currency (default USD)
+            $table->integer('amount'); // Payment amount
         
             $table->integer('payment_method')->nullable(); // e.g. cash, card, bank
             $table->string('transaction_id')->nullable(); // Gateway transaction ID
