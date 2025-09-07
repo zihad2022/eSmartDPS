@@ -130,7 +130,7 @@
                                 {{-- Client Name with Profile Photo or Placeholder Avatar --}}
                                 <td class="px-6 py-4 whitespace-nowrap flex items-center">
                                     <img src="{{ $client->profile_photo
-                                        ? asset('storage/' . $client->profile_photo)
+                                        ? $client->profile_photo_url
                                         : 'https://ui-avatars.com/api/?name=' . urlencode($client->first_name . ' ' . $client->last_name) }}"
                                         alt="Profile Photo" class="w-10 h-10 rounded-full mr-3">
                                     <span class="text-sm font-medium text-primary-900">
