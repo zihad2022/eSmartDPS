@@ -76,7 +76,7 @@ class PaymentController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'status' => ['required', 'integer', 'in:'.implode(',', array_column(PaymentStatus::cases(), 'value'))],
+            'status' => ['required', 'string', 'in:'.implode(',', array_column(PaymentStatus::cases(), 'value'))],
         ]);
 
         $clientId = owner_client_id();
@@ -89,5 +89,19 @@ class PaymentController extends Controller
 
         return redirect()->route('client.payments.index')
             ->with('success', 'Payment status updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $clientId = owner_client_id();
+
+        $payment = Payment::where('id', $id)
+            ->whereHas('member', fn ($q) => $q->where('client_id', $clientId))
+            ->firstOrFail();
+
+        $payment->delete();
+
+        return redirect()->route('client.payments.index')
+            ->with('success', 'Payment deleted successfully.');
     }
 }
