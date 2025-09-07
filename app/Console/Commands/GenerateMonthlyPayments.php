@@ -8,7 +8,7 @@ use App\Models\Member;
 use App\Models\Payment;
 use App\Enums\PaymentStatus;
 
-class MemberDuePaymentsGenerator extends Command
+class GenerateMonthlyPayments extends Command
 {
     protected $signature = 'payments:generator';
     protected $description = 'Generate due payments for all clients';
@@ -52,7 +52,7 @@ class MemberDuePaymentsGenerator extends Command
                     'member_id'       => $member->id,
                     'amount'          => $dueAmount,
                     'currency'        => 'USD',              // default currency
-                    'payment_method'  => null,               // e.g., cash, card
+                    'payment_method'  => rand(1,5),               // e.g., cash, card
                     'transaction_id'  => null,               // payment gateway reference
                     'reference'       => null,               // optional internal reference
                     'status'          => PaymentStatus::DUE->value,
