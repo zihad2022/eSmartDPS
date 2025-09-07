@@ -6,14 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\ProjectCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ProjectCategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $clientId = auth('client')->id();
+        $clientId = owner_client_id();
 
-        // Check if editing a category
+        // If editing a category
         if ($request->has('edit')) {
             $editCategory = ProjectCategory::where('client_id', $clientId)
                 ->findOrFail($request->edit);
@@ -42,16 +43,19 @@ class ProjectCategoryController extends Controller
 
     public function store(Request $request)
     {
-        $clientId = auth('client')->id();
+        $clientId = owner_client_id();
 
+        // Validate category name unique per client
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:project_categories,name'],
+            'name' => [
+                'required', 'string', 'max:255',
+                Rule::unique('project_categories')->where(fn ($q) => $q->where('client_id', $clientId)),
+            ],
         ]);
 
         ProjectCategory::create([
-            'client_id' => owner_client_id(),
+            'client_id' => $clientId,
             'name' => $validated['name'],
-            'slug' => Str::slug($validated['name']),
         ]);
 
         return redirect()->route('client.project-categories.index')
@@ -69,13 +73,18 @@ class ProjectCategoryController extends Controller
     {
         $this->authorizeCategory($projectCategory);
 
+        $clientId = auth('client')->id();
+
+        // Validate uniqueness only inside the same client
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:project_categories,name,'.$projectCategory->id],
+            'name' => [
+                'required', 'string', 'max:255',
+                Rule::unique('project_categories')->ignore($projectCategory->id)->where(fn ($q) => $q->where('client_id', $clientId)),
+            ],
         ]);
 
         $projectCategory->update([
             'name' => $validated['name'],
-            'slug' => Str::slug($validated['name']),
         ]);
 
         return redirect()->route('client.project-categories.index')
