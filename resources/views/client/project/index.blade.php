@@ -35,6 +35,10 @@
     <x-breadcrumb :items="$breadcrumbItems" />
 
     <div class="">
+          {{-- Display flash messages (success or error) if any --}}
+          @if (session('success') || session('error'))
+          <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
+      @endif
         {{-- Statistics Cards Section --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
             {{-- Total Projects --}}
