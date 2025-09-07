@@ -57,7 +57,7 @@ Route::prefix('client')->name('client.')->group(function () {
 
         // Payments (limited actions)
         Route::resource('payments', PaymentController::class)
-            ->only(['index', 'edit', 'update', 'show']);
+            ->only(['index', 'edit', 'update', 'show', 'destroy']);
 
         // Users (restricted by role)
         Route::resource('users', UserController::class)
