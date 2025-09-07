@@ -72,7 +72,8 @@
                 {{-- Payment Status --}}
                 <div class="bg-gray-50 p-4 rounded-lg shadow">
                     <p class="text-sm text-gray-500 font-medium">Status</p>
-                    <span class="inline-block px-3 py-1 text-xs font-medium rounded-full
+                    <span
+                        class="inline-block px-3 py-1 text-xs font-medium rounded-full
                         {{ $payment->status->bgColor() }} {{ $payment->status->color() }}">
                         {{ $payment->status->label() }}
                     </span>
@@ -121,13 +122,13 @@
         <div class="flex justify-end space-x-4">
             {{-- Back to Payment List --}}
             <a href="{{ route('client.payments.index') }}"
-               class="px-4 py-2 border border-gray-400 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition">
+                class="px-4 py-2 border border-gray-400 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition">
                 Back
             </a>
 
             {{-- Edit Payment --}}
             <a href="{{ route('client.payments.edit', $payment) }}"
-               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition">
+                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition">
                 Edit
             </a>
         </div>
