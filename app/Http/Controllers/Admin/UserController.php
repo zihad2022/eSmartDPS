@@ -4,41 +4,99 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Display a paginated list of admins with optional status filter.
+     */
+    public function index(Request $request): View
     {
+        // -----------------------------
+        // 1. Capture search and status filters
+        // -----------------------------
+        $search = $request->get('search');
         $status = $request->query('status');
-
+    
+        // -----------------------------
+        // 2. Build admin query
+        // -----------------------------
         $users = Admin::query()
+            // Search filter
+            ->when($search, function ($q, $search) {
+                $q->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                          ->orWhere('username', 'like', "%{$search}%")
+                          ->orWhere('email', 'like', "%{$search}%")
+                          ->orWhere('phone', 'like', "%{$search}%");
+                });
+            })
+            // Status filter
             ->when($status === 'active', fn ($q) => $q->where('status', true))
             ->when($status === 'inactive', fn ($q) => $q->where('status', false))
+            // Order by latest
             ->latest('id')
+            // Pagination
             ->paginate(10)
             ->appends($request->query());
-
-        return view('admin.user.index', compact('users'));
+    
+        // -----------------------------
+        // 3. Calculate statistics
+        // -----------------------------
+        $totalUsers = Admin::count();
+        $activeUsers = Admin::where('status', true)->count();
+        $inactiveUsers = Admin::where('status', false)->count();
+    
+        // -----------------------------
+        // 4. Return view
+        // -----------------------------
+        return view('admin.user.index', compact(
+            'users',
+            'totalUsers',
+            'activeUsers',
+            'inactiveUsers',
+            'search' // optional: to keep search input populated
+        ));
     }
+    
 
-    public function create()
+    /**
+     * Show the form to create a new admin.
+     */
+    public function create(): View
     {
-        // Only roles for 'admin' guard except 'super-admin'
+        // -----------------------------
+        // 1. Fetch roles for admin guard
+        // -----------------------------
         $roles = Role::where('guard_name', 'admin')
             // ->whereNotIn('name', ['super-admin'])
             ->get();
 
+        // -----------------------------
+        // 2. Return view
+        // -----------------------------
         return view('admin.user.form', compact('roles'));
     }
 
-    public function store(Request $request)
+    /**
+     * Store a new admin in the database.
+     */
+    public function store(Request $request): RedirectResponse
     {
+        // -----------------------------
+        // 1. Validate request data
+        // -----------------------------
         $validated = $this->validateUser($request);
 
+        // -----------------------------
+        // 2. Create admin
+        // -----------------------------
         $admin = Admin::create([
             'name' => $validated['name'],
             'username' => $validated['username'],
@@ -49,25 +107,49 @@ class UserController extends Controller
             'status' => $validated['status'],
         ]);
 
-        // Assign the selected role
+        // -----------------------------
+        // 3. Assign role
+        // -----------------------------
         $admin->assignRole($validated['role']);
 
-        return redirect()->route('admin.users.index')->with('success', 'Admin has been added successfully.');
+        // -----------------------------
+        // 4. Redirect with success
+        // -----------------------------
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Admin has been added successfully.');
     }
 
-    public function edit(Admin $user)
+    /**
+     * Show the form to edit an existing admin.
+     */
+    public function edit(Admin $user): View
     {
+        // -----------------------------
+        // 1. Fetch roles for admin guard
+        // -----------------------------
         $roles = Role::where('guard_name', 'admin')
             // ->whereNotIn('name', ['super-admin'])
             ->get();
 
+        // -----------------------------
+        // 2. Return view
+        // -----------------------------
         return view('admin.user.form', compact('user', 'roles'));
     }
 
-    public function update(Request $request, Admin $user)
+    /**
+     * Update an existing admin in the database.
+     */
+    public function update(Request $request, Admin $user): RedirectResponse
     {
+        // -----------------------------
+        // 1. Validate request data
+        // -----------------------------
         $validated = $this->validateUser($request, $user->id);
 
+        // -----------------------------
+        // 2. Update admin
+        // -----------------------------
         $user->update([
             'name' => $validated['name'],
             'username' => $validated['username'] ?? $user->username,
@@ -80,23 +162,46 @@ class UserController extends Controller
             'status' => $validated['status'],
         ]);
 
-        // Update role
+        // -----------------------------
+        // 3. Sync role
+        // -----------------------------
         $user->syncRoles([$validated['role']]);
 
-        return redirect()->route('admin.users.index')->with('success', 'Admin has been updated successfully.');
+        // -----------------------------
+        // 4. Redirect with success
+        // -----------------------------
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Admin has been updated successfully.');
     }
 
-    public function destroy(Admin $user)
+    /**
+     * Delete an admin.
+     */
+    public function destroy(Admin $user): RedirectResponse
     {
+        // -----------------------------
+        // 1. Prevent deleting super-admin
+        // -----------------------------
         if ($user->hasRole('super-admin')) {
-            return redirect()->route('admin.users.index')->with('error', 'Super Admin cannot be deleted.');
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Super Admin cannot be deleted.');
         }
 
+        // -----------------------------
+        // 2. Delete admin
+        // -----------------------------
         $user->delete();
 
-        return redirect()->route('admin.users.index')->with('success', 'Admin has been deleted successfully.');
+        // -----------------------------
+        // 3. Redirect with success
+        // -----------------------------
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Admin has been deleted successfully.');
     }
 
+    /**
+     * Helper: Validate admin data for store/update.
+     */
     protected function validateUser(Request $request, $ignoreId = null): array
     {
         return $request->validate([
