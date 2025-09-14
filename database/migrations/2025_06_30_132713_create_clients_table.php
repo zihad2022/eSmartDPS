@@ -43,7 +43,7 @@ return new class extends Migration
             $table->string('postal_code')->nullable();
 
             // Role & Permissions
-            $table->enum('role', ['admin', 'manager', 'editor'])->default('manager');
+            $table->enum('role', ['super_admin','admin', 'manager', 'editor'])->default('manager');
 
             // Account Status
             $table->boolean('status')->default(true);
