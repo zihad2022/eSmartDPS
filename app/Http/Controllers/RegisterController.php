@@ -4,62 +4,104 @@ namespace App\Http\Controllers;
 
 use App\Models\AdminSetting;
 use App\Models\Client;
-use App\Models\ClientSetting;
-use Illuminate\Http\Request;
 use App\Models\Package;
 use App\Services\PackageService;
 use App\Services\MailService;
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class RegisterController extends Controller
 {
-    protected $packageService;
-    protected $mailService;
+    protected PackageService $packageService;
+    protected MailService $mailService;
 
+    /**
+     * Inject required services.
+     */
     public function __construct(PackageService $packageService, MailService $mailService)
     {
         $this->packageService = $packageService;
         $this->mailService = $mailService;
     }
 
-    public function create()
+    /**
+     * Show registration form for a client with selected package.
+     */
+    public function create(): View
     {
+        // -----------------------------
+        // 1. Get package and admin settings
+        // -----------------------------
         $package = Package::find(request('package'));
         $settings = AdminSetting::first();
+
+        // -----------------------------
+        // 2. Return registration view
+        // -----------------------------
         return view('auth.register', compact('package', 'settings'));
     }
 
-    public function store(Request $request)
+    /**
+     * Store a new client and start the selected package.
+     */
+    public function store(Request $request): RedirectResponse
     {
-        $client = new Client();
-        $client->user_id = generate_client_user_id();
-        $client->first_name = $request->first_name;
-        $client->last_name = $request->last_name;
-        $client->email = $request->email;
-        $client->phone = $request->phone;
-        $client->password = $request->password;
-        $client->status = true;
-        $client->role = 'admin';
-        $client->save();
+        // -----------------------------
+        // 1. Create client
+        // -----------------------------
+        $client = Client::create([
+            'user_id'    => generate_client_user_id(),
+            'first_name' => $request->first_name,
+            'last_name'  => $request->last_name,
+            'email'      => $request->email,
+            'phone'      => $request->phone,
+            'password'   => $request->password, // TODO: consider hashing
+            'status'     => true,
+            'role'       => 'super_admin',
+        ]);
 
+        // -----------------------------
+        // 2. Start selected package
+        // -----------------------------
         $package = Package::findOrFail($request->package_id);
         $this->packageService->startPackage($client, $package);
 
-        $clientSetting = new ClientSetting();
-        $clientSetting->client_id = $client->id;
-        $clientSetting->organization_name = $request->organization_name;
-        $clientSetting->short_name = $request->short_name;
-        $clientSetting->contact_email = $request->contact_email;
-        $clientSetting->contact_phone = $request->contact_phone;
-        $clientSetting->currency = 'BDT';
-        $clientSetting->save();
-        // Send credentials to the client via email
-        $this->mailService->sendMail($client, $request['password']);
+        // -----------------------------
+        // 3. Update client settings
+        // -----------------------------
+        $client->settings()->update([
+            'organization_name' => $request->organization_name,
+            'short_name'        => $request->short_name,
+            'contact_email'     => $request->contact_email,
+            'contact_phone'     => $request->contact_phone,
+            'currency'          => 'BDT',
+        ]);
+
+        // -----------------------------
+        // 4. Send credentials via email
+        // -----------------------------
+        $this->mailService->sendMail($client, $request->password);
+
+        // -----------------------------
+        // 5. Redirect to success page
+        // -----------------------------
         return redirect()->route('auth.success', ['id' => $package->id]);
     }
 
-    public function success($id)
+    /**
+     * Show success page after registration.
+     */
+    public function success(int $id): View
     {
+        // -----------------------------
+        // 1. Fetch package info
+        // -----------------------------
         $package = Package::findOrFail($id);
+
+        // -----------------------------
+        // 2. Return success view
+        // -----------------------------
         return view('auth.success', compact('package'));
     }
 }
