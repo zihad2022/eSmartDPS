@@ -21,38 +21,83 @@ class MemberController extends Controller
     }
 
     /**
-     * Display a listing of the members.
+     * Display a paginated list of members with optional status filter.
      */
     public function index(Request $request)
     {
         $ownerId = owner_client_id();
-
+    
+        // -----------------------------
+        // 1. Capture search query
+        // -----------------------------
+        $search = $request->get('search');
+    
+        // -----------------------------
+        // 2. Fetch members for the current client with search & status filters
+        // -----------------------------
         $members = Member::query()
             ->where('client_id', $ownerId)
-            ->select('id', 'member_id', 'name', 'profile_photo', 'email', 'phone', 'status', 'share_quantity', 'total_balance', 'created_at')
+            ->when($search, function ($q, $search) {
+                $q->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                          ->orWhere('member_id', 'like', "%{$search}%")
+                          ->orWhere('email', 'like', "%{$search}%")
+                          ->orWhere('phone', 'like', "%{$search}%");
+                });
+            })
             ->when($request->status === 'active', fn ($q) => $q->where('status', true))
             ->when($request->status === 'inactive', fn ($q) => $q->where('status', false))
+            ->select('id', 'member_id', 'name', 'profile_photo', 'email', 'phone', 'status', 'share_quantity', 'total_balance', 'created_at')
             ->latest()
-            ->paginate(10);
-
+            ->paginate(10)
+            ->appends($request->query());
+    
+        // -----------------------------
+        // 3. Calculate summary stats
+        // -----------------------------
         $summary = Member::where('client_id', $ownerId)
-            ->selectRaw('COUNT(*) as total, SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as active, SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as inactive, SUM(share_quantity) as total_shares')
+            ->when($search, function ($q, $search) {
+                $q->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                          ->orWhere('member_id', 'like', "%{$search}%")
+                          ->orWhere('email', 'like', "%{$search}%")
+                          ->orWhere('phone', 'like', "%{$search}%");
+                });
+            })
+            ->selectRaw('COUNT(*) as total, 
+                         SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as active, 
+                         SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as inactive, 
+                         SUM(share_quantity) as total_shares')
             ->first();
-
+    
+        // -----------------------------
+        // 4. Fetch client settings
+        // -----------------------------
+        $settings = ClientSetting::where('client_id', $ownerId)->first();
+    
+        // -----------------------------
+        // 5. Return view
+        // -----------------------------
         return view('client.member.index', [
             'members' => $members,
-            'totalMembers' => $summary->total,
-            'activeMembers' => $summary->active,
-            'inactiveMembers' => $summary->inactive,
-            'totalShares' => $summary->total_shares,
+            'totalMembers' => $summary->total ?? 0,
+            'activeMembers' => $summary->active ?? 0,
+            'inactiveMembers' => $summary->inactive ?? 0,
+            'totalShares' => $summary->total_shares ?? 0,
+            'settings' => $settings,
+            'search' => $search, // Keep search input populated
         ]);
     }
+    
 
     /**
      * Show the form for creating a new member.
      */
     public function create()
     {
+        // -----------------------------
+        // 1. Generate a new member ID
+        // -----------------------------
         return view('client.member.form', [
             'memberId' => generate_member_id(),
         ]);
@@ -65,10 +110,16 @@ class MemberController extends Controller
     {
         $client = Client::findOrFail(owner_client_id());
 
+        // -----------------------------
+        // 1. Check package limit for members
+        // -----------------------------
         if (! $client->canAddMember()) {
             return back()->with('error', 'You have reached the maximum limit of members for your package.');
         }
 
+        // -----------------------------
+        // 2. Prepare member data
+        // -----------------------------
         $data = [
             'member_id' => generate_member_id(),
             'name' => $request->name,
@@ -76,10 +127,12 @@ class MemberController extends Controller
             'phone' => $request->phone,
             'status' => $request->status,
             'share_quantity' => $request->share_quantity ?? 0,
-            'total_balance' => $request->total_balance ?? 0,
             'password' => Hash::make($request->password),
         ];
 
+        // -----------------------------
+        // 3. Handle profile photo upload
+        // -----------------------------
         if ($request->hasFile('profile_photo')) {
             $data['profile_photo'] = $this->imageService->uploadImage(
                 $request->file('profile_photo'),
@@ -87,8 +140,14 @@ class MemberController extends Controller
             );
         }
 
+        // -----------------------------
+        // 4. Create member
+        // -----------------------------
         $client->members()->create($data);
 
+        // -----------------------------
+        // 5. Redirect with success
+        // -----------------------------
         return redirect()
             ->route('client.members.index')
             ->with('success', 'Member has been added successfully.');
@@ -100,6 +159,7 @@ class MemberController extends Controller
     public function show(Member $member)
     {
         authorize_owner($member);
+
         $settings = ClientSetting::where('client_id', owner_client_id())->first();
 
         return view('client.member.show', compact('member', 'settings'));
@@ -122,13 +182,15 @@ class MemberController extends Controller
     {
         authorize_owner($member);
 
+        // -----------------------------
+        // 1. Prepare update data
+        // -----------------------------
         $data = [
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'status' => $request->status,
             'share_quantity' => $request->share_quantity ?? $member->share_quantity,
-            'total_balance' => $request->total_balance ?? $member->total_balance,
         ];
 
         if ($request->filled('password')) {
@@ -142,8 +204,14 @@ class MemberController extends Controller
             );
         }
 
+        // -----------------------------
+        // 2. Update member
+        // -----------------------------
         $member->update($data);
 
+        // -----------------------------
+        // 3. Redirect with success
+        // -----------------------------
         return redirect()
             ->route('client.members.index')
             ->with('success', 'Member has been updated successfully.');
@@ -156,8 +224,14 @@ class MemberController extends Controller
     {
         authorize_owner($member);
 
+        // -----------------------------
+        // 1. Delete member
+        // -----------------------------
         $member->delete();
 
+        // -----------------------------
+        // 2. Redirect with success
+        // -----------------------------
         return redirect()
             ->route('client.members.index')
             ->with('success', 'Member has been deleted successfully.');
