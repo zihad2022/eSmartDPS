@@ -13,7 +13,7 @@ class ClientAuthenticated
         if (auth()->guard('client')->check()) {
             return $next($request);
         } else {
-            return redirect()->route('landing');
+            return redirect()->route('client.login');
         }
     }
 }
