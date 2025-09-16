@@ -106,4 +106,24 @@ class Package extends Model
         // If no discount, return original price
         return $this->price;
     }
+
+     // Calculate discount amount
+     public function getDiscountAmountAttribute(): float
+     {
+         if ($this->discount_value <= 0) {
+             return 0;
+         }
+ 
+         return match ($this->discount_type) {
+             \App\Enums\Package\DiscountType::FIXED => $this->discount_value,
+             \App\Enums\Package\DiscountType::PERCENT => ($this->price * $this->discount_value) / 100,
+             default => 0,
+         };
+     }
+ 
+     // Calculate total after discount
+     public function getTotalAfterDiscountAttribute(): float
+     {
+         return max(0, $this->price - $this->discount_amount);
+     }
 }
