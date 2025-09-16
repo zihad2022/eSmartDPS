@@ -16,10 +16,6 @@ use Illuminate\View\View;
 
 class ClientController extends Controller
 {
-    /**
-     * Inject necessary services for image handling, package management, and email.
-     * Using readonly ensures these cannot be modified later.
-     */
     public function __construct(
         private readonly ImageService $imageService,
         private readonly PackageService $packageService,
@@ -27,115 +23,57 @@ class ClientController extends Controller
     ) {}
 
     /**
-     * Display a paginated list of all main clients (excluding sub-clients).
+     * Display a paginated list of main clients.
      */
     public function index(Request $request): View
     {
-        // -----------------------------
-        // 1. Handle search query
-        // -----------------------------
-        // Search clients by multiple fields (first name, last name, email, etc.)
-        $search = $request->get('search');
+        $search = $request->get('search'); // Search clients by multiple fields
+        $status = $request->get('status'); // Filter clients by status
 
-        // -----------------------------
-        // 2. Build query for main clients
-        // -----------------------------
-        $clients = Client::query()
-            ->whereNull('parent_id') // Only top-level clients
-            ->when($search, function ($q, $search) {
-                $q->where(function ($query) use ($search) {
-                    $query->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhere('user_id', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%")
-                        ->orWhere('phone', 'like', "%{$search}%")
-                        ->orWhere('nid_number', 'like', "%{$search}%")
-                        ->orWhere('division', 'like', "%{$search}%")
-                        ->orWhere('district', 'like', "%{$search}%")
-                        ->orWhere('address', 'like', "%{$search}%")
-                        ->orWhere('postal_code', 'like', "%{$search}%");
-                });
-            })
-            ->when($request->get('status'), fn ($q, $status) => $q->where('status', $status === 'active'))
-            ->latest('id')
-            ->paginate(10)
-            ->appends($request->query());
+        $clients = Client::parents()
+            ->filterBySearch($search) // Search clients by multiple fields
+            ->filterByStatus($status) // Filter clients by status
+            ->latest() // Order clients by latest
+            ->paginate(10) // Paginate clients
+            ->appends($request->query()); // Append query parameters
 
-        // -----------------------------
-        // 3. Collect statistics
-        // -----------------------------
-        $totalClients = Client::parents()->count();
-        $activeClients = Client::activeParents()->count();
-        $inactiveClients = Client::inactiveParents()->count();
+        $stats = $this->collectClientStats(); // Collect client statistics
 
-        // -----------------------------
-        // 4. Return view
-        // -----------------------------
-        return view('admin.client.index', compact(
-            'clients',
-            'totalClients',
-            'activeClients',
-            'inactiveClients',
-            'search'
-        ));
+        return view('admin.client.index', array_merge($stats, [
+            'clients' => $clients,
+            'search' => $search,
+        ]));
     }
 
     /**
-     * Show the form to create a new client.
+     * Show form to create a new client.
      */
     public function create(): View
     {
-        // -----------------------------
-        // 1. Fetch active packages
-        // -----------------------------
         $packages = Package::active()->get();
-
-        // -----------------------------
-        // 2. Generate unique user ID
-        // -----------------------------
         $user_id = generate_client_user_id();
 
-        // -----------------------------
-        // 3. Return view
-        // -----------------------------
         return view('admin.client.form', compact('packages', 'user_id'));
     }
 
     /**
-     * Store a new client in the database.
+     * Store a newly created client.
      */
     public function store(ClientRequest $request): RedirectResponse
     {
-        // -----------------------------
-        // 1. Prepare validated client data
-        // -----------------------------
         $validated = $this->prepareClientData($request->validated(), $request);
 
-        // -----------------------------
-        // 2. Create client
-        // -----------------------------
         $client = Client::create($validated);
 
-        // -----------------------------
-        // 3. Send credentials via email
-        // -----------------------------
-        $this->mailService->sendMail($client, $request['password']);
+        $this->mailService->sendMail($client, $request->password);
 
-        // -----------------------------
-        // 4. Assign selected package
-        // -----------------------------
-        $package = Package::find($request['package_id']);
-        $this->packageService->startPackage($client, $package);
+        $this->assignPackageIfProvided($client, $request);
 
-        // -----------------------------
-        // 5. Redirect with success
-        // -----------------------------
-        return redirect()->route('admin.clients.index')
-            ->with('success', 'Client created successfully.');
+        return $this->redirectWithSuccess('Client created successfully.');
     }
 
     /**
-     * Show a single client details page.
+     * Show client details.
      */
     public function show(Client $client): View
     {
@@ -143,103 +81,67 @@ class ClientController extends Controller
     }
 
     /**
-     * Show the edit form for an existing client.
+     * Show form to edit an existing client.
      */
     public function edit(Client $client): View
     {
-        // -----------------------------
-        // 1. Prevent editing sub-clients
-        // -----------------------------
-        abort_if($client->parent_id, 403);
+        $this->abortIfSubClient($client);
 
-        // -----------------------------
-        // 2. Fetch active packages
-        // -----------------------------
         $packages = Package::active()->get();
 
-        // -----------------------------
-        // 3. Return view
-        // -----------------------------
         return view('admin.client.form', compact('client', 'packages'));
     }
 
     /**
-     * Update an existing client.
+     * Update a client.
      */
     public function update(ClientRequest $request, Client $client): RedirectResponse
     {
-        // -----------------------------
-        // 1. Prevent editing sub-clients
-        // -----------------------------
-        abort_if($client->parent_id, 403);
+        $this->abortIfSubClient($client);
 
-        // -----------------------------
-        // 2. Prepare validated data
-        // -----------------------------
         $validated = $this->prepareClientData($request->validated(), $request, $client);
 
-        // -----------------------------
-        // 3. Update client
-        // -----------------------------
         $client->update($validated);
 
-        // -----------------------------
-        // 4. Assign package if selected
-        // -----------------------------
-        if ($request['package_id']) {
-            $this->packageService->startPackage($client, Package::find($request['package_id']));
-        }
+        $this->assignPackageIfProvided($client, $request);
 
-        // -----------------------------
-        // 5. Redirect with success
-        // -----------------------------
-        return redirect()->route('admin.clients.index')
-            ->with('success', 'Client updated successfully.');
+        return $this->redirectWithSuccess('Client updated successfully.');
     }
 
     /**
-     * Delete a client and remove related images.
+     * Delete a client and its images.
      */
     public function destroy(Client $client): RedirectResponse
     {
-        // -----------------------------
-        // 1. Prevent deleting sub-clients
-        // -----------------------------
-        abort_if($client->parent_id, 403);
+        $this->abortIfSubClient($client);
 
-        // -----------------------------
-        // 2. Delete client images
-        // -----------------------------
         $this->deleteClientImages($client);
 
-        // -----------------------------
-        // 3. Delete client record
-        // -----------------------------
         $client->delete();
 
-        // -----------------------------
-        // 4. Redirect with success
-        // -----------------------------
-        return redirect()->route('admin.clients.index')
-            ->with('success', 'Client deleted successfully.');
+        return $this->redirectWithSuccess('Client deleted successfully.');
     }
 
-    /**
-     * Helper: Prepare validated client data for create/update.
-     */
-    private function prepareClientData(array $data, Request $request, Client $client = null): array
+    /* ----------------------- Helper Methods ----------------------- */
+
+    private function prepareClientData(array $data, Request $request, ?Client $client = null): array
     {
-        // -----------------------------
-        // 1. Handle image uploads
-        // -----------------------------
+        $data = $this->handleImages($data, $request, $client);
+        $data['parent_id'] = null;
+        $data['role'] = 'super_admin';
+        $data['password'] = $this->hashPassword($data['password'] ?? null, $client);
+
+        unset($data['package_id']);
+
+        return $data;
+    }
+
+    private function handleImages(array $data, Request $request, ?Client $client = null): array
+    {
         foreach (['profile_photo', 'nid_card_front', 'nid_card_back'] as $field) {
             if ($request->hasFile($field)) {
-                // Delete old image if exists
-                if ($client?->$field) {
-                    $this->imageService->deleteImage($client->$field);
-                }
+                $client?->$field && $this->imageService->deleteImage($client->$field);
 
-                // Upload new image
                 $data[$field] = $this->imageService->uploadImage(
                     $request->file($field),
                     'uploads/clients'
@@ -247,34 +149,47 @@ class ClientController extends Controller
             }
         }
 
-        // -----------------------------
-        // 2. Ensure root-level client
-        // -----------------------------
-        $data['parent_id'] = null;
-        $data['role'] = 'super_admin';
-
-        // -----------------------------
-        // 3. Handle password hashing
-        // -----------------------------
-        $data['password'] = !empty($data['password'])
-            ? Hash::make($data['password'])
-            : ($client->password ?? null);
-
-        // -----------------------------
-        // 4. Remove package_id (handled separately)
-        // -----------------------------
-        unset($data['package_id']);
-
         return $data;
     }
 
-    /**
-     * Helper: Delete all uploaded images for a client.
-     */
+    private function hashPassword(?string $password, ?Client $client): ?string
+    {
+        if (!$password) return $client->password ?? null;
+
+        return Hash::make($password);
+    }
+
     private function deleteClientImages(Client $client): void
     {
         foreach (['profile_photo', 'nid_card_front', 'nid_card_back'] as $field) {
             $this->imageService->deleteImage($client->$field);
         }
+    }
+
+    private function assignPackageIfProvided(Client $client, Request $request): void
+    {
+        if ($packageId = $request->package_id) {
+            $package = Package::find($packageId);
+            $package && $this->packageService->startPackage($client, $package);
+        }
+    }
+
+    private function abortIfSubClient(Client $client): void
+    {
+        abort_if($client->parent_id, 403);
+    }
+
+    private function redirectWithSuccess(string $message): RedirectResponse
+    {
+        return redirect()->route('admin.clients.index')->with('success', $message);
+    }
+
+    private function collectClientStats(): array
+    {
+        return [
+            'totalClients' => Client::parents()->count(),
+            'activeClients' => Client::activeParents()->count(),
+            'inactiveClients' => Client::inactiveParents()->count(),
+        ];
     }
 }
