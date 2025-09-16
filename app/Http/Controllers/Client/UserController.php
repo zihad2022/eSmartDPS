@@ -138,7 +138,7 @@ class UserController extends Controller
         // -----------------------------
         // 2. Check package limit
         // -----------------------------
-        if (!$client->canAddChild()) {
+        if (!$client->canAddUser()) {
             return back()->with('error', 'You have reached the maximum user limit for your package.');
         }
 
