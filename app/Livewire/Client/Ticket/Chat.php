@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin\Ticket;
+namespace App\Livewire\Client\Ticket;
 
 use App\Models\Ticket;
 use App\Services\ImageService;
@@ -11,32 +11,29 @@ class Chat extends Component
 {
     use WithFileUploads;
 
-    public Ticket $ticket; // Current ticket
-    public string $message = ''; // New message input
-    public int $messageKey = 0; // Used to refresh message input
+    public Ticket $ticket; // Current ticket being viewed
+    public string $message = ''; // Message input
+    public int $messageKey = 0; // Key to reset input component
     public $attachment; // Optional file attachment
 
     /**
-     * Mount the component with ticket data.
+     * Mount the component with a ticket.
      */
     public function mount(Ticket $ticket): void
     {
         // -----------------------------
-        // 1. Load ticket with replies and client
+        // 1. Load ticket with client and replies
         // -----------------------------
         $this->ticket = Ticket::with([
-            'replies' => fn($q) => $q->oldest(),
+            'replies' => fn($q) => $q->oldest(), // Oldest first
             'client',
         ])->findOrFail($ticket->id);
 
-        // -----------------------------
-        // 2. Initialize message key
-        // -----------------------------
-        $this->refreshMessageKey();
+        $this->refreshMessageKey(); // Ensure Livewire input resets properly
     }
 
     /**
-     * Send a new message for the ticket.
+     * Send a message to the ticket.
      */
     public function sendMessage(): void
     {
@@ -45,27 +42,27 @@ class Chat extends Component
         // -----------------------------
         $this->validate([
             'message'    => 'required|string|max:2000',
-            'attachment' => 'nullable|file|max:5120', // max 5MB
+            'attachment' => 'nullable|file|max:5120', // Max 5MB
         ]);
 
         // -----------------------------
-        // 2. Upload attachment if provided
+        // 2. Upload attachment if exists
         // -----------------------------
         $path = $this->attachment
             ? app(ImageService::class)->uploadImage($this->attachment, 'uploads/tickets')
             : null;
 
         // -----------------------------
-        // 3. Save message to ticket replies
+        // 3. Save reply to database
         // -----------------------------
         $this->ticket->replies()->create([
-            'admin_id'   => auth('admin')->id(),
+            'client_id'  => owner_client_id(),
             'message'    => $this->message,
             'attachment' => $path,
         ]);
 
         // -----------------------------
-        // 4. Reload replies to update UI
+        // 4. Reload ticket replies
         // -----------------------------
         $this->ticket->load(['replies' => fn($q) => $q->oldest()]);
 
@@ -76,13 +73,13 @@ class Chat extends Component
         $this->refreshMessageKey();
 
         // -----------------------------
-        // 6. Notify admin of success
+        // 6. Notify user of success
         // -----------------------------
         $this->dispatch('notify', 'Message sent successfully.');
     }
 
     /**
-     * Refresh message key to reset input component.
+     * Increment message key to force input reset in Livewire.
      */
     private function refreshMessageKey(): void
     {
@@ -90,10 +87,10 @@ class Chat extends Component
     }
 
     /**
-     * Render the Livewire view.
+     * Render the Livewire component view.
      */
     public function render()
     {
-        return view('livewire.admin.ticket.chat');
+        return view('livewire.client.ticket.chat');
     }
 }
