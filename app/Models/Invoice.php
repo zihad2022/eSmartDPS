@@ -37,6 +37,8 @@ class Invoice extends Model
     protected $casts = [
         'status' => InvoiceStatus::class,           // Casts status to InvoiceStatus enum
         'payment_method' => PaymentMethod::class,   // Casts payment_method to PaymentMethod enum
+        'due_date' => 'datetime',
+        'paid_at' => 'datetime',
     ];
 
     /*--------------------------------
