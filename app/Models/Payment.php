@@ -30,4 +30,24 @@ class Payment extends Model
     {
         return $this->belongsTo(Member::class);
     }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', PaymentStatus::PENDING);
+    }
+
+    public function scopeDue($query)
+    {
+        return $query->where('status', PaymentStatus::DUE);
+    }
+
+    public function scopePaid($query)
+    {
+        return $query->where('status', PaymentStatus::PAID);
+    }
+
+    public function scopeCancelled($query)
+    {
+        return $query->where('status', PaymentStatus::CANCELLED);
+    }
 }
