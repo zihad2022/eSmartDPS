@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -97,6 +98,27 @@ class Client extends Authenticatable
         return $this->hasManyThrough(Payment::class, Member::class);
     }
 
+    // A client has many invoices
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    // All users under this client (including self and children)
+    public function users()
+    {
+        // If this client is a parent (no parent_id), include self + children
+        if (is_null($this->parent_id)) {
+            return collect([$this])->merge($this->children()->get());
+        }
+
+        // If this client is a child, include parent + siblings
+        $parent = $this->parent()->first();
+        $siblings = $parent ? $parent->children()->get() : collect();
+
+        return collect([$parent])->merge($siblings);
+    }
+
     // A client can subscribe to many packages
     public function clientPackages(): HasMany
     {
@@ -151,7 +173,7 @@ class Client extends Authenticatable
      * Check if client can add another child (sub-client)
      * Depends on current package's user limit.
      */
-    public function canAddChild(): bool
+    public function canAddUser(): bool
     {
         $lastPackage = $this->getLastPackage();
 
@@ -166,7 +188,7 @@ class Client extends Authenticatable
             return true;
         }
 
-        return $this->children()->count() < $userLimit;
+        return $this->users()->count() < $userLimit;
     }
 
     /**
@@ -265,6 +287,40 @@ class Client extends Authenticatable
         return $q->inactive()->children();
     }
 
+
+    // Filter by search string
+    public function scopeFilterBySearch(Builder $query, ?string $search): Builder
+    {
+        if (!$search) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($search) {
+            $q->where('first_name', 'like', "%{$search}%")
+                ->orWhere('last_name', 'like', "%{$search}%")
+                ->orWhere('user_id', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('phone', 'like', "%{$search}%")
+                ->orWhere('nid_number', 'like', "%{$search}%")
+                ->orWhere('division', 'like', "%{$search}%")
+                ->orWhere('district', 'like', "%{$search}%")
+                ->orWhere('address', 'like', "%{$search}%")
+                ->orWhere('postal_code', 'like', "%{$search}%");
+        });
+    }
+
+    // Filter by status
+    public function scopeFilterByStatus(Builder $query, ?string $status): Builder
+    {
+        if (!$status) {
+            return $query;
+        }
+
+        $isActive = $status === 'active';
+
+        return $query->where('status', $isActive);
+    }
+
     /*--------------------------------
     | ACCESSORS (computed attributes)
     --------------------------------*/
@@ -272,18 +328,19 @@ class Client extends Authenticatable
     // Full URL for profile photo
     protected function profilePhotoUrl(): Attribute
     {
-        return Attribute::get(fn () => $this->profile_photo ? Storage::url($this->profile_photo) : null);
+        return Attribute::get(fn() => $this->profile_photo ? Storage::url($this->profile_photo) : null);
     }
 
     // Full URL for NID front image
     protected function nidCardFrontUrl(): Attribute
     {
-        return Attribute::get(fn () => $this->nid_card_front ? Storage::url($this->nid_card_front) : null);
+        return Attribute::get(fn() => $this->nid_card_front ? Storage::url($this->nid_card_front) : null);
     }
 
     // Full URL for NID back image
     protected function nidCardBackUrl(): Attribute
     {
-        return Attribute::get(fn () => $this->nid_card_back ? Storage::url($this->nid_card_back) : null);
+        return Attribute::get(fn() => $this->nid_card_back ? Storage::url($this->nid_card_back) : null);
     }
+
 }
