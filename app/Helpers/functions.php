@@ -1,15 +1,12 @@
 <?php
 
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\Member;
-use App\Models\Payment;
-use App\Models\Ticket;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-// Get parent client id
+// -----------------------------
+// 1. Get parent client ID
+// -----------------------------
 if (! function_exists('owner_client_id')) {
     function owner_client_id(): ?int
     {
@@ -19,89 +16,78 @@ if (! function_exists('owner_client_id')) {
     }
 }
 
-// Generate client user id
+// -----------------------------
+// 2. Generic helper for sequential IDs
+// -----------------------------
+if (! function_exists('generate_sequential_id')) {
+    function generate_sequential_id(string $prefix, string $column, string $table, int $pad = 2): string
+    {
+        return DB::transaction(function () use ($prefix, $column, $table, $pad) {
+            // Lock table row to avoid race conditions
+            $last = DB::table($table)
+                ->select($column)
+                ->where($column, 'like', $prefix.'%')
+                ->lockForUpdate()
+                ->orderByRaw("CAST(SUBSTRING($column, ".(strlen($prefix)+1).") AS UNSIGNED) DESC")
+                ->first();
+
+            // Extract last number
+            if ($last && preg_match('/^'.$prefix.'(\d+)$/', $last->{$column}, $matches)) {
+                $lastNumber = (int) $matches[1];
+            } else {
+                $lastNumber = 0;
+            }
+
+            $nextNumber = $lastNumber + 1;
+
+            return $prefix.str_pad($nextNumber, $pad, '0', STR_PAD_LEFT);
+        });
+    }
+}
+
+// -----------------------------
+// 3. Generate client user ID
+// -----------------------------
 if (! function_exists('generate_client_user_id')) {
     function generate_client_user_id(): string
     {
-        return DB::transaction(function () {
-            $latest = Client::lockForUpdate()->orderByDesc('id')->first();
-
-            if (! $latest || ! preg_match('/^UID(\d+)$/', $latest->user_id, $matches)) {
-                return 'UID01';
-            }
-
-            $next = (int) $matches[1] + 1;
-
-            return 'UID'.str_pad($next, 2, '0', STR_PAD_LEFT);
-        });
+        return generate_sequential_id('UID', 'user_id', 'clients', 2);
     }
 }
 
-// Generate invoice number
+// -----------------------------
+// 4. Generate invoice number
+// -----------------------------
 if (! function_exists('generate_invoice_number')) {
     function generate_invoice_number(): string
     {
-        return DB::transaction(function () {
-            $lastInvoice = Invoice::where('invoice_number', 'like', 'INV%')
-                ->lockForUpdate()
-                ->orderByRaw('CAST(SUBSTRING(invoice_number, 4) AS UNSIGNED) DESC')
-                ->first();
-
-            if ($lastInvoice && preg_match('/INV(\d+)/', $lastInvoice->invoice_number, $matches)) {
-                $lastNumber = (int) $matches[1];
-            } else {
-                $lastNumber = 0;
-            }
-
-            $nextNumber = $lastNumber + 1;
-
-            return 'INV'.str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
-        });
+        return generate_sequential_id('INV', 'invoice_number', 'invoices', 3);
     }
 }
 
-// Generate payment id
+// -----------------------------
+// 5. Generate payment ID
+// -----------------------------
 if (! function_exists('generate_payment_id')) {
     function generate_payment_id(): string
     {
-        return DB::transaction(function () {
-            $lastPayment = Payment::where('payment_id', 'like', 'PAY%')
-                ->lockForUpdate()
-                ->orderByRaw('CAST(SUBSTRING(payment_id, 4) AS UNSIGNED) DESC')
-                ->first();
-
-            if ($lastPayment && preg_match('/PAY(\d+)/', $lastPayment->payment_id, $matches)) {
-                $lastNumber = (int) $matches[1];
-            } else {
-                $lastNumber = 0;
-            }
-
-            $nextNumber = $lastNumber + 1;
-
-            return 'PAY'.str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
-        });
+        return generate_sequential_id('PAY', 'payment_id', 'payments', 3);
     }
 }
 
-// Generate member id
+// -----------------------------
+// 6. Generate member ID
+// -----------------------------
 if (! function_exists('generate_member_id')) {
     function generate_member_id(): string
     {
-        return DB::transaction(function () {
-            $latest = Member::lockForUpdate()->orderByDesc('id')->first();
-
-            if (! $latest || ! preg_match('/^MID(\d+)$/', $latest->member_id, $matches)) {
-                return 'MID01';
-            }
-
-            $next = (int) $matches[1] + 1;
-
-            return 'MID'.str_pad($next, 2, '0', STR_PAD_LEFT);
-        });
+        return generate_sequential_id('MID', 'member_id', 'members', 2);
     }
 }
 
-// Authorize owner
+// -----------------------------
+// 7. Authorize owner
+// -----------------------------
 if (! function_exists('authorize_owner')) {
     function authorize_owner(Model $model, string $column = 'client_id'): void
     {
@@ -111,25 +97,12 @@ if (! function_exists('authorize_owner')) {
     }
 }
 
-// Generate ticket number
+// -----------------------------
+// 8. Generate ticket number
+// -----------------------------
 if (! function_exists('generate_ticket_number')) {
     function generate_ticket_number(): string
     {
-        return DB::transaction(function () {
-            $lastTicket = Ticket::where('ticket_number', 'like', 'TKT%')
-                ->lockForUpdate()
-                ->orderByRaw('CAST(SUBSTRING(ticket_number, 4) AS UNSIGNED) DESC')
-                ->first();
-
-            if ($lastTicket && preg_match('/TKT(\d+)/', $lastTicket->ticket_number, $matches)) {
-                $lastNumber = (int) $matches[1];
-            } else {
-                $lastNumber = 0;
-            }
-
-            $nextNumber = $lastNumber + 1;
-
-            return 'TKT'.str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
-        });
+        return generate_sequential_id('TKT', 'ticket_number', 'tickets', 3);
     }
 }
