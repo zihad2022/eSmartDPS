@@ -15,31 +15,33 @@ use Illuminate\Http\Request;
 class ProjectController extends Controller
 {
     /**
-     * Display a paginated list of projects with optional status filter.
+     * Display a paginated list of projects with optional search & status filters.
      */
     public function index(Request $request)
     {
-        $clientId = auth('client')->id();
-    
         // -----------------------------
-        // 1. Capture search query
+        // 1. Get client ID
+        // -----------------------------
+        $clientId = owner_client_id();
+
+        // -----------------------------
+        // 2. Capture filters
         // -----------------------------
         $search = $request->get('search');
-    
+        $status = $request->query('status');
+
         // -----------------------------
-        // 2. Start query with eager loading for category relation
+        // 3. Build base query with eager loading
         // -----------------------------
         $projectsQuery = Project::with('projectCategory')
             ->where('client_id', $clientId)
             ->when($search, function ($q, $search) {
-                $q->where(function ($query) use ($search) {
-                    $query->where('name', 'like', "%{$search}%")
-                          ->orWhereHas('projectCategory', function ($q2) use ($search) {
-                              $q2->where('name', 'like', "%{$search}%");
-                          });
-                });
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhereHas('projectCategory', function ($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
+                  });
             })
-            ->select(
+            ->select([
                 'id',
                 'name',
                 'project_category_id',
@@ -49,32 +51,30 @@ class ProjectController extends Controller
                 'end_date',
                 'duration',
                 'status',
-                'created_at'
-            )
+                'created_at',
+            ])
             ->latest('id');
-    
+
         // -----------------------------
-        // 3. Apply status filter if requested
+        // 4. Apply status filter (if valid)
         // -----------------------------
         $statusMap = [
             'active'    => ProjectStatus::ACTIVE,
             'completed' => ProjectStatus::COMPLETED,
             'cancelled' => ProjectStatus::CANCELLED,
         ];
-    
-        if ($status = $request->query('status')) {
-            if (isset($statusMap[$status])) {
-                $projectsQuery->where('status', $statusMap[$status]);
-            }
+
+        if ($status && isset($statusMap[$status])) {
+            $projectsQuery->where('status', $statusMap[$status]);
         }
-    
+
         // -----------------------------
-        // 4. Paginate results
+        // 5. Paginate results
         // -----------------------------
         $projects = $projectsQuery->paginate(10)->withQueryString();
-    
+
         // -----------------------------
-        // 5. Fetch counts for dashboard stats
+        // 6. Dashboard stats (counts)
         // -----------------------------
         $counts = Project::where('client_id', $clientId)
             ->selectRaw('
@@ -88,20 +88,20 @@ class ProjectController extends Controller
                 ProjectStatus::CANCELLED->value,
             ])
             ->first();
-    
+
         // -----------------------------
-        // 6. Calculate totals for current page
+        // 7. Totals (only current page)
         // -----------------------------
         $totalInvestmentAmount = $projects->sum('investment_amount');
         $totalExpectedReturn   = $projects->sum('expected_return');
-    
+
         // -----------------------------
-        // 7. Fetch client settings
+        // 8. Client settings
         // -----------------------------
         $settings = ClientSetting::where('client_id', $clientId)->first();
-    
+
         // -----------------------------
-        // 8. Return view
+        // 9. Render view
         // -----------------------------
         return view('client.project.index', [
             'projects'              => $projects,
@@ -112,144 +112,197 @@ class ProjectController extends Controller
             'totalInvestmentAmount' => $totalInvestmentAmount,
             'totalExpectedReturn'   => $totalExpectedReturn,
             'settings'              => $settings,
-            'search'                => $search, // keep search input populated
+            'search'                => $search,
         ]);
     }
-    
 
     /**
-     * Show the form to create a new project.
+     * Show form for creating a new project.
      */
     public function create()
     {
         // -----------------------------
-        // 1. Fetch categories for logged-in client
+        // 1. Get categories
         // -----------------------------
         $categories = $this->getClientCategories();
 
         // -----------------------------
-        // 2. Return view
+        // 2. Render view
         // -----------------------------
         return view('client.project.form', [
             'categories' => $categories,
-            'project' => null,
+            'project'    => null,
         ]);
     }
 
     /**
-     * Store a new project in the database.
+     * Store a new project.
      */
     public function store(ProjectRequest $request)
     {
+        // -----------------------------
+        // 1. Get client
+        // -----------------------------
         $client = Client::findOrFail(owner_client_id());
 
         // -----------------------------
-        // 1. Check package project limit
+        // 2. Check package project limit
         // -----------------------------
         if (! $client->canAddProject()) {
             return back()->with('error', 'You have reached the maximum limit of projects for your package.');
         }
 
         // -----------------------------
-        // 2. Validate and prepare data
+        // 3. Validate & prepare data
         // -----------------------------
         $validated = $request->validated();
-        $validated['duration'] = $this->calculateDuration($validated['start_date'], $validated['end_date']);
-        $validated['client_id'] = auth('client')->id();
+        $validated['duration']  = $this->calculateDuration($validated['start_date'], $validated['end_date']);
+        $validated['client_id'] = owner_client_id();
 
         // -----------------------------
-        // 3. Create project
+        // 4. Create project
         // -----------------------------
         Project::create($validated);
 
-        // -----------------------------
-        // 4. Redirect with success
-        // -----------------------------
         return redirect()->route('client.projects.index')
             ->with('success', 'Project created successfully.');
     }
 
     /**
-     * Display a specific project.
+     * Display a project.
      */
     public function show(Project $project)
     {
+        // -----------------------------
+        // 1. Authorize project
+        // -----------------------------
         $this->authorizeProject($project);
 
+        // -----------------------------
+        // 2. Return project view
+        // -----------------------------
         return view('client.project.show', compact('project'));
     }
 
     /**
-     * Show the form to edit an existing project.
+     * Show edit form.
      */
     public function edit(Project $project)
     {
+        // -----------------------------
+        // 1. Authorize project
+        // -----------------------------
         $this->authorizeProject($project);
 
+        // -----------------------------
+        // 2. Return project form view
+        // -----------------------------
         return view('client.project.form', [
-            'project' => $project,
+            'project'    => $project,
             'categories' => $this->getClientCategories(),
         ]);
     }
 
     /**
-     * Update an existing project in the database.
+     * Update a project.
      */
     public function update(ProjectRequest $request, Project $project)
     {
+        // -----------------------------
+        // 1. Authorize project
+        // -----------------------------
         $this->authorizeProject($project);
 
         // -----------------------------
-        // 1. Validate and prepare data
+        // 2. Validate & prepare data
         // -----------------------------
         $validated = $request->validated();
         $validated['duration'] = $this->calculateDuration($validated['start_date'], $validated['end_date']);
 
         // -----------------------------
-        // 2. Update project
+        // 3. Update project
         // -----------------------------
         $project->update($validated);
 
         // -----------------------------
-        // 3. Redirect with success
+        // 4. Redirect to projects index
         // -----------------------------
         return redirect()->route('client.projects.index')
             ->with('success', 'Project updated successfully.');
     }
 
-    /** 
-     * 🔹 Authorize that the project belongs to logged-in client 
+    /**
+     * Delete a project.
+     */
+    public function destroy(Project $project)
+    {
+        // -----------------------------
+        // 1. Authorize project
+        // -----------------------------
+        $this->authorizeProject($project);
+
+        // -----------------------------
+        // 2. Delete project
+        // -----------------------------
+        $project->delete();
+
+        // -----------------------------
+        // 3. Redirect to projects index
+        // -----------------------------
+        return redirect()->route('client.projects.index')
+            ->with('success', 'Project deleted successfully.');
+    }
+
+    /**
+     * Ensure project belongs to logged-in client.
      */
     protected function authorizeProject(Project $project): void
     {
-        abort_if($project->client_id !== auth('client')->id(), 403, 'Unauthorized');
+        abort_if($project->client_id !== owner_client_id(), 403, 'Unauthorized');
     }
 
-    /** 
-     * 🔹 Get only categories of logged-in client 
+    /**
+     * Get categories of logged-in client.
      */
     protected function getClientCategories()
     {
-        return ProjectCategory::where('client_id', auth('client')->id())
+        // -----------------------------
+        // 1. Get categories
+        // -----------------------------
+        return ProjectCategory::where('client_id', owner_client_id())
             ->select('id', 'name')
             ->get();
     }
 
-    /** 
-     * 🔹 Calculate duration between two dates in years, months, days 
+    /**
+     * Calculate duration between two dates (y, m, d).
      */
     protected function calculateDuration(?string $start, ?string $end): ?string
     {
+        // --------------------------------------------
+        // 1. Return null if start or end date is missing
+        // --------------------------------------------
         if (! $start || ! $end) {
             return null;
         }
-
+    
+        // --------------------------------------------
+        // 2. Get difference between the two dates
+        // --------------------------------------------
         $diff = Carbon::parse($start)->diff(Carbon::parse($end));
-
-        return trim(
+    
+        // --------------------------------------------
+        // 3. Build formatted duration string
+        // --------------------------------------------
+        $duration = trim(
             ($diff->y ? "{$diff->y} years " : '') .
             ($diff->m ? "{$diff->m} months " : '') .
             ($diff->d ? "{$diff->d} days" : '')
-        ) ?: '0 days';
+        );
+    
+        // --------------------------------------------
+        // 4. Return result (default to "0 days" if empty)
+        // --------------------------------------------
+        return $duration ?: '0 days';
     }
 }
