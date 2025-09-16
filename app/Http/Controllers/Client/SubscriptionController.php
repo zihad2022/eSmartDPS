@@ -63,9 +63,7 @@ class SubscriptionController extends Controller
         // -----------------------------
         // 5. Redirect to dashboard with success message
         // -----------------------------
-        return redirect()
-            ->route('client.dashboard')
-            ->with('success', 'Your subscription has been successfully renewed.');
+        return redirect()->route('client.dashboard')->with('success', 'Your subscription has been successfully renewed.');
     }
 
     /**
