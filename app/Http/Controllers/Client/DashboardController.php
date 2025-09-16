@@ -19,44 +19,32 @@ class DashboardController extends Controller
         // -----------------------------
         // 1. Count total members
         // -----------------------------
-        // Fetch all members belonging to the authenticated client
-        // and count them to display in the dashboard stats card.
         $totalMembers = Member::where('client_id', owner_client_id())->count();
 
         // -----------------------------
         // 2. Calculate total balance
         // -----------------------------
-        // Sum up the 'total_balance' field of all members for this client.
-        // This value represents the total accumulated balance across all members.
         $totalBalance = Member::where('client_id', owner_client_id())->sum('total_balance');
 
         // -----------------------------
         // 2. Calculate total users
         // -----------------------------
-        // Sum up the 'total_balance' field of all members for this client.
-        // This value represents the total accumulated balance across all members.
         $childrenUsers = Client::where('parent_id', owner_client_id())->count();
         $totalUsers = $childrenUsers + 1;
 
         // -----------------------------
         // 3. Calculate total projects
         // -----------------------------
-        // Sum up the 'total_balance' field of all members for this client.
-        // This value represents the total accumulated balance across all members.
         $totalProjects = Project::where('client_id', owner_client_id())->count();
 
         // -----------------------------
-        // 4. Get client settings
+        // 4. Get the main client settings
         // -----------------------------
-        // Retrieve the currently authenticated client and their associated
-        // settings, which include currency, organization details, and more.
-        $settings = Auth::guard('client')->user()->settings;
+        $settings = Client::find(owner_client_id())->settings;
 
         // -----------------------------
         // 5. Return dashboard view
         // -----------------------------
-        // Pass the collected data to the dashboard Blade view.
-        // 'compact' is used to automatically create an array with variable names as keys.
         return view('client.dashboard', compact('totalMembers', 'totalBalance',  'totalUsers', 'totalProjects', 'settings'));
     }
 }
