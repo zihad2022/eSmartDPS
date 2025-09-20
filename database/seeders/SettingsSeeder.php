@@ -64,12 +64,12 @@ class SettingsSeeder extends Seeder
             'sslcommerz_mode' => 'sandbox',
 
             /* ========== SMS Settings ========== */
-            'sms_api_key' => 'sms_test_api_key',
-            'sms_secret_key' => 'sms_test_secret',
-            'sms_sender_id' => 'MYBIZ',
-            'sms_api_url' => 'https://smsprovider.com/api/send',
-            'sms_balance_api' => 'https://smsprovider.com/api/balance',
-            'sms_message_template' => 'Hello {name}, your OTP is {otp}.',
+            'sms_api_key' => 'VB613Haz5AuGptMYl2e936CgbJfZZgBWcrGwu0352aQ=',
+            'sms_client_id' => '68779bd4-159e-4f49-8ffe-14fd140627c5',
+            'sms_sender_id' => '8809617609953',
+            'sms_api_url' => 'http://panel.softclever.com/api/v2/SendSMS',
+            'sms_balance_api' => 'http://panel.softclever.com/api/v2/GetBalance',
+            'sms_message_template' => "Dear {name}, your One-Time Password (OTP) is {otp}. Please use this code to reset your password. This OTP will expire in 5 minutes. - {app_name} Security Team",
 
             /* ========== Email Settings ========== */
             'mail_host' => 'smtp.gmail.com',
