@@ -13,63 +13,67 @@ class LedgerSeeder extends Seeder
     {
         $now = Carbon::now();
 
-        $transactions = [
-            [
-                'ledger_category_id' => rand(1, 4), // e.g., "Opening Balance"
-                'client_id' => 1, // Link to a client if applicable
+        $transactions = [];
+
+        // Generate last 12 months of income and expense data
+        for ($i = 0; $i < 12; $i++) {
+            $monthDate = $now->copy()->subMonths($i);
+
+            // Income
+            $transactions[] = [
+                'ledger_category_id' => rand(1, 4),
+                'client_id' => 1,
                 'type' => LedgerType::INCOME,
-                'description' => 'Opening Balance',
-                'amount' => 5000.00,
-                'entry_date' => $now->copy()->subDays(10)->toDateString(),
-                'notes' => 'Initial balance when account was created.',
+                'description' => 'Monthly Income - ' . $monthDate->format('F'),
+                'amount' => rand(2000, 8000),
+                'entry_date' => $monthDate->copy()->day(rand(1, 28))->toDateString(),
+                'notes' => 'Generated income for ' . $monthDate->format('F'),
                 'created_at' => $now,
                 'updated_at' => $now,
-            ],
-            [
-                'ledger_category_id' => rand(1, 4), // e.g., "Office Supplies"
+            ];
+
+            // Expense
+            $transactions[] = [
+                'ledger_category_id' => rand(1, 4),
                 'client_id' => 1,
                 'type' => LedgerType::EXPENSE,
-                'description' => 'Office Supplies Purchase',
-                'amount' => 1200.00,
-                'entry_date' => $now->copy()->subDays(9)->toDateString(),
-                'notes' => 'Bought printer ink, paper, and stationery.',
+                'description' => 'Monthly Expense - ' . $monthDate->format('F'),
+                'amount' => rand(1000, 5000),
+                'entry_date' => $monthDate->copy()->day(rand(1, 28))->toDateString(),
+                'notes' => 'Generated expense for ' . $monthDate->format('F'),
                 'created_at' => $now,
                 'updated_at' => $now,
-            ],
-            [
-                'ledger_category_id' => rand(1, 4), // e.g., "Client Payments"
+            ];
+        }
+
+        // Add some yearly data for the past 2 years
+        for ($year = 1; $year <= 2; $year++) {
+            $yearDate = $now->copy()->subYears($year);
+
+            $transactions[] = [
+                'ledger_category_id' => rand(1, 4),
                 'client_id' => 1,
                 'type' => LedgerType::INCOME,
-                'description' => 'Client Payment - Invoice #1023',
-                'amount' => 2500.00,
-                'entry_date' => $now->copy()->subDays(7)->toDateString(),
-                'notes' => 'Payment received via bank transfer.',
+                'description' => 'Yearly Bonus Income ' . $yearDate->year,
+                'amount' => rand(10000, 20000),
+                'entry_date' => $yearDate->copy()->month(rand(1, 12))->day(rand(1, 28))->toDateString(),
+                'notes' => 'Special yearly income for ' . $yearDate->year,
                 'created_at' => $now,
                 'updated_at' => $now,
-            ],
-            [
-                'ledger_category_id' => rand(1, 4), // e.g., "Utilities"
+            ];
+
+            $transactions[] = [
+                'ledger_category_id' => rand(1, 4),
                 'client_id' => 1,
                 'type' => LedgerType::EXPENSE,
-                'description' => 'Utility Bill Payment',
-                'amount' => 900.00,
-                'entry_date' => $now->copy()->subDays(5)->toDateString(),
-                'notes' => 'Electricity and water bill for the month.',
+                'description' => 'Yearly Expense ' . $yearDate->year,
+                'amount' => rand(5000, 15000),
+                'entry_date' => $yearDate->copy()->month(rand(1, 12))->day(rand(1, 28))->toDateString(),
+                'notes' => 'Special yearly expense for ' . $yearDate->year,
                 'created_at' => $now,
                 'updated_at' => $now,
-            ],
-            [
-                'ledger_category_id' => rand(1, 4), // e.g., "Service Income"
-                'client_id' => 1,
-                'type' => LedgerType::INCOME,
-                'description' => 'Service Income - Project X',
-                'amount' => 4000.00,
-                'entry_date' => $now->copy()->subDays(2)->toDateString(),
-                'notes' => 'Full payment for Project X development.',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-        ];
+            ];
+        }
 
         DB::table('ledgers')->insert($transactions);
     }
