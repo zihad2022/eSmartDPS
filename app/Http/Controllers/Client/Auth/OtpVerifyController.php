@@ -76,7 +76,7 @@ class OtpVerifyController extends Controller
         // -----------------------------
         // 6. Redirect to password reset page with phone number
         // -----------------------------
-        return redirect()->route('client.reset.password.phone', ['phone' => $client->phone])
+        return redirect()->route('client.password.reset', ['phone' => $client->phone])
             ->with('success', 'OTP verified. You can now reset your password.');
     }
 }
