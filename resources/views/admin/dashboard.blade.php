@@ -5,7 +5,7 @@
     <x-admin.sections.dashboard.welcome :admin="$admin" />
 
     <!-- Stats Cards -->
-    <x-admin.sections.dashboard.stats :totalClients="$totalClients" :totalBalance="$totalBalance" />
+    <x-admin.sections.dashboard.stats :totalClients="$totalClients" :totalBalance="$totalBalance" :totalUsers="$totalUsers" :totalPackages="$totalPackages"/>
 
     <!-- Charts and Recent Activities -->
     <x-admin.sections.dashboard.chart :chartData="$chartData" :recentActivities="$recentActivities" />
