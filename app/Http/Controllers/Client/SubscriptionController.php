@@ -38,6 +38,7 @@ class SubscriptionController extends Controller
             if ($invoice->status !== \App\Enums\InvoiceStatus::PAID) {
                 $invoice->update([
                     'status' => \App\Enums\InvoiceStatus::PAID,
+                    'paid_at' => now(),
                 ]);
             }
         }
