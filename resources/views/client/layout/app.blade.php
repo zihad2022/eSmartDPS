@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     {{-- Laravel Vite (CSS + JS) --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js','resources/css/custom-styles.css'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/custom-styles.css'])
 
     {{-- Dynamic Page Title --}}
     <title>{{ $title ?? 'Dashboard' }} - {{ $settings->site_name ?? config('app.name') }}</title>
@@ -35,13 +35,20 @@
             @include('client.layout.partials.topbar')
 
             {{-- Page Content (dynamic) --}}
-            <div class="p-4 md:p-6">
-                {{ $slot }}
-            </div>
+            @if (url()->current() === url('client/subscription/expired'))
+                <div>
+                    {{ $slot }}
+                </div>
+            @else
+                <div class="p-4 md:p-6">
+                    {{ $slot }}
+                </div>
+            @endif
 
             {{-- Footer --}}
             @include('client.layout.partials.footer')
         </main>
+
     </div>
 
     {{-- App Scripts --}}
@@ -87,7 +94,8 @@
 
                 // Toggle current dropdown
                 dropdown.classList.toggle('active');
-                chevron.style.transform = dropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
+                chevron.style.transform = dropdown.classList.contains('active') ? 'rotate(180deg)' :
+                    'rotate(0deg)';
             });
         });
 
@@ -121,8 +129,7 @@
             type: 'line',
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [
-                    {
+                datasets: [{
                         label: 'Income',
                         data: [200000, 250000, 220000, 280000, 320000, 350000],
                         borderColor: '#10b981',
@@ -151,7 +158,11 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'top' } },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -179,7 +190,11 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } }
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
             }
         });
 
@@ -199,8 +214,19 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 2 } } }
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 2
+                        }
+                    }
+                }
             }
         });
     </script>
@@ -208,4 +234,5 @@
     {{-- Stack for extra scripts (pushed from child views) --}}
     @stack('scripts')
 </body>
+
 </html>

@@ -3,42 +3,23 @@
     <x-slot name="title">Dashboard</x-slot>
 
     {{-- ================= Welcome Banner ================= --}}
-    <div
-        class="bg-gradient-to-r from-primary-900 to-primary-800 rounded-xl p-6 mb-6 text-white relative overflow-hidden">
-        {{-- Decorative Background Circle --}}
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mt-10 -mr-10"></div>
-        <div class="relative z-10">
-            {{-- Welcome Message --}}
-            <h2 class="text-xl md:text-2xl font-bold mb-2">Welcome back, {{ auth('client')->user()->first_name }}!</h2>
-            <p class="text-primary-100 mb-4 text-sm md:text-base">Here's what's happening with DYDS savings
-                management today.</p>
-
-            {{-- Quick Action Buttons --}}
-            <div class="flex flex-wrap gap-2 md:gap-4 mt-4">
-                <a href="{{ route('client.members.create') }}"
-                    class="bg-accent-600 hover:bg-accent-700 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition duration-300">
-                    Add New Member
-                </a>
-                <a href="{{ route('client.projects.create') }}"
-                    class="bg-white/10 hover:bg-white/20 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition duration-300">
-                    New Project
-                </a>
-            </div>
-        </div>
-    </div>
+  <x-client.dashboard.welcome-banner/>
 
     {{-- ================= Stats Cards ================= --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
-        {{-- Total Members Card --}}
-        <x-card.stat-card label="Total Members" :value="$totalMembers" icon="fas fa-users" iconBgColor="bg-accent-100"
-            iconTextColor="text-accent-600" />
-            
-        {{-- Total Balance Card --}}
-        <x-card.stat-card label="Total Balance" :value="$settings->currency . ' ' . number_format($totalBalance)" icon="fas fa-wallet" iconBgColor="bg-secondary-100"
-            iconTextColor="text-secondary-600" />
+        <x-card.stat-card label="Total Members" :value="$totalMembers" icon="fas fa-users" iconBgColor="bg-blue-100"
+            iconTextColor="text-blue-600" />
 
-        {{-- Additional Cards can be added here if needed --}}
+        <x-card.stat-card label="Total Balance" :value="$settings->currency . ' ' . number_format($totalBalance)" icon="fas fa-wallet" iconBgColor="bg-green-100"
+            iconTextColor="text-green-600" />
+
+        <x-card.stat-card label="Total Users" :value="number_format($totalUsers)" icon="fas fa-user-friends" iconBgColor="bg-purple-100"
+            iconTextColor="text-purple-600" />
+
+        <x-card.stat-card label="Total Projects" :value="number_format($totalProjects)" icon="fas fa-project-diagram"
+            iconBgColor="bg-yellow-100" iconTextColor="text-yellow-600" />
     </div>
+
 
     {{-- ================= Charts and Recent Activities ================= --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -48,8 +29,10 @@
                 <h3 class="text-lg font-semibold text-primary-900">Financial Overview</h3>
                 <div class="flex space-x-2">
                     {{-- Filter Buttons --}}
-                    <button class="px-3 py-1 text-xs font-medium bg-accent-100 text-accent-600 rounded-lg">Monthly</button>
-                    <button class="px-3 py-1 text-xs font-medium bg-gray-100 text-primary-600 rounded-lg">Yearly</button>
+                    <button
+                        class="px-3 py-1 text-xs font-medium bg-accent-100 text-accent-600 rounded-lg">Monthly</button>
+                    <button
+                        class="px-3 py-1 text-xs font-medium bg-gray-100 text-primary-600 rounded-lg">Yearly</button>
                 </div>
             </div>
             {{-- Chart Canvas --}}
@@ -64,7 +47,8 @@
             <div class="space-y-4">
                 {{-- Activity Item 1 --}}
                 <div class="flex items-start">
-                    <div class="w-8 h-8 bg-accent-100 text-accent-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <div
+                        class="w-8 h-8 bg-accent-100 text-accent-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fas fa-user-plus text-xs"></i>
                     </div>
                     <div>
@@ -76,7 +60,8 @@
 
                 {{-- Activity Item 2 --}}
                 <div class="flex items-start">
-                    <div class="w-8 h-8 bg-secondary-100 text-secondary-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <div
+                        class="w-8 h-8 bg-secondary-100 text-secondary-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fas fa-money-bill-wave text-xs"></i>
                     </div>
                     <div>
@@ -88,7 +73,8 @@
 
                 {{-- Activity Item 3 --}}
                 <div class="flex items-start">
-                    <div class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <div
+                        class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fas fa-project-diagram text-xs"></i>
                     </div>
                     <div>
@@ -134,7 +120,8 @@
                             </td>
                             <td class="px-4 py-3 text-sm">$250.00</td>
                             <td class="px-4 py-3">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Completed</span>
+                                <span
+                                    class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Completed</span>
                             </td>
                         </tr>
 
@@ -149,7 +136,8 @@
                             </td>
                             <td class="px-4 py-3 text-sm">$500.00</td>
                             <td class="px-4 py-3">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                <span
+                                    class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Pending</span>
                             </td>
                         </tr>
                     </tbody>
@@ -172,7 +160,8 @@
                             <h4 class="text-primary-900 font-medium">Real Estate Investment</h4>
                             <p class="text-sm text-primary-600 mt-1">Expected Return: 15%</p>
                         </div>
-                        <div class="bg-accent-100 text-accent-600 px-3 py-1 rounded-full text-xs font-medium">Active</div>
+                        <div class="bg-accent-100 text-accent-600 px-3 py-1 rounded-full text-xs font-medium">Active
+                        </div>
                     </div>
                     <div class="flex items-center mt-3 text-sm text-primary-600">
                         <i class="fas fa-dollar-sign mr-2"></i>
@@ -187,7 +176,8 @@
                             <h4 class="text-primary-900 font-medium">Market Investment</h4>
                             <p class="text-sm text-primary-600 mt-1">Expected Return: 12%</p>
                         </div>
-                        <div class="bg-secondary-100 text-secondary-600 px-3 py-1 rounded-full text-xs font-medium">Planning</div>
+                        <div class="bg-secondary-100 text-secondary-600 px-3 py-1 rounded-full text-xs font-medium">
+                            Planning</div>
                     </div>
                     <div class="flex items-center mt-3 text-sm text-primary-600">
                         <i class="fas fa-dollar-sign mr-2"></i>

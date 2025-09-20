@@ -1,24 +1,30 @@
 <x-admin.layout.app>
     @php
-        // Get the status query parameter from the request (e.g., 'active', 'inactive')
+        /**
+         * =======================================
+         * Page Setup: Status, Title, Breadcrumbs
+         * =======================================
+         */
+
+        // 1. Retrieve status filter from the request (?status=active/inactive)
         $status = request()->status;
 
-        // Map status values to human-readable titles for the page
+        // 2. Map status values to human-readable titles
         $titleMap = [
             'active' => 'Active Clients',
             'inactive' => 'Inactive Clients',
         ];
 
-        // Determine page title based on the status filter, default to 'All Clients'
+        // 3. Determine the page title based on filter, fallback to "All Clients"
         $pageTitle = $titleMap[$status] ?? 'All Clients';
 
-        // Base breadcrumb items: Dashboard > All Clients
+        // 4. Base breadcrumb items
         $breadcrumbItems = [
             ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
             ['label' => 'All Clients', 'url' => route('admin.clients.index')],
         ];
 
-        // Append specific status breadcrumb if a valid status is set
+        // 5. Append specific status breadcrumb if filter applied
         if (isset($titleMap[$status])) {
             $breadcrumbItems[] = [
                 'label' => $pageTitle,
@@ -27,52 +33,101 @@
         }
     @endphp
 
-    {{-- Set the HTML page title dynamically --}}
+    {{-- ===========================
+         Set HTML Page Title
+    ============================ --}}
     <x-slot:title>{{ $pageTitle }}</x-slot:title>
 
-    {{-- Render breadcrumb navigation based on current page location --}}
+    {{-- ===========================
+         Breadcrumb Navigation
+    ============================ --}}
     <x-breadcrumb :items="$breadcrumbItems" />
 
-    <!-- Main Content Wrapper -->
+    {{-- ===========================
+         Main Content Wrapper
+    ============================ --}}
     <div>
-        {{-- Display flash messages (success or error) if any --}}
+
+        {{-- ===========================
+             Flash Messages Section
+        ============================ --}}
         @if (session('success') || session('error'))
-            <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
+            <x-flash-message
+                :type="session('success') ? 'success' : 'error'"
+                :title="session('success') ? 'Success' : 'Error'"
+                :message="session('success') ?? session('error')"
+            />
         @endif
 
-        <!-- Stats Cards: Summary info for clients -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
-            <x-card.stat-card :label="'Total Clients'" :value="$totalClients" :iconBgColor="'bg-primary-100'" :iconTextColor="'text-primary-600'"
-                :icon="'fas fa-users'" />
+        {{-- ===========================
+             Stats Cards Section
+        ============================ --}}
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+            {{-- Total Clients --}}
+            <x-card.stat-card
+                :label="'Total Clients'"
+                :value="$totalClients"
+                :iconBgColor="'bg-primary-100'"
+                :iconTextColor="'text-primary-600'"
+                :icon="'fas fa-users'"
+            />
 
-            <x-card.stat-card :label="'Active Clients'" :value="$activeClients" :iconBgColor="'bg-green-100'" :iconTextColor="'text-green-600'"
-                :icon="'fas fa-user-check'" />
+            {{-- Active Clients --}}
+            <x-card.stat-card
+                :label="'Active Clients'"
+                :value="$activeClients"
+                :iconBgColor="'bg-green-100'"
+                :iconTextColor="'text-green-600'"
+                :icon="'fas fa-user-check'"
+            />
 
-            {{-- Inactive Members card is commented out but can be re-enabled --}}
-            {{-- <x-card.stat-card :label="'Inactive Members'" :value="$inactiveMembers" :bgColor="'bg-red-100'" :textColor="'text-red-600'" :icon="'fas fa-user-times'" />  --}}
-
-            {{-- <x-card.stat-card :label="'Total Projects'" :value="0" :iconBgColor="'bg-red-100'" :iconTextColor="'text-red-600'"
-                :icon="'fas fa-chart-pie'" /> --}}
-
-            <x-card.stat-card :label="'Suspended'" :value="$inactiveClients" :iconBgColor="'bg-red-100'" :iconTextColor="'text-red-600'"
-                :icon="'fas fa-user-times'" />
+            {{-- Suspended Clients --}}
+            <x-card.stat-card
+                :label="'Suspended Clients'"
+                :value="$inactiveClients"
+                :iconBgColor="'bg-red-100'"
+                :iconTextColor="'text-red-600'"
+                :icon="'fas fa-user-times'"
+            />
         </div>
 
-        <!-- Clients Table Container -->
+        {{-- ===========================
+             Clients Table Section
+        ============================ --}}
         <div class="bg-white rounded-xl shadow-sm">
-            {{-- Table Header with title and action buttons --}}
+
+            {{-- ====================================
+                 Table Header (Title + Actions)
+            ==================================== --}}
             <div class="p-6 border-b border-gray-200">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+
+                    {{-- Section Title --}}
                     <h3 class="text-lg font-semibold text-primary-900 mb-4 md:mb-0">
                         {{ $pageTitle }}
                     </h3>
 
-                    {{-- Action buttons: Add Client and Export Clients --}}
+                    {{-- Table Actions (Search + Add + Export) --}}
                     <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
+
+                        {{-- Search Form --}}
+                        <form method="GET" action="{{ route('admin.clients.index') }}" class="relative w-full md:w-auto">
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                placeholder="Search clients..."
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition duration-300">
+                            <button type="submit"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-accent-500 transition">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+
+                        {{-- Add Client Button --}}
                         <a href="{{ route('admin.clients.create') }}"
                             class="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
                             Add Client
                         </a>
+
+                        {{-- Export Button --}}
                         <a href="{{ route('admin.clients.export', ['status' => $status]) }}"
                             class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
                             <i class="fas fa-download mr-2"></i>Export
@@ -81,44 +136,34 @@
                 </div>
             </div>
 
-            {{-- Responsive table wrapper with horizontal scroll --}}
+            {{-- =============================
+                 Table Body
+            ============================= --}}
             <div class="overflow-x-auto">
                 <table class="min-w-full">
-                    {{-- Table column headers --}}
+                    {{-- Table Headers --}}
                     <thead class="bg-gray-50">
                         <tr>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                sl</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                User ID</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                Name</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                Email</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                Status</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                Joined On</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
-                                Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">SL</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">User ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Phone</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Role</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Division</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">District</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Joined On</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-
-                    {{-- Table body with client rows --}}
+            
+                    {{-- Table Rows --}}
                     <tbody class="bg-white divide-y divide-gray-200">
                         @php
-                            // Initialize serial number starting from current pagination first item
                             $sl = $clients->firstItem() ?? 1;
                         @endphp
-
-                        {{-- Loop through clients and display each in a table row --}}
+            
                         @forelse ($clients as $client)
                             <tr class="hover:bg-gray-50">
                                 {{-- Serial Number --}}
@@ -126,98 +171,96 @@
 
                                 {{-- User ID --}}
                                 <td class="px-6 py-4 text-sm text-primary-900 font-mono">{{ $client->user_id }}</td>
-
-                                {{-- Client Name with Profile Photo or Placeholder Avatar --}}
+            
+                                {{-- Name + Avatar --}}
                                 <td class="px-6 py-4 whitespace-nowrap flex items-center">
-                                    <img src="{{ $client->profile_photo
-                                        ? $client->profile_photo_url
-                                        : 'https://ui-avatars.com/api/?name=' . urlencode($client->first_name . ' ' . $client->last_name) }}"
+                                    <img src="{{ $client->profile_photo ? $client->profile_photo_url : 'https://ui-avatars.com/api/?name=' . urlencode($client->first_name . ' ' . $client->last_name) }}"
                                         alt="Profile Photo" class="w-10 h-10 rounded-full mr-3">
-                                    <span class="text-sm font-medium text-primary-900">
-                                        {{ $client->first_name }} {{ $client->last_name }}
-                                    </span>
+                                    <span class="text-sm font-medium text-primary-900">{{ $client->first_name }} {{ $client->last_name }}</span>
                                 </td>
-
-                                {{-- Email Address --}}
+            
+                                {{-- Email --}}
                                 <td class="px-6 py-4 text-sm text-primary-600">{{ $client->email }}</td>
 
-                                {{-- Status Badge: Active (green) or Inactive (red) --}}
+                                {{-- Phone --}}
+                                <td class="px-6 py-4 text-sm text-primary-600">{{ $client->phone ?? 'N/A' }}</td>
+
+                                {{-- Role --}}
+                                <td class="px-6 py-4 text-sm text-primary-900 font-semibold">{{ ucfirst($client->role) }}</td>
+
+                                {{-- Division --}}
+                                <td class="px-6 py-4 text-sm text-primary-600">{{ $client->division ?? 'N/A' }}</td>
+
+                                {{-- District --}}
+                                <td class="px-6 py-4 text-sm text-primary-600">{{ $client->district ?? 'N/A' }}</td>
+            
+                                {{-- Status Badge --}}
                                 <td class="px-6 py-4">
-                                    <span
-                                        class="px-2 py-1 text-xs font-medium rounded-full 
-                                        {{ $client->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full {{ $client->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $client->status ? 'Active' : 'Inactive' }}
                                     </span>
                                 </td>
-
-                                {{-- Date client joined, formatted --}}
+            
+                                {{-- Joined Date --}}
                                 <td class="px-6 py-4 text-sm text-primary-600">
-                                    {{ $client->created_at->format('M d, Y') }}
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full text-green-600 bg-green-100">
+                                        {{ $client->created_at->format('M d, Y') }}
+                                    </span>
                                 </td>
-
-                                {{-- Actions: View, Edit, Delete --}}
+            
+                                {{-- Action Buttons --}}
                                 <td class="px-6 py-4 text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        {{-- View Client --}}
-                                        {{-- <a href="{{ route('admin.clients.show', $client->id) }}"
-                                            class="text-accent-600 hover:text-accent-900" title="View">
+                                        {{-- View --}}
+                                        <a href="{{ route('admin.clients.show', $client->id) }}" class="text-accent-600 hover:text-accent-900" title="View">
                                             <i class="fas fa-eye"></i>
-                                        </a> --}}
-
-                                        {{-- Edit Client --}}
-                                        <a href="{{ route('admin.clients.edit', $client->id) }}"
-                                            class="text-secondary-600 hover:text-secondary-900" title="Edit">
+                                        </a>
+                                        {{-- Edit --}}
+                                        <a href="{{ route('admin.clients.edit', $client->id) }}" class="text-secondary-600 hover:text-secondary-900" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-
-                                        {{-- Delete Client Form with confirmation --}}
-                                        <form method="POST" action="{{ route('admin.clients.destroy', $client->id) }}"
-                                            class="delete-form">
+                                        {{-- Delete --}}
+                                        <form method="POST" action="{{ route('admin.clients.destroy', $client->id) }}" class="delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="button" class="text-red-600 hover:text-red-900 delete-btn"
-                                                title="Delete">
+                                            <button type="button" class="text-red-600 hover:text-red-900 delete-btn" title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
                                     </div>
+                                    <x-confirm-modal />
                                 </td>
-                                {{-- Confirm modal component for deletion confirmation --}}
-                                <x-confirm-modal />
                             </tr>
-
-                            {{-- Show message if no clients are found --}}
                         @empty
+                            {{-- Empty State --}}
                             <tr>
-                                <td colspan="7" class="text-center py-4 text-sm text-gray-500">
-                                    No clients found.
-                                </td>
+                                <td colspan="11" class="text-center py-4 text-sm text-gray-500">No clients found.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
-
             </div>
-
-            <!-- Pagination Controls and Showing Results Info -->
+            
+            {{-- ===============================
+                 Pagination & Results Info
+            =============================== --}}
             <div class="px-6 py-4 border-t border-gray-200">
                 <div class="flex items-center justify-between">
-                    {{-- Showing items range and total count --}}
+                    {{-- Results Info --}}
                     <div class="text-sm text-primary-600">
                         @if ($clients->total() > 0)
-                            Showing {{ $clients->firstItem() }} to {{ $clients->lastItem() }} of
-                            {{ $clients->total() }} results
+                            Showing {{ $clients->firstItem() }} to {{ $clients->lastItem() }} of {{ $clients->total() }} results
                         @else
                             No results found.
                         @endif
                     </div>
 
-                    {{-- Pagination links --}}
+                    {{-- Pagination Links --}}
                     <div class="flex space-x-2">
                         <x-pagination :paginator="$clients" />
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </div> 
+    </div> 
 </x-admin.layout.app>

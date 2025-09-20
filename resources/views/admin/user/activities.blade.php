@@ -2,7 +2,7 @@
     @php
         $breadcrumbItems = [
             ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
-            ['label' => 'Activities', 'url' => route('admin.user.activities')],
+            ['label' => 'Activities', 'url' => route('admin.users.activities')],
         ];
         $pageTitle = 'User Activities';
     @endphp

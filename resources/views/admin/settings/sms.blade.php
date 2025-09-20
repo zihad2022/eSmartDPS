@@ -46,9 +46,9 @@
                 {{-- SMS API Key --}}
                 <x-form.input name="sms_api_key" label="SMS API Key" :value="old('sms_api_key', $settings->sms_api_key ?? '')" placeholder="Enter SMS API Key" />
 
-                {{-- SMS Secret Key --}}
-                <x-form.input name="sms_secret_key" label="SMS Secret Key" :value="old('sms_secret_key', $settings->sms_secret_key ?? '')"
-                    placeholder="Enter SMS Secret Key" />
+                {{-- SMS Client ID --}}
+                <x-form.input name="sms_client_id" label="SMS Client ID" :value="old('sms_client_id', $settings->sms_client_id ?? '')"
+                    placeholder="Enter SMS Client ID" />
             </div>
 
             {{-- =================== Sender & API URL Inputs ===================
@@ -71,6 +71,9 @@
                 {{-- SMS Balance API URL --}}
                 <x-form.input name="sms_balance_api" label="Balance API URL" :value="old('sms_balance_api', $settings->sms_balance_api ?? '')"
                     placeholder="Enter SMS Balance API URL" />
+
+                    {{-- SMS Status --}}
+                    <x-form.select name="sms_status" label="Status" :options="['1' => 'Active', '0' => 'Inactive']" :selected="old('sms_status', $settings->sms_status ?? '1')" />
             </div>
 
             {{-- =================== Default SMS Template Textarea ===================
