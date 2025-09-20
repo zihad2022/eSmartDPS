@@ -12,7 +12,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('client.reset.password.phone.store') }}" class="space-y-6">
+        <form method="POST" action="{{ route('client.password.reset.store') }}" class="space-y-6">
             @csrf
             <input type="hidden" name="phone" value="{{ $phone }}">
 
