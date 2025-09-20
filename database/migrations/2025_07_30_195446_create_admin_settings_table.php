@@ -62,11 +62,12 @@ return new class extends Migration
 
             /* ========== SMS Settings ========== */
             $table->string('sms_api_key')->nullable();
-            $table->string('sms_secret_key')->nullable();
+            $table->string('sms_client_id')->nullable();
             $table->string('sms_sender_id')->nullable();
             $table->string('sms_api_url')->nullable();
             $table->string('sms_balance_api')->nullable();
             $table->text('sms_message_template')->nullable();
+            $table->boolean('sms_status')->default(false);
 
             /* ========== Email Settings ========== */
             $table->string('mail_host')->nullable();
