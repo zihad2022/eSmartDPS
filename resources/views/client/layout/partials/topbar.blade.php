@@ -5,37 +5,40 @@
                     class="text-primary-500 hover:text-primary-700 focus:outline-none mr-4 md:hidden">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
-                <h1 class="text-xl font-semibold text-primary-900">Dashboard </h1>
+                <h1 class="text-xl font-semibold text-primary-900">Dashboard</h1>
+
                 @php
-                    $client = auth('client')->user();
-                    $activeClientPackage = $client->activeClientPackage;
-                    $activePackage = optional($activeClientPackage->package);
+                    $client = \App\Models\Client::find(owner_client_id());
+                    $activeClientPackage = $client?->activeClientPackage;
+                    $activePackage = $activeClientPackage?->package;
                 @endphp
 
                 @if ($activePackage)
                     @php
                         $endsAt = $activeClientPackage->ends_at;
-                        $remaining = $endsAt->isFuture()
-                            ? $endsAt->diffForHumans(now(), [
-                                'parts' => 2, // show up to 2 parts (e.g., "1 month 5 days")
-                                'short' => true, // short form: "1mo 5d"
-                                'syntax' => \Carbon\CarbonInterface::DIFF_RELATIVE_TO_NOW,
-                            ])
-                            : 'Expired';
+                        $remaining =
+                            $endsAt && $endsAt->isFuture()
+                                ? $endsAt->diffForHumans(now(), [
+                                    'parts' => 2,
+                                    'short' => true,
+                                    'syntax' => \Carbon\CarbonInterface::DIFF_RELATIVE_TO_NOW,
+                                ])
+                                : 'Expired';
                     @endphp
 
                     @if ($activePackage->has_trial && $activePackage->trial_days > 0)
-                        <span class="text-green-600 font-semibold">
+                        <span class="text-green-600 font-semibold pl-2">
                             Free Trial ({{ $remaining }})
                         </span>
                     @else
-                        <span class="text-blue-600 font-semibold">
+                        <span class="text-blue-600 font-semibold pl-2">
                             Paid Subscription ({{ $remaining }})
                         </span>
                     @endif
                 @else
-                    <span class="text-gray-500">No Active Subscription</span>
+                    <span class="text-gray-500 pl-2">No Active Subscription</span>
                 @endif
+
 
             </div>
 
@@ -125,10 +128,12 @@
                             <p class="text-xs text-primary-500">{{ auth('client')->user()->role }}</p>
                         </div>
                         <div class="py-2">
-                            <a href="#" class="block px-4 py-2 text-sm text-primary-700 hover:bg-gray-50">
+                            <a href="{{ route('client.profile.edit') }}"
+                                class="block px-4 py-2 text-sm text-primary-700 hover:bg-gray-50">
                                 <i class="fas fa-user mr-2"></i> Profile
                             </a>
-                            <a href="#" class="block px-4 py-2 text-sm text-primary-700 hover:bg-gray-50">
+                            <a href="{{ route('client.settings.general.edit') }}"
+                                class="block px-4 py-2 text-sm text-primary-700 hover:bg-gray-50">
                                 <i class="fas fa-cog mr-2"></i> Settings
                             </a>
                             <a href="#" class="block px-4 py-2 text-sm text-primary-700 hover:bg-gray-50">
