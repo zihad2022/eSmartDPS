@@ -62,6 +62,7 @@ class AdminSetting extends Model
         'sms_api_url',
         'sms_balance_api',
         'sms_message_template',
+        'sms_status',
 
         /* ====== Email Settings ====== */
         'mail_host',
