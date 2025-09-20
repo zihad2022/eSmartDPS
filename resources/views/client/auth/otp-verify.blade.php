@@ -40,7 +40,7 @@
             </button>
 
             <!-- Resend OTP -->
-            <a href="{{ route('client.forgot.password.phone.store') }}"
+            <a href="{{ route('client.password.forgot') }}"
                 class="block w-full text-center bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 mt-3">
                 <i class="fas fa-redo-alt mr-2"></i>Resend OTP
             </a>
