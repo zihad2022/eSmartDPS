@@ -57,7 +57,7 @@ class AdminSetting extends Model
 
         /* ====== SMS Settings ====== */
         'sms_api_key',
-        'sms_secret_key',
+        'sms_client_id',
         'sms_sender_id',
         'sms_api_url',
         'sms_balance_api',
