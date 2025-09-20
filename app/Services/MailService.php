@@ -26,13 +26,13 @@ class MailService
         $settings = AdminSetting::first();
 
         // 2. Dynamically configure Laravel mail settings
-        Config::set('mail.mailers.smtp.host', $settings->mail_host);
-        Config::set('mail.mailers.smtp.port', $settings->mail_port);
-        Config::set('mail.mailers.smtp.username', $settings->mail_username);
-        Config::set('mail.mailers.smtp.password', $settings->mail_password);
-        Config::set('mail.mailers.smtp.encryption', $settings->mail_encryption);
-        Config::set('mail.from.address', $settings->mail_from_address);
-        Config::set('mail.from.name', $settings->mail_from_name);
+        // Config::set('mail.mailers.smtp.host', $settings->mail_host);
+        // Config::set('mail.mailers.smtp.port', $settings->mail_port);
+        // Config::set('mail.mailers.smtp.username', $settings->mail_username);
+        // Config::set('mail.mailers.smtp.password', $settings->mail_password);
+        // Config::set('mail.mailers.smtp.encryption', $settings->mail_encryption);
+        // Config::set('mail.from.address', $settings->mail_from_address);
+        // Config::set('mail.from.name', $settings->mail_from_name);
 
         // 3. Send the welcome email with the provided client credentials
         Mail::to($client->email)->send(
