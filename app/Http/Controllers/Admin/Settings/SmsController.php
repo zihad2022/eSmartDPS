@@ -40,11 +40,12 @@ class SmsController extends Controller
         // all fields are nullable strings to allow optional updates.
         $request->validate([
             'sms_api_key' => 'nullable|string',
-            'sms_secret_key' => 'nullable|string',
+            'sms_client_id' => 'nullable|string',
             'sms_sender_id' => 'nullable|string',
             'sms_api_url' => 'nullable|string',
             'sms_balance_api' => 'nullable|string',
             'sms_message_template' => 'nullable|string',
+            'sms_status' => 'required|integer|in:0,1',
         ]);
 
         // Fetch the first AdminSetting record to update
@@ -53,11 +54,12 @@ class SmsController extends Controller
         // Update the SMS-related fields with validated input data
         $settings->update([
             'sms_api_key' => $request->sms_api_key,
-            'sms_secret_key' => $request->sms_secret_key,
+            'sms_client_id' => $request->sms_client_id,
             'sms_sender_id' => $request->sms_sender_id,
             'sms_api_url' => $request->sms_api_url,
             'sms_balance_api' => $request->sms_balance_api,
             'sms_message_template' => $request->sms_message_template,
+            'sms_status' => $request->sms_status,
         ]);
 
         // Log activity
