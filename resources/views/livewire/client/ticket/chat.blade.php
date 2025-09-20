@@ -1,31 +1,24 @@
 <div class="max-w-3xl mx-auto bg-white shadow rounded-xl h-[80vh] flex flex-col">
 
-    {{-- ===========================
-         Header Section
-    ============================ --}}
+    {{-- Header --}}
     <div class="px-6 py-4 border-b flex justify-between items-center">
         <h2 class="text-lg font-bold text-primary-900">
             Ticket #{{ $ticket->ticket_number }} - {{ $ticket->subject }}
         </h2>
     </div>
 
-    {{-- ===========================
-         Messages Section
-    ============================ --}}
+    {{-- Messages --}}
     <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
         @forelse ($ticket->replies as $reply)
-            {{-- Single Reply (Admin/User) --}}
-            <div class="flex {{ $reply->admin_id ? 'justify-end' : 'justify-start' }}">
+            <div class="flex {{ $reply->client_id ? 'justify-end' : 'justify-start' }}">
                 <div
                     class="max-w-[75%] px-4 py-3 rounded-xl shadow text-sm
-                    {{ $reply->admin_id ? 'bg-accent-500 text-white' : 'bg-white border' }}">
+                    {{ $reply->client_id ? 'bg-accent-500 text-white' : 'bg-white border' }}">
 
-                    {{-- Reply Message --}}
                     @if ($reply->message)
                         <p>{{ $reply->message }}</p>
                     @endif
 
-                    {{-- Reply Attachment --}}
                     @if ($reply->attachment)
                         <div class="mt-2">
                             <a href="{{ asset('storage/' . $reply->attachment) }}" target="_blank"
@@ -37,14 +30,11 @@
                 </div>
             </div>
         @empty
-            {{-- Empty State --}}
             <p class="text-center text-gray-500 text-sm">No messages yet.</p>
         @endforelse
     </div>
 
-    {{-- ===========================
-         Message Input Section
-    ============================ --}}
+    {{-- Message Input --}}
     <form wire:submit.prevent="sendMessage" class="border-t p-4 flex items-center gap-3">
 
         {{-- Message Input --}}
@@ -53,7 +43,7 @@
             class="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm 
                    focus:ring-2 focus:ring-accent-500 focus:outline-none" />
 
-        {{-- Hidden File Input --}}
+        {{-- File Attachment Input (Hidden) --}}
         <input type="file" id="chatAttachment" wire:model="attachment" class="hidden" />
 
         {{-- File Upload Button --}}
