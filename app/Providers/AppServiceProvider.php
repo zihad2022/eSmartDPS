@@ -2,19 +2,21 @@
 
 namespace App\Providers;
 
-use App\Models\Admin;
 use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Member;
 use App\Models\Package;
 use App\Models\Ticket;
-use App\Observers\AdminObserver;
-use App\Observers\ClientObserver;
-use App\Observers\PackageObserver;
-use App\Observers\RoleObserver;
-use App\Observers\TicketObserver;
+use App\Models\User;
+use App\Observers\Admin\ClientObserver;
+use App\Observers\Admin\InvoiceObserver;
+use App\Observers\Admin\PackageObserver;
+use App\Observers\Admin\TicketObserver;
+use App\Observers\Admin\UserObserver;
+use App\Observers\Client\MemberObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -54,11 +56,16 @@ class AppServiceProvider extends ServiceProvider
          * 3. Register Eloquent model observers.
          *    Observers listen for model events like "creating", "updating", "deleting".
          */
+
+        //  Admin Observers
         Client::observe(ClientObserver::class);
         Package::observe(PackageObserver::class);
+        Invoice::observe(InvoiceObserver::class);
         Ticket::observe(TicketObserver::class);
-        Admin::observe(AdminObserver::class);
-        Role::observe(RoleObserver::class);
+        User::observe(UserObserver::class);
+
+        // Client Observers
+        Member::observe(MemberObserver::class);
 
         /**
          * 4. Define a custom Blade directive `@adminCan('permission-name')`.
