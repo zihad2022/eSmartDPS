@@ -118,7 +118,7 @@
                             label="Share Quantity" 
                             type="number" 
                             min="0"
-                            :value="old('share_quantity', $member->share_quantity ?? 0)" 
+                            :value="old('share_quantity', $member->share_quantity ?? '')" 
                             placeholder="Enter share quantity" 
                         />
 

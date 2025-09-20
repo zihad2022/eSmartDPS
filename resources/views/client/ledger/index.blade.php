@@ -39,45 +39,21 @@
             This section displays feedback messages after actions
         ============================================================ --}}
         @if (session('success') || session('error'))
-            <x-flash-message 
-                :type="session('success') ? 'success' : 'error'" 
-                :title="session('success') ? 'Success' : 'Error'" 
-                :message="session('success') ?? session('error')" />
+            <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
         @endif
 
         {{-- ===========================================================
             SUMMARY CARDS (Total Income, Expenses, Net Balance)
         ============================================================ --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
-            <x-card.stat-card 
-                :label="'Total Income'" 
-                :value="number_format($totalIncome)" 
-                :bgColor="'bg-green-100'" 
-                :textColor="'text-green-600'" 
-                :icon="'fas fa-arrow-up'"
-                :iconBgColor="'bg-green-100'" 
-                :iconTextColor="'text-green-600'" 
-                :valueTextColor="'text-green-600'" />
+            <x-card.stat-card :label="'Total Income'" :value="$settings->currency . ' ' . number_format($totalIncome)" :bgColor="'bg-green-100'" :textColor="'text-green-600'" :icon="'fas fa-arrow-up'"
+                :iconBgColor="'bg-green-100'" :iconTextColor="'text-green-600'" :valueTextColor="'text-green-600'" />
 
-            <x-card.stat-card 
-                :label="'Total Expenses'" 
-                :value="number_format($totalExpense)" 
-                :bgColor="'bg-red-100'" 
-                :textColor="'text-red-600'"
-                :icon="'fas fa-arrow-down'" 
-                :iconBgColor="'bg-red-100'" 
-                :iconTextColor="'text-red-600'" 
-                :valueTextColor="'text-red-600'" />
+            <x-card.stat-card :label="'Total Expenses'" :value="$settings->currency . ' ' . number_format($totalExpense)" :bgColor="'bg-red-100'" :textColor="'text-red-600'"
+                :icon="'fas fa-arrow-down'" :iconBgColor="'bg-red-100'" :iconTextColor="'text-red-600'" :valueTextColor="'text-red-600'" />
 
-            <x-card.stat-card 
-                :label="'Net Balance'" 
-                :value="number_format($totalIncome - $totalExpense)" 
-                :bgColor="'bg-primary-100'" 
-                :textColor="'text-primary-600'"
-                :icon="'fas fa-wallet'" 
-                :iconBgColor="'bg-primary-100'" 
-                :iconTextColor="'text-primary-600'" 
-                :valueTextColor="'text-primary-600'" />
+            <x-card.stat-card :label="'Net Balance'" :value="$settings->currency . ' ' . number_format($totalIncome - $totalExpense)" :bgColor="'bg-primary-100'" :textColor="'text-primary-600'"
+                :icon="'fas fa-wallet'" :iconBgColor="'bg-primary-100'" :iconTextColor="'text-primary-600'" :valueTextColor="'text-primary-600'" />
         </div>
 
         {{-- ===========================================================
@@ -89,12 +65,17 @@
             {{-- =======================
                 INCOME VS EXPENSES CHART
             ======================== --}}
-            <div class="bg-white rounded-xl shadow-sm p-6 lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-sm p-6 lg:col-span-3">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-semibold text-primary-900">Income vs Expenses</h3>
                     <div class="flex space-x-2">
-                        <button class="px-3 py-1 text-xs font-medium bg-accent-100 text-accent-600 rounded-lg">
+                        <button id="monthlyBtn"
+                            class="px-3 py-1 text-xs font-medium bg-accent-100 text-accent-600 rounded-lg">
                             Monthly
+                        </button>
+                        <button id="yearlyBtn"
+                            class="px-3 py-1 text-xs font-medium bg-gray-100 text-primary-600 rounded-lg">
+                            Yearly
                         </button>
                     </div>
                 </div>
@@ -102,33 +83,6 @@
                     <canvas id="ledgerChart"></canvas>
                 </div>
             </div>
-
-            {{-- =======================
-                All Categories
-            ======================== --}}
-            {{-- <div class="bg-white rounded-xl shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-primary-900 mb-6">All Categories</h3>
-                
-                <div class="space-y-4">
-                    @foreach ($ledgerCategories as $ledgerCategory)
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
-                            <span class="text-sm text-primary-700">{{ $ledgerCategory->name }}</span>
-                        </div>
-                        <span class="text-sm font-medium text-primary-900">$5,200</span>
-                    </div>
-                    @endforeach
-                </div>
-            
-                <div class="mt-6 text-right">
-                    <a href="{{ route('client.ledger-categories.index') }}"
-                       class="inline-block px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg shadow hover:bg-primary-700 transition">
-                        View All Categories
-                    </a>
-                </div>
-            </div> --}}
-            
         </div>
 
         {{-- ===========================================================
@@ -143,21 +97,21 @@
                 <div class="flex space-x-8 px-6">
                     {{-- All Ledgers Tab --}}
                     <a href="{{ route('client.ledgers.index') }}"
-                       class="tab-button py-4 px-2 font-medium text-sm
+                        class="tab-button py-4 px-2 font-medium text-sm
                        {{ request()->query('type') === null ? 'border-b-2 border-accent-500' : '' }}">
                         All Ledgers
                     </a>
-                
+
                     {{-- Income Tab --}}
                     <a href="{{ route('client.ledgers.index', ['type' => 'income']) }}"
-                       class="tab-button py-4 px-2 font-medium text-sm
+                        class="tab-button py-4 px-2 font-medium text-sm
                        {{ request()->query('type') === 'income' ? 'border-b-2 border-accent-500' : 'text-primary-600 hover:text-primary-900' }}">
                         Income
                     </a>
-                
+
                     {{-- Expenses Tab --}}
                     <a href="{{ route('client.ledgers.index', ['type' => 'expense']) }}"
-                       class="tab-button py-4 px-2 font-medium text-sm
+                        class="tab-button py-4 px-2 font-medium text-sm
                        {{ request()->query('type') === 'expense' ? 'border-b-2 border-accent-500' : 'text-primary-600 hover:text-primary-900' }}">
                         Expenses
                     </a>
@@ -172,12 +126,25 @@
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
                     <h3 class="text-lg font-semibold text-primary-900 mb-4 md:mb-0">Recent Ledgers</h3>
                     <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
+
+                        
+                        {{-- Search Form --}}
+                        <form method="GET" action="{{ route('client.ledgers.index') }}" class="relative w-full md:w-auto">
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                placeholder="Search ledgers..."
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition duration-300">
+                            <button type="submit"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-accent-500 transition">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+
                         {{-- Date Filter --}}
-                        <input type="date"
-                            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500">
+                        {{-- <input type="date"
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"> --}}
 
                         {{-- Category Filter --}}
-                        <select
+                        {{-- <select
                             class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500">
                             <option>All Categories</option>
                             <option>Office Rent</option>
@@ -186,7 +153,7 @@
                             <option>Supplies</option>
                             <option>Member Payments</option>
                             <option>Investment Returns</option>
-                        </select>
+                        </select> --}}
 
                         {{-- Export Button --}}
                         <button
@@ -203,12 +170,24 @@
                     <table class="min-w-full">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Description</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Category</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Amount</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Actions</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
+                                    Date</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
+                                    Description</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
+                                    Category</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
+                                    Type</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
+                                    Amount</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">
+                                    Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -221,7 +200,8 @@
 
                                     {{-- Description + Notes --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-primary-900">{{ $ledger->description }}</div>
+                                        <div class="text-sm font-medium text-primary-900">{{ $ledger->description }}
+                                        </div>
                                         @if ($ledger->notes)
                                             <div class="text-sm text-primary-500">{{ $ledger->notes }}</div>
                                         @endif
@@ -235,19 +215,22 @@
                                     {{-- Type (Income/Expense) --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if ($ledger->type == App\Enums\Ledger\LedgerType::INCOME)
-                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                            <span
+                                                class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
                                                 Income
                                             </span>
                                         @else
-                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                            <span
+                                                class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
                                                 Expense
                                             </span>
                                         @endif
                                     </td>
 
                                     {{-- Amount --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {{ $ledger->type == App\Enums\Ledger\LedgerType::INCOME ? 'text-green-600' : 'text-red-600' }}">
-                                        {{ $ledger->type == App\Enums\Ledger\LedgerType::INCOME ? '+' : '-' }}${{ number_format($ledger->amount) }}
+                                    <td
+                                        class="px-6 py-4 whitespace-nowrap text-sm font-medium {{ $ledger->type == App\Enums\Ledger\LedgerType::INCOME ? 'text-green-600' : 'text-red-600' }}">
+                                        {{ $ledger->type == App\Enums\Ledger\LedgerType::INCOME ? '+' : '-' }}{{ $settings->currency . ' ' . number_format($ledger->amount) }}
                                     </td>
 
                                     {{-- Actions (View, Edit, Delete) --}}
@@ -266,8 +249,8 @@
                                                 class="inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" class="text-red-600 hover:text-red-900 delete-btn"
-                                                    title="Delete">
+                                                <button type="button"
+                                                    class="text-red-600 hover:text-red-900 delete-btn" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -296,7 +279,8 @@
                         {{-- Results Count --}}
                         <div class="text-sm text-primary-600">
                             @if ($ledgers->total() > 0)
-                                Showing {{ $ledgers->firstItem() }} to {{ $ledgers->lastItem() }} of {{ $ledgers->total() }} results
+                                Showing {{ $ledgers->firstItem() }} to {{ $ledgers->lastItem() }} of
+                                {{ $ledgers->total() }} results
                             @else
                                 No results found.
                             @endif
@@ -318,20 +302,25 @@
     ============================================================ --}}
     <script>
         const ledgerCanvas = document.getElementById('ledgerChart');
-    
+        let ledgerChart = null;
+
         if (ledgerCanvas) {
             const ctx = ledgerCanvas.getContext('2d');
-            const chartData = @json($chartData);
 
-            const ledgerChart = new Chart(ctx, {
+            // Blade gives both data sets (monthly + yearly)
+            const monthlyData = @json($monthlyChartData);
+            const yearlyData = @json($yearlyChartData);
+
+            // default chart (monthly)
+            ledgerChart = new Chart(ctx, {
                 type: 'line',
-                data: chartData,
+                data: monthlyData,
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'top',
+                            position: 'top'
                         }
                     },
                     scales: {
@@ -339,12 +328,24 @@
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return '₹' + (value / 1000) + 'K';
+                                    return '{{ $settings->currency }} ' + (value / 1000) + 'K';
                                 }
                             }
                         }
                     }
                 }
+            });
+
+            // 🔹 Switch to monthly data
+            document.getElementById('monthlyBtn').addEventListener('click', function() {
+                ledgerChart.data = monthlyData;
+                ledgerChart.update();
+            });
+
+            // 🔹 Switch to yearly data
+            document.getElementById('yearlyBtn').addEventListener('click', function() {
+                ledgerChart.data = yearlyData;
+                ledgerChart.update();
             });
         }
     </script>

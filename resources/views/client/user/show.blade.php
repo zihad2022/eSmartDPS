@@ -5,8 +5,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             {{-- Profile Photo --}}
             <div class="flex items-center space-x-4">
-                <img src="{{ $user->profile_photo_url }}" alt="Profile Photo"
-                    class="w-20 h-20 rounded-full border object-cover">
+                @if ($user->profile_photo)
+                    <img src="{{ $user->profile_photo_url }}" alt="Profile Photo"
+                        class="w-20 h-20 rounded-full border object-cover">
+                @else
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($user->first_name . ' ' . $user->last_name) }}&background=0D8ABC&color=fff" class="w-20 h-20 rounded-full border object-cover" alt="Profile Photo">
+                @endif
                 <div>
                     <p class="text-lg font-semibold text-gray-900">
                         {{ $user->first_name }} {{ $user->last_name }}

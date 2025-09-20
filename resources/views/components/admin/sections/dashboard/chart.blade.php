@@ -45,7 +45,7 @@
             @endforelse
         </div>
 
-        <a href="{{ route('admin.user.activities') }}"
+        <a href="{{ route('admin.users.activities') }}"
             class="block text-center text-accent-600 hover:text-accent-700 text-sm font-medium mt-6">
             View All Activities
         </a>

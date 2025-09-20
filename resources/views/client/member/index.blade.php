@@ -34,7 +34,7 @@
     <x-breadcrumb :items="$breadcrumbItems" />
 
     {{-- Main Members Page Content --}}
-    <div class="">
+    <div>
         {{-- Display flash messages if any --}}
         @if (session('success') || session('error'))
             <x-flash-message 
@@ -90,6 +90,18 @@
                     <h3 class="text-lg font-semibold text-primary-900 mb-4 md:mb-0">{{ $pageTitle }}</h3>
 
                     <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
+
+                          {{-- Search Form --}}
+                          <form method="GET" action="{{ route('client.members.index') }}" class="relative w-full md:w-auto">
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                placeholder="Search members..."
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition duration-300">
+                            <button type="submit"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-accent-500 transition">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+
                         <a href="{{ route('client.members.create') }}"
                             class="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
                             Add Member
@@ -108,7 +120,8 @@
                     {{-- Table Header --}}
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">SL</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">#SL</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Member ID</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Member</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Phone</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Shares</th>
@@ -118,12 +131,20 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-
+            
                     {{-- Table Rows --}}
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse ($members as $index => $member)
                             <tr class="hover:bg-gray-50">
+                                {{-- SL --}}
                                 <td class="px-6 py-4 whitespace-nowrap">#{{ $index + 1 }}</td>
+            
+                                {{-- Member ID --}}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-primary-700">
+                                    {{ $member->member_id }}
+                                </td>
+            
+                                {{-- Member Info --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         @if ($member->profile_photo)
@@ -137,10 +158,20 @@
                                         </div>
                                     </div>
                                 </td>
+            
+                                {{-- Phone --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-primary-600">{{ $member->phone ?: 'N/A' }}</td>
+            
+                                {{-- Shares --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-primary-900">{{ number_format($member->share_quantity) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">${{ number_format($member->total_balance, 2) }}</td>
+            
+                                {{-- Balance --}}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">{{ $settings->currency . ' ' . number_format($member->total_balance) }}</td>
+            
+                                {{-- Join Date --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-primary-600">{{ $member->created_at->format('M d, Y') }}</td>
+            
+                                {{-- Status --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if ($member->status)
                                         <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Active</span>
@@ -148,6 +179,8 @@
                                         <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Inactive</span>
                                     @endif
                                 </td>
+            
+                                {{-- Actions --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
                                         <a href="{{ route('client.members.show', $member) }}" class="text-accent-600 hover:text-accent-900"><i class="fas fa-eye"></i></a>
@@ -163,12 +196,13 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-4 text-primary-500">No members found.</td>
+                                <td colspan="9" class="text-center py-4 text-primary-500">No members found.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
+            
 
             {{-- Pagination --}}
             <div class="px-6 py-4 border-t border-gray-200">

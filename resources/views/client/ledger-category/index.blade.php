@@ -1,4 +1,13 @@
 <x-client.layout.app>
+    @php
+        $breadcrumbItems = [
+            ['label' => 'Dashboard', 'url' => route('client.dashboard')],
+            ['label' => 'Ledger Categories', 'url' => route('client.ledger-categories.index')],
+        ];
+    @endphp
+    <x-breadcrumb :items="$breadcrumbItems" />
+    <x-slot:title>Ledger Categories</x-slot:title>
+
     <div class="grid grid-cols-1 gap-8">
         {{-- Display flash messages (success or error) if any --}}
         @if (session('success') || session('error'))
