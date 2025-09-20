@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ClientExportController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\InvoiceExportController;
+use App\Http\Controllers\Admin\InvoiceSendToClientController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\PackageExportController;
 use App\Http\Controllers\Admin\RoleController;
@@ -140,6 +141,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])
                 ->name('destroy')
                 ->middleware('permission:delete invoices,admin');
+
+            // Send to Client
+            Route::post('/{invoice}/send', InvoiceSendToClientController::class)->name('send');
         });
 
         // Tickets
@@ -172,9 +176,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('chat', [TicketChatController::class, 'chat'])
                 ->name('chat')
                 ->middleware('permission:view ticket chats,admin');
-            Route::post('message', [TicketChatController::class, 'storeMessage'])
-                ->name('message.store')
-                ->middleware('permission:send ticket messages,admin');
+            // Route::post('message', [TicketChatController::class, 'storeMessage'])
+            //     ->name('message.store')
+            //     ->middleware('permission:send ticket messages,admin');
         });
 
         // Users
@@ -275,11 +279,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->middleware('permission:export users,admin');
 
         // User activities
-        Route::get('user-activities', ActivityController::class)
-            ->name('user.activities')
+        Route::get('users-activities', ActivityController::class)
+            ->name('users.activities')
             ->middleware('permission:view user activities,admin');
 
-        // Admin profile
+        // User profile
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/', [UserProfileController::class, 'edit'])
                 ->name('edit')
