@@ -1,14 +1,56 @@
 <x-client.layout.app>
+    @php
+        $breadcrumbItems = [
+            ['label' => 'Dashboard', 'url' => route('client.dashboard')],
+            ['label' => 'Subscription Packages', 'url' => route('client.subscription.packages')],
+        ];
+
+        // Load client with active & latest package
+        $client = \App\Models\Client::with(['activeClientPackage.package', 'latestClientPackage.package'])
+            ->findOrFail(owner_client_id());
+
+        // Prefer active package, otherwise take latest
+        $clientPackage = $client->activeClientPackage ?? $client->latestClientPackage;
+        $activePackageId = $clientPackage?->package_id;
+        $isExpired = $clientPackage?->ends_at && now()->greaterThan($clientPackage->ends_at);
+    @endphp
+
+    <x-slot:title>Subscription Packages</x-slot:title>
+    <x-breadcrumb :items="$breadcrumbItems" />
+
+        {{-- ===========================
+             Flash Messages Section
+        ============================ --}}
+        @if (session('success') || session('error'))
+            <x-flash-message
+                :type="session('success') ? 'success' : 'error'"
+                :title="session('success') ? 'Success' : 'Error'"
+                :message="session('success') ?? session('error')"
+            />
+        @endif
+
     <div class="grid gap-8 md:grid-cols-3">
         @foreach ($packages as $package)
             @php
-                $client = auth()->guard('client')->user();
-                $isCurrent = $client->activeClientPackage && $client->activeClientPackage->package_id === $package->id;
+                $isCurrent = $activePackageId === $package->id;
+
+                // Discount calculation
+                $discountedPrice = $package->price;
+                if ($package->discount_value > 0) {
+                    $discountedPrice = $package->discount_type === \App\Enums\Package\DiscountType::FIXED
+                        ? $package->price - $package->discount_value
+                        : $package->price - ($package->price * $package->discount_value / 100);
+
+                    $discountedPrice = max(0, $discountedPrice);
+                }
             @endphp
 
             <div
-                class="relative bg-white rounded-2xl shadow hover:shadow-lg transition duration-300 p-6 flex flex-col
-            {{ $isCurrent ? 'border-2 border-green-500 shadow-lg' : '' }}">
+                @class([
+                    'relative bg-white rounded-2xl shadow transition duration-300 p-6 flex flex-col',
+                    'hover:shadow-lg' => !$isCurrent,
+                    'border-2 border-green-500 shadow-lg' => $isCurrent,
+                ])>
 
                 {{-- Current Plan Badge --}}
                 @if ($isCurrent)
@@ -33,34 +75,19 @@
 
                 {{-- Price --}}
                 <div class="text-4xl font-bold text-primary-900 mb-4">
-                    @php
-                        $discountedPrice = $package->price;
-
-                        if ($package->discount_value > 0) {
-                            $discountedPrice =
-                                $package->discount_type === \App\Enums\Package\DiscountType::FIXED
-                                    ? $package->price - $package->discount_value
-                                    : $package->price - $package->price * ($package->discount_value / 100);
-
-                            // Ensure no negative price
-                            $discountedPrice = max(0, $discountedPrice);
-                        }
-                    @endphp
-
                     @if ($package->discount_value > 0)
                         <span class="line-through text-lg text-primary-400">
-                            ${{ number_format($package->price) }}
+                            {{ $settings->currency . ' ' . number_format($package->price) }}
                         </span>
-                        ${{ number_format($discountedPrice) }}
+                        {{ $settings->currency . ' ' . number_format($discountedPrice) }}
                     @else
-                        ${{ number_format($package->price) }}
+                        {{ $settings->currency . ' ' . number_format($package->price) }}
                     @endif
 
                     <span class="text-base font-medium text-primary-500">
                         / {{ $package->billing_cycle->label() }}
                     </span>
                 </div>
-
 
                 {{-- Features --}}
                 <ul class="mb-6 space-y-3 text-primary-700">
@@ -71,14 +98,26 @@
 
                 {{-- Action Button --}}
                 @if (!$isCurrent)
-                    <form action="" method="POST" class="mt-auto">
+                    {{-- Not current plan --}}
+                    <form action="{{ route('client.start.subscription') }}" method="POST" class="mt-auto">
+                        @csrf
+                        <input type="hidden" name="package_id" value="{{$package->id}}">
+                        <button type="submit"
+                            class="w-full bg-accent-500 hover:bg-accent-600 text-white py-2 px-4 rounded-lg transition duration-300">
+                            {{ $package->has_trial ? 'Start Trial' : 'Active Plan' }}
+                        </button>
+                    </form>
+                @elseif ($isExpired)
+                    {{-- Current but expired --}}
+                    <form action="{{ route('client.subscription.renew') }}" method="GET" class="mt-auto">
                         @csrf
                         <button type="submit"
                             class="w-full bg-accent-500 hover:bg-accent-600 text-white py-2 px-4 rounded-lg transition duration-300">
-                            {{ $package->has_trial ? 'Start Trial' : 'Choose Plan' }}
+                            Activate Plan
                         </button>
                     </form>
                 @else
+                    {{-- Current and active --}}
                     <button disabled
                         class="mt-auto w-full bg-gray-200 text-gray-600 py-2 px-4 rounded-lg cursor-not-allowed">
                         Active Plan

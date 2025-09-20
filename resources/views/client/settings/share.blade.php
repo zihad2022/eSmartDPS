@@ -28,7 +28,7 @@
             @csrf
             @method('PUT')
             {{-- Share Price (maps to: share_price) --}}
-            <x-form.input name="share_price" label="Share Price" :value="old('share_price', $settings->share_price ?? '')" placeholder="Enter share price" />
+            <x-form.input name="share_price" label="Share Price" :value="old('share_price', $settings->share_price ?? '')" placeholder="Enter share price" required/>
 
             {{-- Minimum Shares (maps to: minimum_shares) --}}
             <x-form.input name="minimum_shares" label="Minimum Shares" :value="old('minimum_shares', $settings->minimum_shares ?? '')" placeholder="Enter minimum shares" />

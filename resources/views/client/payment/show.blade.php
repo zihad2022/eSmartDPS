@@ -48,7 +48,7 @@
             <div class="bg-gray-50 border-l-4 border-green-500 p-4 rounded-lg shadow hover:shadow-lg transition">
                 <p class="text-sm text-gray-500 font-medium">Amount</p>
                 <h3 class="text-lg font-semibold text-gray-800">
-                    ${{ number_format($payment->amount, 2) }} {{ $payment->currency }}
+                    {{ $settings->currency }} {{ number_format($payment->amount) }} 
                 </h3>
             </div>
         </div>
