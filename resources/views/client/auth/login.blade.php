@@ -52,7 +52,7 @@
                         class="w-4 h-4 text-accent-500 bg-white/10 border-white/20 rounded focus:ring-accent-500">
                     <span class="ml-2 text-sm text-primary-200">Remember me</span>
                 </label>
-                <a href="{{route('client.forgot.password.phone')}}" class="text-sm text-accent-400 hover:text-accent-300 transition duration-300">
+                <a href="{{route('client.password.forgot')}}" class="text-sm text-accent-400 hover:text-accent-300 transition duration-300">
                     Forgot password?
                 </a>
             </div>
