@@ -31,8 +31,8 @@ return new class extends Migration
             // Share Settings
             // -----------------------
             $table->integer('share_price')->nullable();
-            $table->integer('minimum_shares')->nullable();
-            $table->integer('maximum_shares')->nullable();
+            $table->integer('minimum_shares')->default(1);
+            $table->integer('maximum_shares')->default(1000);
             $table->integer('share_transfer_fee')->nullable();
             $table->boolean('allow_partial_shares')->default(false);
         
