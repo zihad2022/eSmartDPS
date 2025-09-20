@@ -117,7 +117,7 @@ Route::prefix('client')->name('client.')->group(function () {
          */
         Route::prefix('subscription')->name('subscription.')->group(function () {
             Route::get('expired', [SubscriptionController::class, 'expired'])->name('expired'); // no subscription middleware to avoid loop
-            Route::get('renew', [SubscriptionController::class, 'renew'])->name('renew');
+            Route::get('renew/{invoice?}', [SubscriptionController::class, 'renew'])->name('renew');
             Route::get('packages', [SubscriptionController::class, 'packages'])->name('packages');
         });
 
