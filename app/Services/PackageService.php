@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Enums\Package\BillingCycle;
 use App\Models\Client;
 use App\Models\ClientPackage;
 use App\Models\Package;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Service class for handling package assignments and subscriptions for clients.
@@ -28,7 +30,7 @@ class PackageService
      */
     public function startPackage(Client $client, Package $package): void
     {
-        if ($package->has_trial && $package->trial_days > 0) {
+        if ($package->has_trial === true && $package->trial_days > 0) {
             $this->assignTrial($package, $client);
         } else {
             $this->renewSubscription($client, $package);
@@ -89,16 +91,17 @@ class PackageService
 
         // 2. Determine subscription end date from billing cycle
         $endsAt = match ($package->billing_cycle) {
-            'yearly' => now()->addYear(),
-            'monthly' => now()->addMonth(),
-            default => now()->addMonth(), // Default: monthly
+            BillingCycle::MONTHLY => now()->addMonth(),
+            BillingCycle::YEARLY  => now()->addYear(),
+            default => now()->addDays(7), // fallback if billing cycle is unknown
         };
 
         // 3. Create new active subscription
         $client->clientPackages()->create([
             'package_id' => $package->id,
             'starts_at' => now(),
-            'ends_at' => $endsAt,
+            // 'ends_at' => $endsAt,
+            'ends_at' => now()->addMinutes(10),
             'is_trial' => false,
             'is_active' => true,
         ]);
