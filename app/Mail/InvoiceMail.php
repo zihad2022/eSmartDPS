@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\AdminSetting;
 use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -19,10 +20,14 @@ class InvoiceMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(Invoice $invoice, string $currency = '$')
+    public function __construct(Invoice $invoice, ?string $currency = null)
     {
         $this->invoice = $invoice;
-        $this->currency = $currency;
+
+        // -----------------------------
+        // 1. Set currency (fallback to admin setting if not provided)
+        // -----------------------------
+        $this->currency = $currency ?? AdminSetting::query()->value('currency') ?? '$';
     }
 
     /**
@@ -41,7 +46,7 @@ class InvoiceMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.invoice',
+            markdown: 'emails.client.invoice',
             with: [
                 'invoice' => $this->invoice,
                 'currency' => $this->currency,
