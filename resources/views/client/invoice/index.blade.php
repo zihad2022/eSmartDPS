@@ -200,7 +200,7 @@
                                         {{-- Pay Now (only if unpaid) --}}
                                         @if ($invoice->status == \App\Enums\InvoiceStatus::UNPAID)
                                         {{-- {{ route('client.invoices.pay', $invoice->id) }} --}}
-                                            <form action="" method="POST" class="inline">
+                                            <form action="{{route('client.subscription.renew', $invoice->id)}}" method="get" class="inline">
                                                 @csrf
                                                 <button type="submit"
                                                     class="bg-accent-500 hover:bg-accent-600 text-white px-3 py-1 rounded-lg text-xs font-semibold transition">
