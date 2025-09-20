@@ -24,9 +24,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [LandingController::class, 'landing'])->name('home');
 Route::get('pricing', PricingController::class)->name('pricing');
 Route::get('about', AboutController::class)->name('about');
-Route::get('register', [RegisterController::class, 'create'])->name('register');
-Route::post('register', [RegisterController::class, 'store'])->name('register.store');
-Route::get('success/{id}', [RegisterController::class, 'success'])->name('auth.success');
 
 
 // require __DIR__.'/auth.php';
