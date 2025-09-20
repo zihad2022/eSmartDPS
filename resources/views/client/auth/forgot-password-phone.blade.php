@@ -16,7 +16,7 @@
         @endif
 
         {{-- {{ route('client.password.phone.send') }} --}}
-        <form method="POST" action="{{ route('client.forgot.password.phone.store') }}" class="space-y-6">
+        <form method="POST" action="{{ route('client.password.forgot.store') }}" class="space-y-6">
             @csrf
 
             <!-- Phone Number Field -->
