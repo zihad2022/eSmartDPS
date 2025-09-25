@@ -94,22 +94,55 @@
             </div>
 
             {{-- 
-            ==================================================================
-            ✅ 2. BKASH PAYMENT SETTINGS
-            ==================================================================
-            --}}
+==================================================================
+✅ 2. BKASH PAYMENT SETTINGS
+==================================================================
+--}}
             <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
                 <h3 class="text-lg font-semibold text-primary-800 mb-4 border-b pb-2">bKash Settings</h3>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{-- Base URL --}}
+                    <x-form.input name="bkash_base_url" label="Base URL" :value="old('bkash_base_url', $settings->bkash_base_url ?? '')"
+                        placeholder="Enter bKash Base URL" />
+
+                    {{-- App Key --}}
                     <x-form.input name="bkash_app_key" label="App Key" :value="old('bkash_app_key', $settings->bkash_app_key ?? '')"
                         placeholder="Enter bKash App Key" />
+
+                    {{-- App Secret --}}
                     <x-form.input name="bkash_app_secret" label="App Secret" :value="old('bkash_app_secret', $settings->bkash_app_secret ?? '')"
                         placeholder="Enter bKash App Secret" />
+
+                    {{-- Username --}}
                     <x-form.input name="bkash_username" label="Username" :value="old('bkash_username', $settings->bkash_username ?? '')"
                         placeholder="Enter bKash Username" />
-                    <x-form.input name="bkash_password" label="Password" type="password" :value="old('bkash_password', $settings->bkash_password ?? '')"
-                        placeholder="Enter bKash Password" />
+
+                    {{-- Password --}}
+                    <x-form.password-input label="bKash Password" name="bkash_password" :value="$settings->bkash_password ?? ''"
+                        placeholder="Enter bKash Password" required />
+
+                    {{-- Charge (optional) --}}
+                    <x-form.input name="bkash_charge" label="Extra Charge (%)" type="number" step="0.01"
+                        :value="old('bkash_charge', $settings->bkash_charge ?? '0.00')" placeholder="Enter extra charge %" />
+
+                    {{-- Status (optional) --}}
+                    <div>
+                        <label for="bkash_status" class="block text-sm font-medium text-primary-700 mb-2">
+                            Status
+                        </label>
+                        <select id="bkash_status" name="bkash_status"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-accent-500">
+                            <option value="1"
+                                {{ old('bkash_status', $settings->bkash_status ?? false) ? 'selected' : '' }}>Active
+                            </option>
+                            <option value="0"
+                                {{ old('bkash_status', $settings->bkash_status ?? false) ? '' : 'selected' }}>Inactive
+                            </option>
+                        </select>
+                    </div>
                 </div>
+
                 <div class="flex justify-end pt-4">
                     <button type="submit" name="section" value="bkash"
                         class="px-4 py-2 bg-accent-500 text-white text-sm rounded-lg hover:bg-accent-600 transition">
