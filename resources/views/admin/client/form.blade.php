@@ -38,9 +38,8 @@
                         required :disabled="true" />
 
                     {{-- Password --}}
-                    <x-form.input name="password" label="Password" type="password"
-                        placeholder="{{ $editing ? 'Leave blank to keep existing password' : 'Enter password' }}"
-                        :required="!$editing" />
+                    <x-form.password-input label="Password" name="password" :value="$client->password ?? ''"
+                        placeholder="{{ $editing ? 'Leave blank to keep existing password' : 'Enter password' }}" :required="!$editing" />
 
                     {{-- Status --}}
                     <x-form.select name="status" label="Status"
