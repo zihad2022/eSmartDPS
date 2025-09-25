@@ -84,13 +84,10 @@
         {{-- Pay Button --}}
         @if ($invoice->status == \App\Enums\InvoiceStatus::UNPAID)
             <div class="flex justify-end">
-                <form action="" method="POST">
-                    @csrf
-                    <button type="submit"
-                        class="bg-accent-500 hover:bg-accent-600 transition duration-300 text-white px-6 py-2 rounded-lg font-semibold shadow-sm">
-                        Pay Now
-                    </button>
-                </form>
+                <a href="{{ route('client.payments.select', $invoice->id) }}"
+                    class="bg-accent-500 hover:bg-accent-600 transition duration-300 text-white px-6 py-2 rounded-lg font-semibold shadow-sm">
+                    Pay Now
+                </a>
             </div>
         @endif
     </div>
