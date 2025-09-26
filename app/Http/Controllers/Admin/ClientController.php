@@ -30,7 +30,7 @@ class ClientController extends Controller
         $search = $request->get('search'); // Search clients by multiple fields
         $status = $request->get('status'); // Filter clients by status
 
-        $clients = Client::parents()
+        $clients = Client::select('id','user_id','first_name','last_name','profile_photo','email','phone','division','district','status','role','created_at')->parents()
             ->filterBySearch($search) // Search clients by multiple fields
             ->filterByStatus($status) // Filter clients by status
             ->latest() // Order clients by latest
@@ -50,7 +50,7 @@ class ClientController extends Controller
      */
     public function create(): View
     {
-        $packages = Package::active()->get();
+        $packages = Package::select('id','name')->active()->get();
         $user_id = generate_client_user_id();
 
         return view('admin.client.form', compact('packages', 'user_id'));
