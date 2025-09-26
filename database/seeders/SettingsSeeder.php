@@ -48,10 +48,14 @@ class SettingsSeeder extends Seeder
             'late_fee' => 50.00,
 
             // bKash
-            'bkash_app_key' => 'bkash_test_app_key',
-            'bkash_app_secret' => 'bkash_test_secret',
-            'bkash_username' => 'bkash_test_user',
-            'bkash_password' => 'bkash_test_pass',
+            'bkash_base_url'   => 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout',
+            'bkash_username'   => 'sandboxTokenizedUser02',
+            'bkash_password'   => 'sandboxTokenizedUser02@12345',
+            'bkash_app_key'    => '4f6o0cjiki2rfm34kfdadl1eqq',
+            'bkash_app_secret' => '2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4b',
+            'bkash_charge'     => 0.00,
+            'bkash_status'     => false, // false = disabled, true = active
+
 
             // UddoktaPay
             'uddoktapay_api_key' => 'uddokta_test_api_key',
