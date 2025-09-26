@@ -45,10 +45,14 @@ return new class extends Migration
             $table->unsignedBigInteger('late_fee')->nullable();
 
             // bKash Payment
-            $table->string('bkash_app_key')->nullable();
-            $table->string('bkash_app_secret')->nullable();
+            $table->string('bkash_base_url')->nullable();
             $table->string('bkash_username')->nullable();
             $table->string('bkash_password')->nullable();
+            $table->string('bkash_app_key')->nullable();
+            $table->string('bkash_app_secret')->nullable();
+            $table->decimal('bkash_charge', 10, 2)->default(0.00); // use decimal instead of string for money
+            $table->boolean('bkash_status')->default(false); // true = active, false = disabled
+
 
             // UddoktaPay
             $table->string('uddoktapay_api_key')->nullable();
@@ -81,7 +85,6 @@ return new class extends Migration
 
             $table->timestamps();
         });
-
     }
 
     /**
