@@ -39,7 +39,7 @@
 
     {{-- Main Styles & Scripts (compiled with Vite) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js','resources/css/custom-styles.css'])
-
+    
     {{-- Chart.js for Graphs --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
