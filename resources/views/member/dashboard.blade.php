@@ -12,7 +12,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-primary-500 font-medium">Total Balance</p>
-                    <h3 class="text-2xl font-bold text-primary-900">${{ $totalBalance }}</h3>
+                    <h3 class="text-2xl font-bold text-primary-900">{{ $settings->currency . ' ' . $totalBalance }}</h3>
                 </div>
                 <div class="w-12 h-12 bg-accent-100 text-accent-600 rounded-full flex items-center justify-center">
                     <i class="fas fa-wallet text-xl"></i>
@@ -24,7 +24,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-primary-500 font-medium">Monthly Savings</p>
-                    <h3 class="text-2xl font-bold text-primary-900">{{ $monthlySavings }}</h3>
+                    <h3 class="text-2xl font-bold text-primary-900">{{ $settings->currency . ' ' . $monthlySavings }}</h3>
                 </div>
                 <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
                     <i class="fas fa-piggy-bank text-xl"></i>
