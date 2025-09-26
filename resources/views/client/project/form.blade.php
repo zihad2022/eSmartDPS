@@ -100,13 +100,79 @@
                 {{-- ---------------------------
                      Investment & Expected Return
                 --------------------------- --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {{-- <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <x-form.input name="investment_amount" label="Investment Amount" type="number" :value="old('investment_amount', $project->investment_amount ?? '')"
                         required placeholder="Enter amount" step="0.01" />
 
                     <x-form.input name="expected_return" label="Expected Return (%)" type="number" :value="old('expected_return', $project->expected_return ?? '')"
                         required placeholder="Enter return %" step="0.1" />
+                </div> --}}
+
+                <div x-data="{
+                    investment: {{ old('investment_amount', $project->investment_amount ?? 0) }},
+                    returnPercent: {{ old('expected_return', $project->expected_return ?? 0) }}
+                }" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Investment Amount -->
+                    <x-form.input name="investment_amount" label="Investment Amount" type="number" x-model="investment"
+                        required placeholder="Enter amount" step="0.01" />
+
+                    <!-- Expected Return -->
+                    {{-- <x-form.input name="expected_return" label="Expected Return (%)" type="number"
+                        x-model="returnPercent" required placeholder="Enter return %" step="0.1" /> --}}
+
+                    <div class="w-full">
+                        {{-- Field label --}}
+                        <label for="expected_return" class="block text-sm font-medium text-primary-700 mb-2">
+                            Expected Return
+                            <span class="text-red-500">*</span>
+                        </label>
+
+                        <div class="flex rounded-lg shadow-sm">
+                            {{-- Select (return type) --}}
+                            <select id="expected_return_type" name="expected_return_type"
+                                class="px-3 py-2 text-sm border w-1/3 border-gray-300 rounded-l-lg focus:ring-accent-500 focus:border-accent-500"
+                                required>
+                                <option value="percentage"
+                                    {{ old('expected_return_type', 'percentage') === 'percentage' ? 'selected' : '' }}>
+                                    Percentage
+                                </option>
+                                <option value="fixed" {{ old('expected_return_type') === 'fixed' ? 'selected' : '' }}>
+                                    Fixed
+                                </option>
+                            </select>
+
+                            {{-- Input field --}}
+                            <input id="expected_return" type="number" name="expected_return"
+                                value="{{ old('expected_return', $project->expected_return ?? '') }}"
+                                placeholder="Enter value" step="0.01" required
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-500" />
+                        </div>
+
+                        {{-- Validation error --}}
+                        @error('expected_return')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                        @error('expected_return_type')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+
+                    <!-- Result -->
+                    <div class="col-span-2 text-sm text-gray-700">
+                        <template x-if="investment > 0 && returnPercent > 0">
+                            <p>
+                                Expected Profit:
+                                <span class="font-semibold" x-text="(investment * returnPercent / 100)"></span>
+                                <br>
+                                Total Return:
+                                <span class="font-semibold"
+                                    x-text="(investment + (investment * returnPercent / 100))"></span>
+                            </p>
+                        </template>
+                    </div>
                 </div>
+
 
                 {{-- ---------------------------
                      Start & End Dates
