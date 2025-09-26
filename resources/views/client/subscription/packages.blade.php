@@ -5,11 +5,9 @@
             ['label' => 'Subscription Packages', 'url' => route('client.subscription.packages')],
         ];
 
-        // Load client with active & latest package
         $client = \App\Models\Client::with(['activeClientPackage.package', 'latestClientPackage.package'])
             ->findOrFail(owner_client_id());
 
-        // Prefer active package, otherwise take latest
         $clientPackage = $client->activeClientPackage ?? $client->latestClientPackage;
         $activePackageId = $clientPackage?->package_id;
         $isExpired = $clientPackage?->ends_at && now()->greaterThan($clientPackage->ends_at);
@@ -18,16 +16,14 @@
     <x-slot:title>Subscription Packages</x-slot:title>
     <x-breadcrumb :items="$breadcrumbItems" />
 
-        {{-- ===========================
-             Flash Messages Section
-        ============================ --}}
-        @if (session('success') || session('error'))
-            <x-flash-message
-                :type="session('success') ? 'success' : 'error'"
-                :title="session('success') ? 'Success' : 'Error'"
-                :message="session('success') ?? session('error')"
-            />
-        @endif
+    {{-- Flash Messages --}}
+    @if (session('success') || session('error'))
+        <x-flash-message
+            :type="session('success') ? 'success' : 'error'"
+            :title="session('success') ? 'Success' : 'Error'"
+            :message="session('success') ?? session('error')"
+        />
+    @endif
 
     <div class="grid gap-8 md:grid-cols-3">
         @foreach ($packages as $package)
@@ -83,9 +79,8 @@
                     @else
                         {{ $settings->currency . ' ' . number_format($package->price) }}
                     @endif
-
                     <span class="text-base font-medium text-primary-500">
-                        / {{ $package->billing_cycle->label() }}
+                        / {{ $package->billing_cycle?->label() ?? 'N/A' }}
                     </span>
                 </div>
 
@@ -99,18 +94,27 @@
                 {{-- Action Button --}}
                 @if (!$isCurrent)
                     {{-- Not current plan --}}
-                    <form action="{{ route('client.start.subscription') }}" method="POST" class="mt-auto">
-                        @csrf
-                        <input type="hidden" name="package_id" value="{{$package->id}}">
-                        <button type="submit"
-                            class="w-full bg-accent-500 hover:bg-accent-600 text-white py-2 px-4 rounded-lg transition duration-300">
-                            {{ $package->has_trial ? 'Start Trial' : 'Active Plan' }}
-                        </button>
-                    </form>
+                    @if ($package->has_trial)
+                        <form action="{{ route('client.subscription.start.trial', $package) }}" method="GET" class="mt-auto">
+                            <input type="hidden" name="package_id" value="{{ $package->id }}">
+                            <button type="submit"
+                                class="w-full bg-accent-500 hover:bg-accent-600 text-white py-2 px-4 rounded-lg transition duration-300">
+                                Start Trial
+                            </button>
+                        </form>
+                    @else
+                        <form action="{{ route('client.subscription.start.paid', $package) }}" method="GET" class="mt-auto">
+                            @csrf
+                            <input type="hidden" name="package_id" value="{{ $package->id }}">
+                            <button type="submit"
+                                class="w-full bg-accent-500 hover:bg-accent-600 text-white py-2 px-4 rounded-lg transition duration-300">
+                                Activate Plan
+                            </button>
+                        </form>
+                    @endif
                 @elseif ($isExpired)
                     {{-- Current but expired --}}
-                    <form action="{{ route('client.subscription.renew') }}" method="GET" class="mt-auto">
-                        @csrf
+                    <form action="{{ route('client.subscription.start.paid', $package) }}" method="GET" class="mt-auto">
                         <button type="submit"
                             class="w-full bg-accent-500 hover:bg-accent-600 text-white py-2 px-4 rounded-lg transition duration-300">
                             Activate Plan
