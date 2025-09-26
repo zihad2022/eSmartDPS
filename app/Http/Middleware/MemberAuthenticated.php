@@ -13,7 +13,7 @@ class MemberAuthenticated
         if (auth()->guard('member')->check()) {
             return $next($request);
         } else {
-            return redirect()->route('landing');
+            return redirect()->route('home');
         }
     }
 }
