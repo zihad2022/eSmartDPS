@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Member;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClientSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,17 +15,18 @@ class DashboardController extends Controller
     public function __invoke(Request $request)
     {
         $member = Auth::guard('member')->user();
-
-        $memberShares = $member->memberShares()->with('share')->get();
-
-        $totalShares = $memberShares->sum('shares_count');
-
-        $monthlySavings = $memberShares->sum(function ($ms) {
-            return $ms->share->price * $ms->shares_count;
-        });
-
+    
+        $totalShares = 32;
+        $monthlySavings = $totalShares * 100;
         $totalBalance = $member->payments()->sum('amount');
-
-        return view('member.dashboard', compact('totalShares', 'monthlySavings', 'totalBalance'));
+    
+        // Get parent client via relationship
+        $client = $member->client;
+        $clientId = $client->id;
+    
+        $settings = ClientSetting::where('client_id', $clientId)->first();
+    
+        return view('member.dashboard', compact('totalShares', 'monthlySavings', 'totalBalance', 'settings'));
     }
+    
 }
