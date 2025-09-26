@@ -9,6 +9,7 @@ use App\Http\Controllers\Client\Auth\{
     ResetPasswordPhoneController
 };
 use App\Http\Controllers\Client\{
+    BkashPaymentController,
     DashboardController,
     InvoiceController,
     LedgerCategoryController,
@@ -26,8 +27,11 @@ use App\Http\Controllers\Client\{
     Settings\NotificationController,
     Settings\PaymentController as SettingsPaymentController,
     Settings\ShareController,
-    StartSubscriptionController,
+    StartPaidSubscriptionController,
+    StartSubscriptionController, 
+    StartTrailSubscriptionController,
     SubscriptionController,
+    SubscriptionPaymentController,
     TicketChatController,
     TicketController,
     TicketExportController,
@@ -36,19 +40,11 @@ use App\Http\Controllers\Client\{
     UserExportController,
     UserProfileController
 };
+use App\Http\Controllers\Client\Payments\BkashController;
 
 /*
 |--------------------------------------------------------------------------
 | Client Routes
-|--------------------------------------------------------------------------
-| All client-facing routes are defined here.
-| Structure:
-| - Authentication
-| - OTP & Password Reset
-| - Protected (requires 'client' middleware)
-| - Subscription Management
-| - Resources
-| - Settings
 |--------------------------------------------------------------------------
 */
 
@@ -76,27 +72,18 @@ Route::prefix('client')->name('client.')->group(function () {
      * OTP & Password Reset
      * -------------------------
      */
-    // Password Reset via Phone (OTP-based)
     Route::prefix('password')->name('password.')->group(function () {
-        Route::get('forgot', [ForgotPasswordPhoneController::class, 'create'])
-            ->name('forgot');             // client.password.forgot
-        Route::post('forgot', [ForgotPasswordPhoneController::class, 'store'])
-            ->name('forgot.store');       // client.password.forgot.store
+        Route::get('forgot', [ForgotPasswordPhoneController::class, 'create'])->name('forgot');
+        Route::post('forgot', [ForgotPasswordPhoneController::class, 'store'])->name('forgot.store');
 
-        Route::get('reset', [ResetPasswordPhoneController::class, 'create'])
-            ->name('reset');              // client.password.reset
-        Route::post('reset', [ResetPasswordPhoneController::class, 'store'])
-            ->name('reset.store');        // client.password.reset.store
+        Route::get('reset', [ResetPasswordPhoneController::class, 'create'])->name('reset');
+        Route::post('reset', [ResetPasswordPhoneController::class, 'store'])->name('reset.store');
     });
 
-    // OTP Verification
     Route::prefix('otp')->name('otp.')->group(function () {
-        Route::get('verify/{phone}', [OtpVerifyController::class, 'create'])
-            ->name('verify');             // client.otp.verify
-        Route::post('verify/{phone}', [OtpVerifyController::class, 'verify'])
-            ->name('verify.post');        // client.otp.verify.post
+        Route::get('verify/{phone}', [OtpVerifyController::class, 'create'])->name('verify');
+        Route::post('verify/{phone}', [OtpVerifyController::class, 'verify'])->name('verify.post');
     });
-
 
     /**
      * -------------------------
@@ -116,21 +103,30 @@ Route::prefix('client')->name('client.')->group(function () {
          * -------------------------
          */
         Route::prefix('subscription')->name('subscription.')->group(function () {
-            Route::get('expired', [SubscriptionController::class, 'expired'])->name('expired'); // no subscription middleware to avoid loop
+            Route::get('expired', [SubscriptionController::class, 'expired'])->name('expired'); // ✅ keep, avoids middleware loop
             Route::get('renew/{invoice?}', [SubscriptionController::class, 'renew'])->name('renew');
             Route::get('packages', [SubscriptionController::class, 'packages'])->name('packages');
-        });
 
-        Route::post('start-subscription', StartSubscriptionController::class)
-            ->name('start.subscription');
+            // ✅ clear separation of trial vs. paid
+            Route::get('start-trial/{package}', StartTrailSubscriptionController::class)->name('start.trial');
+            Route::get('start-paid/{package}', StartPaidSubscriptionController::class)->name('start.paid');
+        });
 
         /**
          * -------------------------
-         * Invoices
+         * Invoices & Payments
          * -------------------------
          */
-        Route::resource('invoices', InvoiceController::class)
-            ->only(['index', 'show']);
+        Route::prefix('payments')->name('payments.')->middleware(['auth:client'])->group(function () {
+            Route::get('/select/{invoice}', [SubscriptionPaymentController::class, 'selectMethod'])->name('select');
+            Route::post('/process/{invoice}', [SubscriptionPaymentController::class, 'processPayment'])->name('process');
+        
+            // ❌ This overlaps with subscription "start" routes above
+            // Route::post('/start/{package}', [SubscriptionPaymentController::class, 'startPackage'])->name('start');
+        });
+
+        // Invoices (only viewing)
+        Route::resource('invoices', InvoiceController::class)->only(['index', 'show']);
 
         /**
          * -------------------------
@@ -138,8 +134,6 @@ Route::prefix('client')->name('client.')->group(function () {
          * -------------------------
          */
         Route::middleware('subscription')->group(function () {
-
-            // Core resources
             Route::resources([
                 'members'            => MemberController::class,
                 'projects'           => ProjectController::class,
@@ -149,24 +143,17 @@ Route::prefix('client')->name('client.')->group(function () {
                 'tickets'            => TicketController::class,
             ]);
 
-            // Ledger report
             Route::get('ledgers-report', LedgerReportController::class)->name('ledgers.report');
 
-            // Ticket chats
             Route::prefix('tickets/{ticket}')->name('tickets.')->group(function () {
                 Route::get('chat', [TicketChatController::class, 'chat'])->name('chat');
                 Route::post('message', [TicketChatController::class, 'storeMessage'])->name('message.store');
             });
 
-            // Payments
-            Route::resource('payments', PaymentController::class)
-                ->only(['index', 'edit', 'update', 'show', 'destroy']);
+            Route::resource('payments', PaymentController::class)->only(['index', 'edit', 'update', 'show', 'destroy']);
 
-            // Users
-            Route::resource('users', UserController::class)
-                ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+            Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 
-            // User activities
             Route::get('users-activities', UserActivityController::class)->name('users.activities');
 
             // Data exports
@@ -220,4 +207,5 @@ Route::prefix('client')->name('client.')->group(function () {
  * Design Route (Static / Test)
  * -------------------------
  */
+// ❌ Only for UI testing → remove in production
 Route::get('design', fn() => view('design'))->name('design');
