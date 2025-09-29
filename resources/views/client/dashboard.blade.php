@@ -19,7 +19,16 @@
         <x-card.stat-card label="Total Projects" :value="number_format($totalProjects)" icon="fas fa-project-diagram"
             iconBgColor="bg-yellow-100" iconTextColor="text-yellow-600" />
     </div>
-
+   {{-- ===========================
+             Flash Messages Section
+        ============================ --}}
+        @if (session('success') || session('error'))
+            <x-flash-message
+                :type="session('success') ? 'success' : 'error'"
+                :title="session('success') ? 'Success' : 'Error'"
+                :message="session('success') ?? session('error')"
+            />
+        @endif
 
     {{-- ================= Charts and Recent Activities ================= --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
