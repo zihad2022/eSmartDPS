@@ -18,6 +18,7 @@ class ProjectRequest extends FormRequest
             'project_category_id' => ['required', 'exists:project_categories,id'],
             'investment_amount' => ['required', 'numeric', 'min:0'],
             'expected_return' => ['required', 'numeric', 'min:0'],
+            'expected_return_type' => ['required', 'string', 'in:percent,amount'],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'status' => ['required', 'integer'],
