@@ -11,127 +11,39 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Storage;
 
-/**
- * Client Model
- *
- * Represents a registered client in the system.
- * Clients can have children (sub-clients), members, projects, packages, and settings.
- */
 class Client extends Authenticatable
 {
     use HasFactory;
 
-    /*--------------------------------
-    | MASS ASSIGNABLE
-    --------------------------------*/
-    // Fields that can be mass-assigned (e.g., via create or update)
     protected $fillable = [
-        'parent_id',         // For hierarchy (self-relation: child/parent client)
-        'user_id',           // Linked user ID (if applicable)
-        'password',          // Encrypted password
-        'first_name',        // Client's first name
-        'last_name',         // Client's last name
-        'profile_photo',     // Path to profile photo
-        'email',             // Client's email
-        'phone',             // Client's phone
-        'nid_number',        // National ID number
-        'nid_card_front',    // Path to uploaded NID front image
-        'nid_card_back',     // Path to uploaded NID back image
-        'division',          // Division/State
-        'district',          // District/Region
-        'address',           // Full address
-        'postal_code',       // Postal code
-        'role',              // Role in the system (e.g., admin, client)
-        'status',            // Active/Inactive
+        'parent_id','user_id','password','first_name','last_name',
+        'profile_photo','email','phone','nid_number','nid_card_front',
+        'nid_card_back','division','district','address','postal_code',
+        'role','status',
     ];
 
-    /*--------------------------------
-    | HIDDEN FIELDS
-    --------------------------------*/
-    // Hidden from JSON output
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password','remember_token',
     ];
 
-    /*--------------------------------
-    | CASTS
-    --------------------------------*/
-    // Type casting for attributes
     protected $casts = [
-        'email_verified_at' => 'datetime', // Cast email verification timestamp
-        'created_at' => 'datetime',        // Cast creation time
-        'password' => 'hashed',            // Auto hash password
+        'email_verified_at' => 'datetime',
+        'created_at'        => 'datetime',
+        'password'          => 'hashed',
     ];
 
     /*--------------------------------
     | RELATIONSHIPS
     --------------------------------*/
-
-    // A client can have many children (sub-clients)
-    public function children(): HasMany
-    {
-        return $this->hasMany(Client::class, 'parent_id');
-    }
-
-    // A client can belong to a parent client
-    public function parent()
-    {
-        return $this->belongsTo(Client::class, 'parent_id');
-    }
-
-    // A client can have many members
-    public function members(): HasMany
-    {
-        return $this->hasMany(Member::class);
-    }
-
-    // A client can have many projects
-    public function projects(): HasMany
-    {
-        return $this->hasMany(Project::class);
-    }
-
-    // A client has many payments through its members
-    public function payments(): HasManyThrough
-    {
-        return $this->hasManyThrough(Payment::class, Member::class);
-    }
-
-    // A client has many invoices
-    public function invoices(): HasMany
-    {
-        return $this->hasMany(Invoice::class);
-    }
-
-    // All users under this client (including self and children)
-    public function users()
-    {
-        // If this client is a parent (no parent_id), include self + children
-        if (is_null($this->parent_id)) {
-            return collect([$this])->merge($this->children()->get());
-        }
-
-        // If this client is a child, include parent + siblings
-        $parent = $this->parent()->first();
-        $siblings = $parent ? $parent->children()->get() : collect();
-
-        return collect([$parent])->merge($siblings);
-    }
-
-    // A client can subscribe to many packages
-    public function clientPackages(): HasMany
-    {
-        return $this->hasMany(ClientPackage::class);
-    }
-
-    // Latest package subscribed by the client
-    public function latestClientPackage(): HasOne
-    {
-        return $this->hasOne(ClientPackage::class)->latestOfMany();
-    }
-
-    // Currently active package (must not be expired and must be marked active)
+    public function parent() { return $this->belongsTo(Client::class, 'parent_id'); }
+    public function children(): HasMany { return $this->hasMany(Client::class, 'parent_id'); }
+    public function members(): HasMany { return $this->hasMany(Member::class); }
+    public function projects(): HasMany { return $this->hasMany(Project::class); }
+    public function payments(): HasManyThrough { return $this->hasManyThrough(Payment::class, Member::class); }
+    public function invoices(): HasMany { return $this->hasMany(Invoice::class); }
+    public function clientPackages(): HasMany { return $this->hasMany(ClientPackage::class); }
+    public function latestClientPackage(): HasOne { return $this->hasOne(ClientPackage::class)->latestOfMany(); }
+    
     public function activeClientPackage(): HasOne
     {
         return $this->hasOne(ClientPackage::class)
@@ -139,208 +51,122 @@ class Client extends Authenticatable
             ->where('ends_at', '>', now());
     }
 
-    // Active package that is a trial
-    public function activeTrialClientPackage(): HasOne
-    {
-        return $this->activeClientPackage()->where('is_trial', true);
-    }
-
-    // Active package that is paid (not a trial)
     public function activePaidClientPackage(): HasOne
     {
         return $this->activeClientPackage()->where('is_trial', false);
     }
 
-    // Each client has one settings row
-    public function settings(): HasOne
+    public function expiredTrialPackages(): HasMany
     {
-        return $this->hasOne(ClientSetting::class);
+        return $this->hasMany(ClientPackage::class)
+            ->where('is_trial', true)
+            ->where('is_active', true)
+            ->where('ends_at', '<=', now());
     }
+
+    public function settings(): HasOne { return $this->hasOne(ClientSetting::class); }
 
     /*--------------------------------
     | BUSINESS LOGIC
     --------------------------------*/
-
-    /**
-     * Helper: Fetch the last subscribed package along with package details.
-     */
-    private function getLastPackage()
+    private function getLastPackage(): ?ClientPackage
     {
         return $this->latestClientPackage()->with('package')->first();
     }
 
-    /**
-     * Check if client can add another child (sub-client)
-     * Depends on current package's user limit.
-     */
-    public function canAddUser(): bool
+    private function hasCapacity(string $relation, string $limitField): bool
     {
         $lastPackage = $this->getLastPackage();
-
-        if (! $lastPackage || ! $lastPackage->package) {
-            return false;
-        }
-
-        $userLimit = $lastPackage->package->user_limit;
-
-        // If user_limit is 0 => unlimited
-        if ($userLimit == 0) {
-            return true;
-        }
-
-        return $this->users()->count() < $userLimit;
+        if (! $lastPackage || ! $lastPackage->package) return false;
+        $limit = $lastPackage->package->{$limitField};
+        return $limit === 0 || $this->{$relation}()->count() < $limit;
     }
 
-    /**
-     * Check if client can add another member
-     * Depends on current package's member limit.
-     */
-    public function canAddMember(): bool
+    public function canAddUser(): bool { return $this->hasCapacity('users', 'user_limit'); }
+    public function canAddMember(): bool { return $this->hasCapacity('members', 'member_limit'); }
+    public function canAddProject(): bool { return $this->hasCapacity('projects', 'project_limit'); }
+
+    public function users()
     {
-        $lastPackage = $this->getLastPackage();
-
-        if (! $lastPackage || ! $lastPackage->package) {
-            return false;
-        }
-
-        $memberLimit = $lastPackage->package->member_limit;
-
-        // If member_limit is 0 => unlimited
-        if ($memberLimit == 0) {
-            return true;
-        }
-
-        return $this->members()->count() < $memberLimit;
-    }
-
-    /**
-     * Check if client can add another project
-     * Depends on current package's project limit.
-     */
-    public function canAddProject(): bool
-    {
-        $lastPackage = $this->getLastPackage();
-
-        if (! $lastPackage || ! $lastPackage->package) {
-            return false;
-        }
-
-        $projectLimit = $lastPackage->package->project_limit;
-
-        // If project_limit is 0 => unlimited
-        if ($projectLimit == 0) {
-            return true;
-        }
-
-        return $this->projects()->count() < $projectLimit;
+        if (is_null($this->parent_id)) return collect([$this])->merge($this->children);
+        $parent = $this->parent;
+        $siblings = $parent ? $parent->children : collect();
+        return collect([$parent])->merge($siblings);
     }
 
     /*--------------------------------
-    | SCOPES (query helpers)
+    | SCOPES
     --------------------------------*/
-
-    // Only active clients
     public function scopeActive($query)
     {
         return $query->where('status', true);
     }
 
-    // Only inactive clients
     public function scopeInactive($query)
     {
         return $query->where('status', false);
     }
 
-    // Only parent clients (top-level, no parent)
     public function scopeParents($query)
     {
         return $query->whereNull('parent_id');
     }
 
-    // Only children (have a parent)
     public function scopeChildren($query)
     {
         return $query->whereNotNull('parent_id');
     }
 
-    // Active parent clients
-    public function scopeActiveParents($q)
+    public function scopeActiveParents($query)
     {
-        return $q->active()->parents();
+        return $query->active()->parents();
     }
 
-    // Inactive parent clients
-    public function scopeInactiveParents($q)
+    public function scopeInactiveParents($query)
     {
-        return $q->inactive()->parents();
+        return $query->inactive()->parents();
     }
 
-    // Active children
-    public function scopeActiveChildren($q)
+    public function scopeActiveChildren($query)
     {
-        return $q->active()->children();
+        return $query->active()->children();
     }
 
-    // Inactive children
-    public function scopeInactiveChildren($q)
+    public function scopeInactiveChildren($query)
     {
-        return $q->inactive()->children();
+        return $query->inactive()->children();
     }
 
-
-    // Filter by search string
     public function scopeFilterBySearch(Builder $query, ?string $search): Builder
     {
-        if (!$search) {
-            return $query;
-        }
-
+        if (!$search) return $query;
         return $query->where(function ($q) use ($search) {
-            $q->where('first_name', 'like', "%{$search}%")
-                ->orWhere('last_name', 'like', "%{$search}%")
-                ->orWhere('user_id', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
-                ->orWhere('phone', 'like', "%{$search}%")
-                ->orWhere('nid_number', 'like', "%{$search}%")
-                ->orWhere('division', 'like', "%{$search}%")
-                ->orWhere('district', 'like', "%{$search}%")
-                ->orWhere('address', 'like', "%{$search}%")
-                ->orWhere('postal_code', 'like', "%{$search}%");
+            $fields = ['first_name','last_name','user_id','email','phone','nid_number','division','district','address','postal_code'];
+            foreach ($fields as $field) $q->orWhere($field, 'like', "%{$search}%");
         });
     }
 
-    // Filter by status
     public function scopeFilterByStatus(Builder $query, ?string $status): Builder
     {
-        if (!$status) {
-            return $query;
-        }
-
-        $isActive = $status === 'active';
-
-        return $query->where('status', $isActive);
+        if (!$status) return $query;
+        return $query->where('status', $status === 'active');
     }
 
     /*--------------------------------
-    | ACCESSORS (computed attributes)
+    | ACCESSORS
     --------------------------------*/
-
-    // Full URL for profile photo
     protected function profilePhotoUrl(): Attribute
     {
         return Attribute::get(fn() => $this->profile_photo ? Storage::url($this->profile_photo) : null);
     }
 
-    // Full URL for NID front image
     protected function nidCardFrontUrl(): Attribute
     {
         return Attribute::get(fn() => $this->nid_card_front ? Storage::url($this->nid_card_front) : null);
     }
 
-    // Full URL for NID back image
     protected function nidCardBackUrl(): Attribute
     {
         return Attribute::get(fn() => $this->nid_card_back ? Storage::url($this->nid_card_back) : null);
     }
-
 }
