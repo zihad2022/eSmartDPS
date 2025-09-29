@@ -22,21 +22,25 @@
 
             <!-- Call-to-Action Buttons -->
             <div class="flex flex-col md:flex-row justify-center gap-4">
-                <a href="{{ route('client.subscription.renew') }}"
+                <!-- View Invoice Button -->
+                <a href="{{ route('client.invoices.show', $invoice->id) }}"
                    class="flex-1 px-6 py-3 bg-accent-500 text-white rounded-xl font-semibold hover:bg-accent-600 transition duration-300">
-                    Renew Subscription
+                    View Invoice
                 </a>
-
+            
+                <!-- Return to Dashboard -->
                 <a href="{{ route('client.dashboard') }}"
                    class="flex-1 px-6 py-3 border border-accent-500 text-accent-500 rounded-xl font-semibold hover:bg-accent-50 transition duration-300">
                     Return to Dashboard
                 </a>
-
-                <a href="{{route('client.subscription.packages')}}"
+            
+                <!-- View Plans -->
+                <a href="{{ route('client.subscription.packages') }}"
                    class="flex-1 px-6 py-3 bg-yellow-500 text-white rounded-xl font-semibold hover:bg-yellow-600 transition duration-300">
                     View Plans
                 </a>
             </div>
+            
 
             <!-- Info Footer -->
             <p class="mt-8 text-sm text-gray-500">

@@ -393,6 +393,7 @@
             }
         }
     </style>
+ @vite(['resources/css/app.css', 'resources/js/app.js','resources/css/custom-styles.css'])
 </head>
 
 <body>
@@ -412,6 +413,11 @@
                 <i class="fas fa-piggy-bank"></i>
             </div>
         </div>
+        @if (session('error'))
+            <div class="mb-4 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <!-- Login Header -->
         <div class="login-header text-center mt-4">
