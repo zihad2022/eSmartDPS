@@ -66,21 +66,28 @@ class PaymentController extends Controller
         // Validate and update bKash Settings
         if ($section === 'bkash') {
             $request->validate([
-                'bkash_app_key' => 'required|string',
+                'bkash_base_url'   => 'required|url',
+                'bkash_username'   => 'required|string',
+                'bkash_password'   => 'required|string',
+                'bkash_app_key'    => 'required|string',
                 'bkash_app_secret' => 'required|string',
-                'bkash_username' => 'required|string',
-                'bkash_password' => 'required|string',
+                'bkash_charge'     => 'required|numeric|min:0',
+                'bkash_status'     => 'required|boolean',
             ]);
-
+        
             $settings->update([
-                'bkash_app_key' => $request->bkash_app_key,
+                'bkash_base_url'   => $request->bkash_base_url,
+                'bkash_username'   => $request->bkash_username,
+                'bkash_password'   => $request->bkash_password,
+                'bkash_app_key'    => $request->bkash_app_key,
                 'bkash_app_secret' => $request->bkash_app_secret,
-                'bkash_username' => $request->bkash_username,
-                'bkash_password' => $request->bkash_password,
+                'bkash_charge'     => $request->bkash_charge,
+                'bkash_status'     => $request->bkash_status,
             ]);
-
-            return back()->with('success', 'bKash Settings updated successfully!');
+        
+            return back()->with('success', 'bKash settings updated successfully!');
         }
+        
 
         // Validate and update UddoktaPay Settings
         if ($section === 'uddoktapay') {
