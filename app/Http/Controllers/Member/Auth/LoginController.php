@@ -7,7 +7,6 @@ use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
@@ -29,9 +28,7 @@ class LoginController extends Controller
 
         // Check if member exists and password is correct
         if (! $member || ! Hash::check($credentials['password'], $member->password)) {
-            throw ValidationException::withMessages([
-                'member_id' => ['The provided credentials are incorrect.'],
-            ]);
+            return redirect()->back()->with('error', 'Invalid credentials');
         }
 
         // Check if member is active
