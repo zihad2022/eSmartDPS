@@ -4,47 +4,52 @@ namespace App\Http\Middleware;
 
 use App\Models\Client;
 use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SubscriptionMiddleware
 {
-    // public function handle($request, Closure $next)
-    // {
-    //     $client = auth('client')->user();
-
-    //     if (! $client) {
-    //         return redirect()->route('client.login');
-    //     }
-
-    //     if ($client->activeTrialClientSubscription) {
-    //         return $next($request);
-    //     }
-
-    //     if ($client->activePaidClientSubscription) {
-    //         return $next($request);
-    //     }
-
-    //     return redirect()->route('client.subscription.expired');
-    // }
-
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
-        // Get the main client (parent)
-        $client = Client::find(owner_client_id());
+        // 1️⃣ Get the authenticated client or fallback to parent
+        $client = auth('client')->user() ?? Client::find(owner_client_id());
 
         if (! $client) {
+            Log::warning('[SubscriptionMiddleware] Unauthorized access: no client found.', [
+                'ip' => $request->ip(),
+                'url' => $request->fullUrl(),
+            ]);
             return redirect()->route('client.login');
         }
 
-        $trial = $client->activeTrialClientPackage;
-        $paid = $client->activePaidClientPackage;
+        $now = now();
 
-        if ($trial && $trial->ends_at->isFuture()) {
+        // 2️⃣ Check active trial package
+        $trial = $client->activeClientPackage()
+                        ->where('is_trial', true)
+                        ->where('ends_at', '>', $now)
+                        ->first();
+
+        if ($trial) {
             return $next($request);
         }
 
-        if ($paid && $paid->ends_at->isFuture()) {
+        // 3️⃣ Check active paid package
+        $paid = $client->activeClientPackage()
+                       ->where('is_trial', false)
+                       ->where('ends_at', '>', $now)
+                       ->first();
+
+        if ($paid) {
             return $next($request);
         }
+
+        // 4️⃣ Subscription expired
+        Log::info('[SubscriptionMiddleware] Access denied: subscription expired.', [
+            'client_id' => $client->id,
+            'ip' => $request->ip(),
+            'url' => $request->fullUrl(),
+        ]);
 
         return redirect()->route('client.subscription.expired');
     }

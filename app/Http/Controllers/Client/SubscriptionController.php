@@ -16,13 +16,18 @@ class SubscriptionController extends Controller
      */
     public function expired()
     {
-        // -----------------------------
-        // 1. Return expired subscription view
-        // -----------------------------
-        // Simply display a message informing the client
-        // that their subscription has expired.
-        return view('client.subscription.expired');
+        $clientId = owner_client_id();
+    
+        // Get the latest unpaid invoice for this client
+        $invoice = Invoice::where('client_id', $clientId)
+            ->where('status', '!=', \App\Enums\InvoiceStatus::PAID)
+            ->latest('due_date')
+            ->first();
+    
+        return view('client.subscription.expired', compact('invoice'));
     }
+    
+    
 
     /**
      * Renew the client's subscription.

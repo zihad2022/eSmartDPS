@@ -52,31 +52,26 @@ class SubscriptionPaymentController extends Controller
     public function processPayment(Request $request, Invoice $invoice)
     {
         $request->validate([
-            'payment_method' => 'required|in:bkash,uddoktapay,sslcommerz',
+            'payment_method' => 'required|in:bkash,sslcommerz',
         ]);
-    
+
         if ($invoice->status !== \App\Enums\InvoiceStatus::UNPAID) {
             return redirect()->route('client.invoices.index')
                 ->with('info', 'This invoice is already paid.');
         }
-    
+
         switch ($request->payment_method) {
             case 'bkash':
                 // Directly trigger bKash payment logic
                 return app(BkashPaymentController::class)->pay($invoice);
-    
-            case 'uddoktapay':
-                // Call your Uddoktapay payment method directly
-                return app(UddoktapayController::class)->pay($invoice);
-    
             case 'sslcommerz':
-                // Call your SSLCommerz payment method directly
-                return app(SslCommerzController::class)->pay($invoice);
+               // Directly trigger SSLCommerz payment logic
+                return app(SSLCommerzPaymentController::class)->pay($invoice);
         }
-    
+
         return back()->with('error', 'Invalid payment method selected.');
     }
-    
+
 
     /**
      * Helper: available payment methods
@@ -85,7 +80,6 @@ class SubscriptionPaymentController extends Controller
     {
         return [
             'bkash'      => 'bKash',
-            'uddoktapay' => 'Uddoktapay',
             'sslcommerz' => 'SSLCommerz',
         ];
     }
