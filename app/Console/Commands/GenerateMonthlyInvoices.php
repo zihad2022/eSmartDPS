@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Enums\InvoiceStatus;
 use App\Models\Client;
 use App\Models\Invoice;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -14,107 +13,117 @@ use Illuminate\Support\Facades\Schema;
 
 class GenerateMonthlyInvoices extends Command
 {
-    protected $signature = 'invoices:generator';
-    protected $description = 'Generate monthly invoices for clients with active paid packages.';
+    protected $signature = 'invoices:generate';
+    protected $description = 'Generate invoices for clients with active paid packages or expired trials.';
 
     public function handle(): int
     {
-        // Acquire lock (TTL 10 minutes)
-        $lock = Cache::lock('invoices:generate:lock', 600);
-        $acquired = $lock->get();
+        Log::info('🔄 [InvoiceGen] Starting invoice generation...');
 
-        if (! $acquired) {
+        $lock = Cache::lock('invoices:generate:lock', 600);
+        if (!$lock->get()) {
             $this->warn('Invoice generation already running in another process.');
+            Log::warning('[InvoiceGen] Skipped - lock active.');
             return Command::SUCCESS;
         }
 
         try {
-            $now = Carbon::now();
+            $now = now();
             $year = $now->year;
             $month = $now->month;
-
             $hasPackageIdColumn = Schema::hasColumn('invoices', 'package_id');
 
-            // Load clients with their active paid package
-            $clients = Client::parents()
-                ->active()
-                ->with('activePaidClientPackage.package')
-                ->get();
+            // Fetch root-level active clients
+            $clients = Client::parents()->active()->with([
+                'activePaidClientPackage.package',
+                'expiredTrialPackages.package'
+            ])->get();
 
             if ($clients->isEmpty()) {
-                $this->info('No active root-level clients found.');
+                $this->info('No active clients found.');
                 return Command::SUCCESS;
             }
 
             foreach ($clients as $client) {
-                // get package early (so we can log/skip before transaction)
-                $package = $client->activePaidClientPackage->package ?? null;
 
-                if (! $package) {
-                    $this->warn("No active paid package for Client ID {$client->id}, skipping.");
-                    continue;
+                // ---------------------------
+                // Handle Expired Trials
+                // ---------------------------
+                foreach ($client->expiredTrialPackages as $trial) {
+                    $package = $trial->package;
+                    if (!$package) continue;
+
+                    DB::transaction(function () use ($client, $trial, $package) {
+                        Invoice::create([
+                            'client_id'           => $client->id,
+                            'package_id'          => $package->id,
+                            'package_name'        => $package->name,
+                            'package_description' => $package->description,
+                            'invoice_number'      => generate_invoice_number(),
+                            'invoice_amount'      => $package->price,
+                            'status'              => InvoiceStatus::UNPAID->value,
+                            'due_date'            => now()->addDays(7),
+                        ]);
+
+                        $trial->update(['is_active' => false]);
+
+                        Log::info("[InvoiceGen] Expired trial → Invoice created & trial deactivated for Client {$client->id}");
+                    });
                 }
 
+                // ---------------------------
+                // Handle Paid Packages
+                // ---------------------------
+                $activePackage = $client->activePaidClientPackage;
+                if (!$activePackage || !$activePackage->package) continue;
+
+                $package = $activePackage->package;
+
                 DB::transaction(function () use ($client, $year, $month, $package, $hasPackageIdColumn) {
-                    // Base query: invoices for this client & month
                     $invoiceQuery = $client->invoices()
                         ->whereYear('created_at', $year)
                         ->whereMonth('created_at', $month);
 
-                    // Check existence for the *same package* (preferred by package_id)
-                    if ($hasPackageIdColumn) {
-                        $invoiceExists = $invoiceQuery->where('package_id', $package->id)->exists();
-                    } else {
-                        // Fallback to package_name match if package_id column not present
-                        $invoiceExists = $invoiceQuery->where('package_name', $package->name)->exists();
-                    }
+                    $exists = $hasPackageIdColumn
+                        ? $invoiceQuery->where('package_id', $package->id)->exists()
+                        : $invoiceQuery->where('package_name', $package->name)->exists();
 
-                    if ($invoiceExists) {
-                        // already generated invoice for this client + package + month
-                        $this->line("Invoice exists for Client ID {$client->id} (package: {$package->name}), skipping.");
+                    if ($exists) {
+                        Log::info("[InvoiceGen] Invoice already exists for Client {$client->id}, skipping.");
                         return;
                     }
 
-                    // Create invoice for this package this month
-                    $payload = [
-                        'client_id' => $client->id,
-                        'package_id' => $package->id,
-                        'package_name' => $package->name,
+                    Invoice::create([
+                        'client_id'           => $client->id,
+                        'package_id'          => $package->id,
+                        'package_name'        => $package->name,
                         'package_description' => $package->description,
-                        'invoice_number' => generate_invoice_number(),
-                        'invoice_amount' => $package->price,
-                        'status' => InvoiceStatus::UNPAID->value,
-                        'due_date' => now()->addDays(7),
-                    ];
+                        'invoice_number'      => generate_invoice_number(),
+                        'invoice_amount'      => $package->price,
+                        'status'              => InvoiceStatus::UNPAID->value,
+                        'due_date'            => now()->addDays(7),
+                    ]);
 
-                    // attach package_id if DB supports it
-                    if ($hasPackageIdColumn) {
-                        $payload['package_id'] = $package->id;
-                    }
-
-                    Invoice::create($payload);
-
-                    $this->info("Invoice generated for Client ID {$client->id} (Package: {$package->name}).");
+                    Log::info("[InvoiceGen] Monthly invoice generated for Client {$client->id}, Package {$package->name}");
                 });
             }
 
-            $this->info('Monthly invoice generation completed.');
+            $this->info('✅ Invoice generation completed successfully.');
+            Log::info('[InvoiceGen] Invoice generation completed.');
             return Command::SUCCESS;
 
         } catch (\Throwable $e) {
-            Log::error('Invoice generation failed', [
-                'exception' => $e,
+            Log::error('❌ [InvoiceGen] Failed', [
+                'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            $this->error("Critical error: {$e->getMessage()}");
+            $this->error("Error: {$e->getMessage()}");
             return Command::FAILURE;
 
         } finally {
-            // Only release if we actually acquired the lock
-            if ($acquired) {
-                $lock->release();
-            }
+            $lock->release();
+            Log::info('[InvoiceGen] Lock released.');
         }
     }
 }
