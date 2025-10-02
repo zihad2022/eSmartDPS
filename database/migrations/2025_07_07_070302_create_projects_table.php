@@ -22,7 +22,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('investment_amount')->default(0);
             $table->unsignedBigInteger('expected_return')->default(0);
-            $table->string('expected_return_type')->default('percentage');
+            $table->string('expected_return_type');
 
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
