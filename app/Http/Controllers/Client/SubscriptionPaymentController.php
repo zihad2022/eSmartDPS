@@ -7,8 +7,6 @@ use App\Models\Invoice;
 use App\Models\Package;
 use Illuminate\Http\Request;
 use App\Enums\InvoiceStatus;
-use App\Http\Controllers\SslCommerzController;
-use App\Http\Controllers\UddoktapayController;
 use App\Models\AdminSetting;
 
 class SubscriptionPaymentController extends Controller
@@ -66,7 +64,7 @@ class SubscriptionPaymentController extends Controller
                 return app(BkashPaymentController::class)->pay($invoice);
             case 'sslcommerz':
                // Directly trigger SSLCommerz payment logic
-                return app(SSLCommerzPaymentController::class)->pay($invoice);
+               return app(SslcommerzPaymentController::class)->pay($invoice);
         }
 
         return back()->with('error', 'Invalid payment method selected.');
