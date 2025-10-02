@@ -47,6 +47,7 @@ class ProjectController extends Controller
                 'project_category_id',
                 'investment_amount',
                 'expected_return',
+                'expected_return_type',
                 'start_date',
                 'end_date',
                 'duration',
