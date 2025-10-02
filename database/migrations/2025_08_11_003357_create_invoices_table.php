@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('package_name');          // Name of the purchased package
             $table->string('package_description');   // Short description of the package
 
+            $table->string('payment_reference')->nullable();
             /**
              * Invoice details
              */
