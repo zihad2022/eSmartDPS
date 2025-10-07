@@ -75,7 +75,7 @@
             <div class="bg-accent-50 p-4 rounded-lg shadow-sm mb-6 border border-accent-200">
                 <h3 class="text-accent-900 font-semibold mb-2">Payment Information</h3>
                 <p class="text-gray-700 text-sm">Paid At: {{ $invoice->paid_at?->format('M d, Y h:i A') ?? '-' }}</p>
-                <p class="text-gray-700 text-sm">Method: {{ $invoice->payment_method ?? '-' }}</p>
+                <p class="text-gray-700 text-sm">Method: {{ $invoice->payment_method->label() ?? '-' }}</p>
                 <p class="text-gray-700 text-sm">Transaction ID: {{ $invoice->trx_id ?? '-' }}</p>
                 <p class="text-gray-700 text-sm">Wallet: {{ $invoice->wallet_address ?? '-' }}</p>
             </div>
