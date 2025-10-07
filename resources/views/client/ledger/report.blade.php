@@ -57,7 +57,7 @@
                         @forelse($ledgers as $ledger)
                             <tr>
                                 <td class="px-4 py-3">{{ $ledger->entry_date->format('Y-m-d') }}</td>
-                                <td class="px-4 py-3">{{ $ledger->category->name ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ $ledger->ledgerCategory->name ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ $ledger->description }}</td>
                                 <td class="px-4 py-3 text-right font-medium
                                     {{ $ledger->type === 1 ? 'text-green-600' : 'text-red-600' }}">
