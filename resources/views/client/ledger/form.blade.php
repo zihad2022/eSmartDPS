@@ -55,15 +55,9 @@
                         />
 
                         {{-- Ledger Type Dropdown --}}
-                        <x-form.select 
-                            name="type" 
-                            label="Type" 
-                            :options="collect(\App\Enums\Ledger\LedgerType::cases())
-                                ->mapWithKeys(fn($case) => [$case->value => $case->label()])
-                                ->toArray()" 
-                            :selected="old('type', $ledger->type ?? '')" 
-                            required 
-                        />
+                        <x-form.select name="type" label="Type" :options="collect(\App\Enums\Ledger\LedgerType::cases())
+                        ->mapWithKeys(fn($type) => [$type->value => $type->label()])
+                        ->toArray()" :selected="old('type', $ledger->type?->value ?? '')" />
                     </div>
 
                     {{-- Amount & Entry Date --}}
