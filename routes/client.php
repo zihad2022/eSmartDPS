@@ -27,8 +27,9 @@ use App\Http\Controllers\Client\{
     Settings\NotificationController,
     Settings\PaymentController as SettingsPaymentController,
     Settings\ShareController,
+    SslcommerzPaymentController,
     StartPaidSubscriptionController,
-    StartSubscriptionController, 
+    StartSubscriptionController,
     StartTrailSubscriptionController,
     SubscriptionController,
     SubscriptionPaymentController,
@@ -40,7 +41,6 @@ use App\Http\Controllers\Client\{
     UserExportController,
     UserProfileController
 };
-use App\Http\Controllers\Client\Payments\BkashController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,7 +75,6 @@ Route::prefix('client')->name('client.')->group(function () {
     Route::prefix('password')->name('password.')->group(function () {
         Route::get('forgot', [ForgotPasswordPhoneController::class, 'create'])->name('forgot');
         Route::post('forgot', [ForgotPasswordPhoneController::class, 'store'])->name('forgot.store');
-
         Route::get('reset', [ResetPasswordPhoneController::class, 'create'])->name('reset');
         Route::post('reset', [ResetPasswordPhoneController::class, 'store'])->name('reset.store');
     });
@@ -92,7 +91,7 @@ Route::prefix('client')->name('client.')->group(function () {
      */
     Route::middleware('client')->group(function () {
 
-        // Dashboard (requires subscription)
+        // Dashboard (requires active subscription)
         Route::get('/', DashboardController::class)
             ->name('dashboard')
             ->middleware('subscription');
@@ -103,34 +102,37 @@ Route::prefix('client')->name('client.')->group(function () {
          * -------------------------
          */
         Route::prefix('subscription')->name('subscription.')->group(function () {
-            Route::get('expired', [SubscriptionController::class, 'expired'])->name('expired'); // ✅ keep, avoids middleware loop
+            Route::get('expired', [SubscriptionController::class, 'expired'])->name('expired');
             Route::get('renew/{invoice?}', [SubscriptionController::class, 'renew'])->name('renew');
             Route::get('packages', [SubscriptionController::class, 'packages'])->name('packages');
 
-            // ✅ clear separation of trial vs. paid
             Route::get('start-trial/{package}', StartTrailSubscriptionController::class)->name('start.trial');
             Route::get('start-paid/{package}', StartPaidSubscriptionController::class)->name('start.paid');
         });
 
         /**
          * -------------------------
-         * Invoices & Payments
+         * Payments & Invoices
          * -------------------------
          */
-        Route::prefix('payments')->name('payments.')->middleware(['auth:client'])->group(function () {
-            Route::get('/select/{invoice}', [SubscriptionPaymentController::class, 'selectMethod'])->name('select');
-            Route::post('/process/{invoice}', [SubscriptionPaymentController::class, 'processPayment'])->name('process');
-        
-            // ❌ This overlaps with subscription "start" routes above
-            // Route::post('/start/{package}', [SubscriptionPaymentController::class, 'startPackage'])->name('start');
+        Route::prefix('payments')->name('payments.')->group(function () {
+            Route::get('select/{invoice}', [SubscriptionPaymentController::class, 'selectMethod'])->name('select');
+            Route::post('process/{invoice}', [SubscriptionPaymentController::class, 'processPayment'])->name('process');
+
+            // bKash callback
+            Route::match(['get', 'post'], 'bkash/callback', [BkashPaymentController::class, 'callback'])
+                ->name('bkash.callback');
+
+            // SSLCommerz
+            Route::get('sslcommerz/pay/{invoice}', [SslcommerzPaymentController::class, 'pay'])->name('sslcommerz.pay');
         });
 
-        // Invoices (only viewing)
+        // Invoices (read-only)
         Route::resource('invoices', InvoiceController::class)->only(['index', 'show']);
 
         /**
          * -------------------------
-         * Protected Resource Routes (with subscription)
+         * Resource Management (requires active subscription)
          * -------------------------
          */
         Route::middleware('subscription')->group(function () {
@@ -143,6 +145,7 @@ Route::prefix('client')->name('client.')->group(function () {
                 'tickets'            => TicketController::class,
             ]);
 
+            // Additional routes
             Route::get('ledgers-report', LedgerReportController::class)->name('ledgers.report');
 
             Route::prefix('tickets/{ticket}')->name('tickets.')->group(function () {
@@ -151,12 +154,11 @@ Route::prefix('client')->name('client.')->group(function () {
             });
 
             Route::resource('payments', PaymentController::class)->only(['index', 'edit', 'update', 'show', 'destroy']);
-
             Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 
             Route::get('users-activities', UserActivityController::class)->name('users.activities');
 
-            // Data exports
+            // Exports
             Route::get('members-export', MemberExportController::class)->name('members.export');
             Route::get('projects-export', ProjectExportController::class)->name('projects.export');
             Route::get('payments-export', PaymentExportController::class)->name('payments.export');
@@ -179,7 +181,7 @@ Route::prefix('client')->name('client.')->group(function () {
 
             /**
              * -------------------------
-             * Client Settings
+             * Settings
              * -------------------------
              */
             Route::prefix('settings')->name('settings.')->group(function () {
@@ -204,8 +206,14 @@ Route::prefix('client')->name('client.')->group(function () {
 
 /**
  * -------------------------
- * Design Route (Static / Test)
+ * SSLCommerz Callback Routes
  * -------------------------
  */
-// ❌ Only for UI testing → remove in production
-Route::get('design', fn() => view('design'))->name('design');
+Route::match(['get', 'post'], '/sslcommerz/success/{invoice}', [SslcommerzPaymentController::class, 'success'])
+    ->name('client.payments.sslcommerz.success');
+
+Route::match(['get', 'post'], '/sslcommerz/fail/{invoice}', [SslcommerzPaymentController::class, 'fail'])
+    ->name('client.payments.sslcommerz.fail');
+
+Route::match(['get', 'post'], '/sslcommerz/cancel/{invoice}', [SslcommerzPaymentController::class, 'cancel'])
+    ->name('client.payments.sslcommerz.cancel');
