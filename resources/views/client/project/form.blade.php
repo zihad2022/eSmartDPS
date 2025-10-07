@@ -132,12 +132,12 @@
                             <select id="expected_return_type" name="expected_return_type"
                                 class="px-3 py-2 text-sm border w-1/3 border-gray-300 rounded-l-lg focus:ring-accent-500 focus:border-accent-500"
                                 required>
-                                <option value="percentage"
-                                    {{ old('expected_return_type', 'percentage') === 'percentage' ? 'selected' : '' }}>
+                                <option value="percent"
+                                    {{ old('expected_return_type',$project->expected_return_type ?? 'percent') === 'percent' ? 'selected' : '' }}>
                                     Percentage
                                 </option>
-                                <option value="fixed" {{ old('expected_return_type') === 'fixed' ? 'selected' : '' }}>
-                                    Fixed
+                                <option value="amount" {{ old('expected_return_type',$project->expected_return_type ?? 'amount') === 'amount' ? 'selected' : '' }}>
+                                    Amount
                                 </option>
                             </select>
 
