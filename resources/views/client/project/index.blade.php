@@ -63,7 +63,7 @@
         {{-- ===========================
              Stats Cards Section
         ============================ --}}
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-6">
             {{-- Total Projects --}}
             <x-card.stat-card
                 :label="'Total Projects'"
@@ -78,6 +78,24 @@
                 :label="'Active Projects'"
                 :value="number_format($activeProjects)"
                 :icon="'fas fa-play-circle'"
+                :iconBgColor="'bg-green-100'"
+                :iconTextColor="'text-green-600'"
+            />
+
+            {{-- Cancelled Projects --}}
+            <x-card.stat-card
+                :label="'Cancelled Projects'"
+                :value="number_format($cancelledProjects)"
+                :icon="'fas fa-times-circle'"
+                :iconBgColor="'bg-red-100'"
+                :iconTextColor="'text-red-600'"
+            />
+
+            {{-- Completed Projects --}}
+            <x-card.stat-card
+                :label="'Completed Projects'"
+                :value="number_format($completedProjects)"
+                :icon="'fas fa-check-circle'"
                 :iconBgColor="'bg-green-100'"
                 :iconTextColor="'text-green-600'"
             />
@@ -178,7 +196,13 @@
                                 <td class="px-6 py-4 text-sm font-semibold text-primary-900">{{ $settings->currency }} {{ number_format($project->investment_amount) }}</td>
 
                                 {{-- Expected Return --}}
-                                <td class="px-6 py-4 text-sm font-semibold text-green-600">{{ $project->expected_return }}%</td>
+                                <td class="px-6 py-4 text-sm font-semibold text-green-600">
+                                    @if ($project->expected_return_type === 'percent')
+                                        {{ $project->expected_return }}%
+                                    @else
+                                        {{ $settings->currency }} {{ number_format($project->expected_return) }}
+                                    @endif
+                                </td>
 
                                 {{-- Duration --}}
                                 <td class="px-6 py-4 text-sm text-primary-600">{{ $project->duration ?? 'N/A' }}</td>
