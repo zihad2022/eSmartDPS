@@ -3,48 +3,45 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Member;
 use App\Models\Project;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     /**
-     * Display the client dashboard.
+     * Handle the client dashboard display.
      */
     public function __invoke(Request $request)
     {
-        // -----------------------------
-        // 1. Count total members
-        // -----------------------------
-        $totalMembers = Member::where('client_id', owner_client_id())->count();
+        $clientId = owner_client_id();
 
-        // -----------------------------
-        // 2. Calculate total balance
-        // -----------------------------
-        $totalBalance = Member::where('client_id', owner_client_id())->sum('total_balance');
+        // Basic stats
+        $totalMembers   = Member::where('client_id', $clientId)->count();
+        $totalBalance   = Member::where('client_id', $clientId)->sum('total_balance');
+        $totalUsers     = Client::where('parent_id', $clientId)->count() + 1;
+        $totalProjects  = Project::where('client_id', $clientId)->count();
 
-        // -----------------------------
-        // 2. Calculate total users
-        // -----------------------------
-        $childrenUsers = Client::where('parent_id', owner_client_id())->count();
-        $totalUsers = $childrenUsers + 1;
+        // Client settings
+        $settings = Client::find($clientId)?->settings;
 
-        // -----------------------------
-        // 3. Calculate total projects
-        // -----------------------------
-        $totalProjects = Project::where('client_id', owner_client_id())->count();
+        // Recent activities (last 7 days)
+        $recentActivities = Activity::with('causer')
+            ->where('causer_type', Client::class)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->latest()
+            ->take(3)
+            ->get();
 
-        // -----------------------------
-        // 4. Get the main client settings
-        // -----------------------------
-        $settings = Client::find(owner_client_id())->settings;
-
-        // -----------------------------
-        // 5. Return dashboard view
-        // -----------------------------
-        return view('client.dashboard', compact('totalMembers', 'totalBalance',  'totalUsers', 'totalProjects', 'settings'));
+        return view('client.dashboard', compact(
+            'totalMembers',
+            'totalBalance',
+            'totalUsers',
+            'totalProjects',
+            'settings',
+            'recentActivities'
+        ));
     }
 }
