@@ -53,47 +53,38 @@
         {{-- Recent Activities --}}
         <div class="bg-white rounded-xl shadow-sm p-6 dashboard-card">
             <h3 class="text-lg font-semibold text-primary-900 mb-6">Recent Activities</h3>
+    
             <div class="space-y-4">
-                {{-- Activity Item 1 --}}
-                <div class="flex items-start">
-                    <div
-                        class="w-8 h-8 bg-accent-100 text-accent-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                        <i class="fas fa-user-plus text-xs"></i>
+                @forelse($recentActivities as $activity)
+                    <div class="flex items-start">
+                        <!-- Icon -->
+                        <div
+                            class="w-8 h-8 bg-accent-100 text-accent-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                            <i class="fas fa-bolt text-xs"></i>
+                        </div>
+    
+                        <!-- Activity Info -->
+                        <div>
+                            <p class="text-sm font-medium text-primary-900">{{ $activity->activity }}</p>
+                            <p class="text-xs text-primary-500">
+                                @if ($activity->causer)
+                                    {{ class_basename($activity->causer_type) }}: {{ $activity->causer->name ?? 'N/A' }}
+                                @else
+                                    System
+                                @endif
+                            </p>
+                            <p class="text-xs text-primary-400 mt-1">
+                                {{ optional($activity->activity_date)->diffForHumans() ?? $activity->created_at->diffForHumans() }}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm font-medium text-primary-900">New member joined</p>
-                        <p class="text-xs text-primary-500">Sarah Johnson with 5 shares</p>
-                        <p class="text-xs text-primary-400 mt-1">2 hours ago</p>
-                    </div>
-                </div>
-
-                {{-- Activity Item 2 --}}
-                <div class="flex items-start">
-                    <div
-                        class="w-8 h-8 bg-secondary-100 text-secondary-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                        <i class="fas fa-money-bill-wave text-xs"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-primary-900">Payment received</p>
-                        <p class="text-xs text-primary-500">$500 from Michael Brown</p>
-                        <p class="text-xs text-primary-400 mt-1">5 hours ago</p>
-                    </div>
-                </div>
-
-                {{-- Activity Item 3 --}}
-                <div class="flex items-start">
-                    <div
-                        class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                        <i class="fas fa-project-diagram text-xs"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-primary-900">New project created</p>
-                        <p class="text-xs text-primary-500">Real Estate Investment</p>
-                        <p class="text-xs text-primary-400 mt-1">1 day ago</p>
-                    </div>
-                </div>
+                @empty
+                    <p class="text-sm text-gray-500">No recent activities found.</p>
+                @endforelse
             </div>
-            <a href="#" class="block text-center text-accent-600 hover:text-accent-700 text-sm font-medium mt-6">
+    
+            <a href="{{ route('client.users.activities') }}"
+                class="block text-center text-accent-600 hover:text-accent-700 text-sm font-medium mt-6">
                 View All Activities
             </a>
         </div>
