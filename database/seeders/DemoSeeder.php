@@ -19,7 +19,6 @@ class DemoSeeder extends Seeder
             ClientSettingsSeeder::class,
             LedgerCategorySeeder::class,
             LedgerSeeder::class,
-            // InvoiceSeeder::class,
             TicketSeeder::class,
             MemberSeeder::class,
             ProjectCategorySeeder::class,
