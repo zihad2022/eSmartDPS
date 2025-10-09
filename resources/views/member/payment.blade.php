@@ -22,6 +22,7 @@
                                     class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
                                     placeholder="250.00" required>
                             </div>
+                            {{-- <x-form.input name="payment_amount" type="number" step="0.01" min="0" placeholder="250.00" required /> --}}
                         </div>
 
                         <div>
@@ -38,13 +39,13 @@
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
                             required>
                             <option value="">Select payment method</option>
-                            <option value="bank_transfer">Bank Transfer</option>
-                            <option value="mobile_money">Mobile Money</option>
-                            <option value="cash">Cash Deposit</option>
-                            <option value="check">Check</option>
-                            <option value="online">Online Payment</option>
+                    
+                            @foreach ($methods as $method)
+                                <option value="{{ $method->value }}">{{ $method->label() }}</option>
+                            @endforeach
                         </select>
                     </div>
+                    
 
                     <div>
                         <label class="block text-sm font-medium text-primary-700 mb-2">Reference Number</label>
