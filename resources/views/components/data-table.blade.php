@@ -4,6 +4,7 @@
     'headers' => [], // Column headers
     'actions' => null, // Optional actions in header (Add, Export etc.)
     'sl' => null, // Optional starting serial
+    'rowView' => null, // Optional partial view to render each row
 ])
 
 @php
@@ -48,8 +49,12 @@
                         {{-- Serial --}}
                         <td class="px-6 py-4 text-sm text-primary-900 font-mono">#{{ $sl++ }}</td>
 
-                        {{-- Row content from slot --}}
-                        {{ $slot(['row' => $row]) }}
+                        {{-- Row content from provided partial or slot --}}
+                        @if ($rowView)
+                            @include($rowView, ['row' => $row])
+                        @else
+                            {{ $slot }}
+                        @endif
                     </tr>
                 @empty
                     <tr>
