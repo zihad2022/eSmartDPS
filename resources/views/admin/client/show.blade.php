@@ -42,45 +42,23 @@
              Profile Card Section
         ============================ --}}
         <div class="bg-white rounded-xl shadow-sm p-6 md:flex space-y-6 md:space-y-0 md:space-x-8">
-            
+
             {{-- Avatar --}}
             <div class="flex-shrink-0">
-                <img src="{{ $client->profile_photo ? asset('storage/' . $client->profile_photo) : 'https://ui-avatars.com/api/?name=' . urlencode($client->first_name . ' ' . $client->last_name) }}"
-                     alt="Profile Photo" class="w-32 h-32 rounded-full object-cover">
+                @php
+                    $avatarUrl = $client->profile_photo_url ?? ('https://ui-avatars.com/api/?name=' . urlencode($client->first_name . ' ' . $client->last_name));
+                @endphp
+                <img src="{{ $avatarUrl }}" alt="Profile Photo" class="w-32 h-32 rounded-full object-cover">
             </div>
 
             {{-- Client Details --}}
             <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-primary-700">
 
-                {{-- User ID --}}
-                <div>
-                    <p class="text-xs text-primary-500">User ID</p>
-                    <p class="font-medium">{{ $client->user_id }}</p>
-                </div>
-
-                {{-- Email --}}
-                <div>
-                    <p class="text-xs text-primary-500">Email Address</p>
-                    <p class="font-medium">{{ $client->email }}</p>
-                </div>
-
-                {{-- Full Name --}}
-                <div>
-                    <p class="text-xs text-primary-500">Full Name</p>
-                    <p class="font-medium">{{ $client->first_name }} {{ $client->last_name }}</p>
-                </div>
-
-                {{-- Phone --}}
-                <div>
-                    <p class="text-xs text-primary-500">Phone</p>
-                    <p class="font-medium">{{ $client->phone ?? '-' }}</p>
-                </div>
-
-                {{-- Role --}}
-                <div>
-                    <p class="text-xs text-primary-500">Role</p>
-                    <p class="font-medium capitalize">{{ $client->role }}</p>
-                </div>
+                <x-display.field label="User ID" :value="$client->user_id" />
+                <x-display.field label="Email Address" :value="$client->email" />
+                <x-display.field label="Full Name" :value="$client->first_name . ' ' . $client->last_name" />
+                <x-display.field label="Phone" :value="$client->phone ?? '-'" />
+                <x-display.field label="Role" :value="ucfirst($client->role)" />
 
                 {{-- Status --}}
                 <div>
@@ -103,13 +81,7 @@
                     </p>
                 </div>
 
-                {{-- Joined On --}}
-                <div>
-                    <p class="text-xs text-primary-500">Joined On</p>
-                    <p class="font-medium">
-                        {{ $client->created_at->format('M d, Y') }}
-                    </p>
-                </div>
+                <x-display.field label="Joined On" :value="$client->created_at->format('M d, Y')" />
             </div>
         </div>
 
