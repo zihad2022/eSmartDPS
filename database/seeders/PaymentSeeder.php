@@ -19,7 +19,7 @@ class PaymentSeeder extends Seeder
             return;
         }
 
-        $statuses = [PaymentStatus::PAID->value, PaymentStatus::PENDING->value, PaymentStatus::FAILED->value];
+        $statuses = [PaymentStatus::PAID->value, PaymentStatus::PENDING->value, PaymentStatus::CANCELLED->value];
         $methods = [1, 2, 3];
 
         $paymentCount = 1;
