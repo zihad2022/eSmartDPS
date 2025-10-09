@@ -212,8 +212,8 @@
                                 {{-- Payment Method --}}
                                 <td class="px-6 py-4 text-sm text-primary-600">
                                     <span
-                                        class="px-2 py-1 text-xs font-medium rounded-full {{ $payment->payment_method->bgColor() }} {{ $payment->payment_method->color() }}">
-                                        {{ $payment->payment_method->label() ?? 'N/A' }}
+                                        class="px-2 py-1 text-xs font-medium rounded-full {{ $payment->payment_method ? $payment->payment_method->bgColor() : 'bg-gray-100' }} {{ $payment->payment_method ? $payment->payment_method->color() : 'text-gray-800' }}">
+                                        {{ $payment->payment_method ? $payment->payment_method->label() : 'N/A' }}
                                     </span>
                                 </td>
 
