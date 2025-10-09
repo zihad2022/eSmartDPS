@@ -34,6 +34,7 @@ class GenerateMonthlyPayments extends Command
             foreach ($members as $member) {
                 $dueAmount = $settings->share_price * $member->share_quantity;
 
+                // Check if a due payment already exists for this month
                 $alreadyExists = Payment::where('member_id', $member->id)
                     ->whereMonth('created_at', $monthStart->month)
                     ->whereYear('created_at', $monthStart->year)
@@ -44,13 +45,16 @@ class GenerateMonthlyPayments extends Command
                     continue;
                 }
 
+                // Create new due payment
                 Payment::create([
-                    'client_id'      => $member->client_id,
-                    'payment_id'     => generate_payment_id(),
-                    'member_id'      => $member->id,
-                    'amount'         => $dueAmount,
-                    'status'         => PaymentStatus::DUE->value,
-                    'due_date'       => $monthStart->copy()->endOfMonth(),
+                    'payment_id'      => generate_payment_id(),
+                    'client_id'       => $member->client_id,
+                    'member_id'       => $member->id,
+                    'amount'          => $dueAmount,
+                    'status'          => PaymentStatus::DUE->value,
+                    'due_date'        => $monthStart->copy()->endOfMonth(),
+                    'payment_method'  => null,   // can fill later
+                    'meta'            => null,   // can store screenshot/comments later
                 ]);
 
                 $clientGenerated++;
@@ -60,7 +64,8 @@ class GenerateMonthlyPayments extends Command
             $this->info("Generated {$clientGenerated} due payments for client {$clientId}.");
         }
 
-        $this->info("Total payments generated: {$totalGenerated}");
+        $this->info("✅ Total payments generated: {$totalGenerated}");
+
         return Command::SUCCESS;
     }
 }
