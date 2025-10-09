@@ -8,5 +8,5 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('invoices:generator')->everyTenSeconds();
-Schedule::command('payments:generator')->everyTenSeconds();
+Schedule::command('invoices:generate')->everyTenSeconds();
+Schedule::command('payments:generate')->everyTenSeconds();
