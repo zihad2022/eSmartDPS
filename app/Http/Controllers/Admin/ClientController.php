@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\MessageBag;
+use Illuminate\Support\ViewErrorBag;
 
 class ClientController extends Controller
 {
@@ -32,9 +34,27 @@ class ClientController extends Controller
         $search = trim((string) $request->get('search', '')) ?: null;
         $status = trim((string) $request->get('status', '')) ?: null;
 
-        $clients = $this->clientRepo->searchAndFilter($search, $status);
-
-        $stats = $this->clientRepo->getStats();
+        try {
+            $clients = $this->clientRepo->searchAndFilter($search, $status);
+            $stats = $this->clientRepo->getStats();
+        } catch (\Throwable $e) {
+            Log::error('Failed to load clients list', [
+                'search' => $search,
+                'status' => $status,
+                'error' => $e->getMessage(),
+            ]);
+            // Fallbacks to keep page functional
+            $clients = collect();
+            $stats = ['total' => 0, 'active' => 0, 'inactive' => 0];
+            // Pass an error message to the view via a ViewErrorBag
+            $errorBag = new ViewErrorBag();
+            $errorBag->put('default', new MessageBag(['general' => 'Failed to load clients. Please try again later.']));
+            return view('admin.client.index', [
+                'clients' => $clients,
+                'search' => $search,
+                ...$stats
+            ])->with('errors', $errorBag);
+        }
 
         return view('admin.client.index', [
             'clients' => $clients,
@@ -48,9 +68,14 @@ class ClientController extends Controller
     // =========================================================
     public function create(): View
     {
-        $packages = Cache::remember('packages.active.simple', now()->addMinutes(5), function () {
-            return Package::select('id', 'name')->active()->get();
-        });
+        try {
+            $packages = Cache::remember('packages.active.simple', now()->addMinutes(5), function () {
+                return Package::select('id', 'name')->active()->get();
+            });
+        } catch (\Throwable $e) {
+            Log::error('Failed to load packages for client create', ['error' => $e->getMessage()]);
+            $packages = collect();
+        }
 
         return view('admin.client.form', [
             'packages' => $packages,
@@ -67,8 +92,8 @@ class ClientController extends Controller
             $this->clientService->create($request->validated(), $request);
             return redirect()->route('admin.clients.index')->with('success', 'Client created successfully.');
         } catch (\Throwable $e) {
-            Log::error('Failed to create client', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return redirect()->back()->withInput()->with('error', 'Failed to create client. Please try again.');
+            Log::error('Failed to create client', ['error' => $e->getMessage()]);
+            return redirect()->back()->withInput()->withErrors(['general' => 'Failed to create client. Please try again.']);
         }
     }
 
@@ -78,9 +103,14 @@ class ClientController extends Controller
     public function edit(Client $client): View
     {
         $this->guardRootClient($client);
-        $packages = Cache::remember('packages.active.simple', now()->addMinutes(5), function () {
-            return Package::select('id', 'name')->active()->get();
-        });
+        try {
+            $packages = Cache::remember('packages.active.simple', now()->addMinutes(5), function () {
+                return Package::select('id', 'name')->active()->get();
+            });
+        } catch (\Throwable $e) {
+            Log::error('Failed to load packages for client edit', ['client_id' => $client->id, 'error' => $e->getMessage()]);
+            $packages = collect();
+        }
 
         return view('admin.client.form', [
             'client' => $client,
@@ -97,7 +127,7 @@ class ClientController extends Controller
             return redirect()->route('admin.clients.index')->with('success', 'Client updated successfully.');
         } catch (\Throwable $e) {
             Log::error('Failed to update client', ['client_id' => $client->id, 'error' => $e->getMessage()]);
-            return redirect()->back()->withInput()->with('error', 'Failed to update client. Please try again.');
+            return redirect()->back()->withInput()->withErrors(['general' => 'Failed to update client. Please try again.']);
         }
     }
 
@@ -113,7 +143,7 @@ class ClientController extends Controller
             return redirect()->route('admin.clients.index')->with('success', 'Client deleted successfully.');
         } catch (\Throwable $e) {
             Log::error('Failed to delete client', ['client_id' => $client->id, 'error' => $e->getMessage()]);
-            return redirect()->back()->with('error', 'Failed to delete client. Please try again.');
+            return redirect()->back()->withErrors(['general' => 'Failed to delete client. Please try again.']);
         }
     }
 
