@@ -50,17 +50,6 @@ class MemberSeeder extends Seeder
             ],
         ];
 
-        // Add 45 more dynamically
-        for ($i = 6; $i <= 50; $i++) {
-            $members[] = [
-                'name' => "Member {$i}",
-                'email' => "member{$i}@example.com",
-                'phone' => '017'.str_pad($i.'000000', 8, '1', STR_PAD_LEFT),
-                'password' => Hash::make('password'),
-                'status' => rand(0, 1),
-            ];
-        }
-
         foreach ($members as $member) {
             $member = Member::create([
                 'client_id' => $clients->random()->id,
