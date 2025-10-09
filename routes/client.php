@@ -208,12 +208,15 @@ Route::prefix('client')->name('client.')->group(function () {
  * -------------------------
  * SSLCommerz Callback Routes
  * -------------------------
+ * Grouped by route name only to avoid changing public callback URLs.
  */
-Route::match(['get', 'post'], '/sslcommerz/success/{invoice}', [SslcommerzPaymentController::class, 'success'])
-    ->name('client.payments.sslcommerz.success');
+Route::name('client.payments.sslcommerz.')->group(function () {
+    Route::match(['get', 'post'], '/sslcommerz/success/{invoice}', [SslcommerzPaymentController::class, 'success'])
+        ->name('success');
 
-Route::match(['get', 'post'], '/sslcommerz/fail/{invoice}', [SslcommerzPaymentController::class, 'fail'])
-    ->name('client.payments.sslcommerz.fail');
+    Route::match(['get', 'post'], '/sslcommerz/fail/{invoice}', [SslcommerzPaymentController::class, 'fail'])
+        ->name('fail');
 
-Route::match(['get', 'post'], '/sslcommerz/cancel/{invoice}', [SslcommerzPaymentController::class, 'cancel'])
-    ->name('client.payments.sslcommerz.cancel');
+    Route::match(['get', 'post'], '/sslcommerz/cancel/{invoice}', [SslcommerzPaymentController::class, 'cancel'])
+        ->name('cancel');
+});
