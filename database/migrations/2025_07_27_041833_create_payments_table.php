@@ -14,26 +14,23 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-        
-            $table->string('payment_id')->unique(); // Unique payment code/ID
-        
-            $table->foreignId('client_id')->constrained()->onDelete('cascade'); // Linked client
-            $table->foreignId('member_id')->constrained()->onDelete('cascade'); // Linked member/customer
-        
-            $table->integer('amount'); // Payment amount
-        
-            $table->integer('payment_method')->nullable(); // e.g. cash, card, bank
-            $table->string('transaction_id')->nullable(); // Gateway transaction ID
-            $table->string('reference')->nullable(); // Invoice/order ref
-        
-            $table->string('status'); // Payment status
-        
-            $table->dateTime('paid_at')->nullable(); // When paid
-            $table->dateTime('due_date')->nullable(); // When due
-        
-            $table->json('meta')->nullable(); // Extra data/notes
-        
-            $table->timestamps(); // created_at, updated_at
+            $table->string('payment_id', 20)->unique();
+            $table->foreignId('client_id')->constrained()->onDelete('cascade');
+            $table->foreignId('member_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('amount');
+            $table->unsignedTinyInteger('payment_method')->nullable()->index();
+            $table->string('reference_number', 64)->nullable()->index();
+            $table->string('status', 20)->default(PaymentStatus::DUE->value)->index();
+            $table->dateTime('paid_at')->nullable()->index();
+            $table->dateTime('due_date')->nullable()->index();
+            $table->json('meta')->nullable();
+            $table->timestamps();
+
+            // Helpful composite indexes for common filters
+            $table->index(['member_id', 'status']);
+            $table->index(['client_id', 'status']);
+            $table->index(['client_id', 'member_id']);
+            $table->index('created_at');
         });
     }
 
