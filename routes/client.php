@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as VerifyCsrfToken;
 use App\Http\Controllers\Client\Auth\{
     ForgotPasswordPhoneController,
     LoginController,
@@ -212,11 +213,14 @@ Route::prefix('client')->name('client.')->group(function () {
  */
 Route::name('client.payments.sslcommerz.')->group(function () {
     Route::match(['get', 'post'], '/sslcommerz/success/{invoice}', [SslcommerzPaymentController::class, 'success'])
+        ->withoutMiddleware([VerifyCsrfToken::class])
         ->name('success');
 
     Route::match(['get', 'post'], '/sslcommerz/fail/{invoice}', [SslcommerzPaymentController::class, 'fail'])
+        ->withoutMiddleware([VerifyCsrfToken::class])
         ->name('fail');
 
     Route::match(['get', 'post'], '/sslcommerz/cancel/{invoice}', [SslcommerzPaymentController::class, 'cancel'])
+        ->withoutMiddleware([VerifyCsrfToken::class])
         ->name('cancel');
 });

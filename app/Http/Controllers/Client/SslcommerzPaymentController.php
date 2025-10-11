@@ -6,21 +6,17 @@ use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Services\PackageService;
+use App\Services\Payments\SslcommerzService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class SslcommerzPaymentController extends Controller
 {
-    protected string $storeId;
-    protected string $storePassword;
-    protected bool $sandbox;
+    protected SslcommerzService $ssl;
 
-    public function __construct()
+    public function __construct(SslcommerzService $ssl)
     {
-        $this->storeId       = config('payments.sslcommerz.store_id', 'softc6610e80407051');
-        $this->storePassword = config('payments.sslcommerz.store_password', 'softc6610e80407051@ssl');
-        $this->sandbox       = config('payments.sslcommerz.sandbox', true);
+        $this->ssl = $ssl;
     }
 
     /**
@@ -33,54 +29,20 @@ class SslcommerzPaymentController extends Controller
                 ->with('info', 'Invoice already paid.');
         }
 
-        $url = $this->sandbox
-            ? 'https://sandbox.sslcommerz.com/gwprocess/v3/api.php'
-            : 'https://securepay.sslcommerz.com/gwprocess/v3/api.php';
+        $result = $this->ssl->initiate($invoice);
 
-        $postData = [
-            'store_id'      => $this->storeId,
-            'store_passwd'  => $this->storePassword,
-            'total_amount'  => $invoice->amount ?? $invoice->invoice_amount ?? 0,
-            'currency'      => $invoice->currency ?? 'BDT',
-            'tran_id'       => uniqid('ssl_'),
-            'success_url'   => route('client.payments.sslcommerz.success', $invoice->id),
-            'fail_url'      => route('client.payments.sslcommerz.fail', $invoice->id),
-            'cancel_url'    => route('client.payments.sslcommerz.cancel', $invoice->id),
-
-            'cus_name'      => $invoice->client->full_name ?? 'Customer',
-            'cus_email'     => $invoice->client->email ?? 'customer@example.com',
-            'cus_phone'     => $invoice->client->phone ?? '01700000000',
-            'cus_add1'      => $invoice->client->address ?? 'Dhaka',
-            'cus_city'      => 'Dhaka',
-            'cus_country'   => 'Bangladesh',
-
-            'ship_name'     => $invoice->client->full_name ?? 'Customer',
-            'ship_add1'     => $invoice->client->address ?? 'Dhaka',
-            'ship_city'     => 'Dhaka',
-            'ship_postcode' => '1200',
-            'ship_country'  => 'Bangladesh',
-
-            'product_name'     => $invoice->package->name ?? 'Subscription',
-            'product_category' => 'Subscription',
-            'product_profile'  => 'general',
-        ];
-
-        $response = Http::asForm()->post($url, $postData)->json();
-
-        if (! $response || empty($response['GatewayPageURL'])) {
-            Log::error('SSLCommerz initialization failed', [
-                'response' => $response,
-                'request'  => $postData,
-            ]);
-
-            return back()->with('error', 'Unable to connect to SSLCommerz gateway.');
+        if (! $result['ok']) {
+            return back()->with('error', $result['error'] ?? 'Unable to connect to SSLCommerz gateway.');
         }
 
-        $invoice->update([
-            'payment_reference' => $postData['tran_id'],
-        ]);
+        // Persist the generated transaction id to the invoice for reference
+        if (! empty($result['request']['tran_id'])) {
+            $invoice->update([
+                'payment_reference' => $result['request']['tran_id'],
+            ]);
+        }
 
-        return redirect()->away($response['GatewayPageURL']);
+        return redirect()->away($result['url']);
     }
 
     /**
@@ -88,7 +50,7 @@ class SslcommerzPaymentController extends Controller
      */
     public function success(Request $request, Invoice $invoice, PackageService $packageService)
     {
-        if (! $this->validateTransaction($request->all())) {
+        if (! $this->ssl->validate($request->all())) {
             return redirect()->route('client.invoices.index')
                 ->with('error', 'Payment validation failed.');
         }
@@ -106,6 +68,15 @@ class SslcommerzPaymentController extends Controller
 
         if ($clientPackage && $clientPackage->package) {
             $packageService->renewSubscription($client, $clientPackage->package);
+        }
+
+        // Ensure the client is authenticated in this browser session.
+        // Cross-site POST callbacks may not include cookies due to SameSite policies ("lax").
+        // Since the transaction is validated above, it's safe to authenticate the invoice owner.
+        if (! Auth::guard('client')->check() || Auth::guard('client')->id() !== $client->id) {
+            Auth::guard('client')->loginUsingId($client->id);
+            // Regenerate session ID to prevent fixation and persist the login.
+            $request->session()->regenerate();
         }
 
         return redirect()->route('client.dashboard')
@@ -130,25 +101,5 @@ class SslcommerzPaymentController extends Controller
             ->with('info', 'Payment was cancelled.');
     }
 
-    /**
-     * Verify transaction with SSLCommerz validator API.
-     */
-    protected function validateTransaction(array $params): bool
-    {
-        $url = $this->sandbox
-            ? 'https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php'
-            : 'https://securepay.sslcommerz.com/validator/api/validationserverAPI.php';
-
-        $response = Http::get($url, [
-            'val_id'       => $params['val_id'] ?? null,
-            'store_id'     => $this->storeId,
-            'store_passwd' => $this->storePassword,
-            'v'            => 1,
-            'format'       => 'json',
-        ])->json();
-
-        Log::info('SSLCommerz validation response', $response ?? []);
-
-        return isset($response['status']) && $response['status'] === 'VALID';
-    }
+    // Validation is delegated to SslcommerzService
 }
