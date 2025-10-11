@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PaymentController extends Controller
 {
@@ -119,6 +120,9 @@ class PaymentController extends Controller
                 'sslcommerz_store_password' => $request->sslcommerz_store_password,
                 'sslcommerz_mode' => $request->sslcommerz_mode,
             ]);
+
+            // Clear cached settings so payment service picks up new values immediately
+            Cache::forget('admin_settings_first');
 
             return back()->with('success', 'SSLCommerz Settings updated successfully!');
         }

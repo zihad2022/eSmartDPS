@@ -3,7 +3,9 @@
 namespace App\Services\Payments;
 
 use App\Models\Invoice;
+use App\Models\AdminSetting;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class SslcommerzService
@@ -15,10 +17,33 @@ class SslcommerzService
 
     public function __construct()
     {
-        $this->storeId       = config('payments.sslcommerz.store_id');
-        $this->storePassword = config('payments.sslcommerz.store_password');
-        $this->sandbox       = (bool) config('payments.sslcommerz.sandbox', true);
-        $this->timeout       = (int) (config('payments.sslcommerz.http.timeout', 10));
+        // Defaults from config/env
+        $storeId       = config('payments.sslcommerz.store_id');
+        $storePassword = config('payments.sslcommerz.store_password');
+        $sandbox       = (bool) config('payments.sslcommerz.sandbox', true);
+        $timeout       = (int) (config('payments.sslcommerz.http.timeout', 10));
+
+        // Override from AdminSetting if present (cached to avoid DB hit every request)
+        $settings = Cache::remember('admin_settings_first', 60, function () {
+            return AdminSetting::first();
+        });
+        if ($settings) {
+            if (! empty($settings->sslcommerz_store_id)) {
+                $storeId = $settings->sslcommerz_store_id;
+            }
+            if (! empty($settings->sslcommerz_store_password)) {
+                $storePassword = $settings->sslcommerz_store_password;
+            }
+            if (! empty($settings->sslcommerz_mode)) {
+                // live => false sandbox; sandbox => true sandbox
+                $sandbox = strtolower($settings->sslcommerz_mode) !== 'live';
+            }
+        }
+
+        $this->storeId       = $storeId;
+        $this->storePassword = $storePassword;
+        $this->sandbox       = $sandbox;
+        $this->timeout       = $timeout;
     }
 
     /**
