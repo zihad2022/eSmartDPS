@@ -107,153 +107,35 @@
         </div>
 
         {{-- ===========================
-             Tickets Table Section
+            Tickets Table Section (component-based)
         ============================ --}}
-        <div class="bg-white rounded-xl shadow-sm">
+        <x-data-table
+            :page-title="$pageTitle"
+            :rows="$tickets"
+            :headers="['SL','#Ticket','Subject','Client','Status','Priority','Created At','Actions']"
+            row-view="admin.ticket.partials.row"
+        >
+            <x-slot:actions>
+                {{-- Search Form --}}
+                <form method="GET" action="{{ route('admin.tickets.index') }}" class="relative w-full md:w-auto">
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        placeholder="Search tickets..."
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition duration-300">
+                    <button type="submit"
+                        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-accent-500 transition">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
 
-            {{-- ====================================
-                 Table Header: Title + Actions
-            ==================================== --}}
-            <div class="p-6 border-b border-gray-200">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-
-                    {{-- Section Title --}}
-                    <h3 class="text-lg font-semibold text-primary-900 mb-4 md:mb-0">{{ $pageTitle }}</h3>
-
-                    {{-- Table Actions: Add Ticket + Export --}}
-                    <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
-                        
-                        {{-- Search Form --}}
-                        <form method="GET" action="{{ route('admin.tickets.index') }}"
-                            class="relative w-full md:w-auto">
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="Search tickets..."
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition duration-300">
-                            <button type="submit"
-                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-accent-500 transition">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </form>
-
-                        <a href="{{ route('admin.tickets.create') }}"
-                            class="bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent-600 transition">
-                            Add Ticket
-                        </a>
-                        <a href="{{ route('admin.tickets.export', ['status' => $status]) }}"
-                            class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition">
-                            <i class="fas fa-download mr-2"></i>Export
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            {{-- =============================
-                 Table Body
-            ============================= --}}
-            <div class="overflow-x-auto">
-                <table class="min-w-full">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase">#SL</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase">Ticket No
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase">Subject</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase">Client</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase">Priority</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase">Created At
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-primary-500 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse ($tickets as $index => $ticket)
-                            <tr class="hover:bg-gray-50">
-
-                                {{-- Serial Number --}}
-                                <td class="px-6 py-4 text-sm text-primary-900 font-mono">
-                                    #{{ $tickets->firstItem() + $index }}</td>
-
-                                {{-- Ticket Number --}}
-                                <td class="px-6 py-4 text-sm text-primary-900 font-mono">{{ $ticket->ticket_number }}
-                                </td>
-
-                                {{-- Subject --}}
-                                <td class="px-6 py-4 text-sm text-primary-900">{{ $ticket->subject }}</td>
-
-                                {{-- Client Name --}}
-                                <td class="px-6 py-4 text-sm text-primary-600">
-                                    {{ $ticket->client->first_name }} {{ $ticket->client->last_name }}
-                                </td>
-
-                                {{-- Status Badge --}}
-                                <td class="px-6 py-4 text-sm">
-                                    @include('components.status-badge', ['status' => $ticket->status])
-                                </td>
-
-                                {{-- Priority Badge --}}
-                                <td class="px-6 py-4 text-sm">
-                                    @include('components.priority-badge', [
-                                        'priority' => $ticket->priority,
-                                    ])
-                                </td>
-
-                                {{-- Created Date --}}
-                                <td class="px-6 py-4 text-sm text-primary-600">
-                                    {{ $ticket->created_at->format('M d, Y') }}</td>
-
-                                {{-- Action Buttons --}}
-                                <td class="px-6 py-4 text-sm font-medium">
-                                    <div class="flex space-x-2">
-                                        {{-- Edit Ticket --}}
-                                        <a href="{{ route('admin.tickets.edit', $ticket->id) }}"
-                                            class="text-secondary-600 hover:text-secondary-900" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-
-                                        {{-- Chat --}}
-                                        <a href="{{ route('admin.tickets.chat', $ticket->id) }}"
-                                            class="text-blue-600 hover:text-blue-900" title="Chat">
-                                            <i class="fas fa-comments"></i>
-                                        </a>
-
-                                        {{-- Delete Ticket --}}
-                                        @include('admin.ticket.destroy')
-                                    </div>
-                                    <x-confirm-modal />
-                                </td>
-                            </tr>
-                        @empty
-                            {{-- Empty State --}}
-                            <tr>
-                                <td colspan="8" class="text-center py-4 text-sm text-gray-500">No tickets found.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            {{-- ===============================
-                 Pagination & Results Info
-            =============================== --}}
-            <div class="px-6 py-4 border-t border-gray-200">
-                <div class="flex items-center justify-between">
-                    {{-- Results Info --}}
-                    <div class="text-sm text-primary-600">
-                        @if ($tickets->total() > 0)
-                            Showing {{ $tickets->firstItem() }} to {{ $tickets->lastItem() }} of
-                            {{ $tickets->total() }} results
-                        @else
-                            No results found.
-                        @endif
-                    </div>
-
-                    {{-- Pagination Links --}}
-                    <div class="flex space-x-2">
-                        <x-pagination :paginator="$tickets" />
-                    </div>
-                </div>
-            </div>
-        </div>
+                <a href="{{ route('admin.tickets.create') }}"
+                    class="bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent-600 transition">
+                    Add Ticket
+                </a>
+                <a href="{{ route('admin.tickets.export', ['status' => $status]) }}"
+                    class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                    <i class="fas fa-download mr-2"></i>Export
+                </a>
+            </x-slot:actions>
+        </x-data-table>
     </div>
 </x-admin.layout.app>
