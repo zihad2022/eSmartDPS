@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\Clients\Models;
 
+use App\Domain\Clients\Models\Client;
+use App\Domain\Packages\Models\Package;
 use Illuminate\Database\Eloquent\Model;
 
 class ClientPackage extends Model

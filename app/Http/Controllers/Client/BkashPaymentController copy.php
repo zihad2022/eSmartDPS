@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Client;
 
 use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
-use App\Models\Invoice;
-use App\Services\PackageService;
+use App\Domain\Billing\Models\Invoice;
+use App\Domain\Clients\Services\PackageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;

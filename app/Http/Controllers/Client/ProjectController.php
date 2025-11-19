@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\ProjectRequest;
-use App\Models\Client;
+use App\Domain\Clients\Models\Client;
 use App\Models\ClientSetting;
 use App\Models\Project;
 use App\Models\ProjectCategory;

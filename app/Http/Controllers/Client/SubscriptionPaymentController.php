@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
-use App\Models\Invoice;
-use App\Models\Package;
+use App\Domain\Billing\Models\Invoice;
+use App\Domain\Packages\Models\Package;
 use Illuminate\Http\Request;
 use App\Enums\InvoiceStatus;
 use App\Models\AdminSetting;

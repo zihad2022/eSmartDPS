@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Package;
+use App\Domain\Packages\Models\Package;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;

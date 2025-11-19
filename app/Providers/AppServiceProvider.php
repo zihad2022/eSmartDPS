@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
-use App\Models\Client;
-use App\Models\Invoice;
+use App\Domain\Clients\Models\Client;
+use App\Domain\Billing\Models\Invoice;
 use App\Models\Ledger;
 use App\Models\Member;
-use App\Models\Package;
+use App\Domain\Packages\Models\Package;
 use App\Models\Project;
 use App\Models\Ticket;
 use App\Models\User;

@@ -4,7 +4,7 @@
     'type' => 'text',
     'required' => false,
     'placeholder' => '',
-    'value' => '',
+    'value' => '52',
     'editing' => false,
     'previewUrl' => null,
     'accept' => '',

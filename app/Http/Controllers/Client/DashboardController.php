@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
-use App\Models\Client;
+use App\Domain\Clients\Models\Client;
 use App\Models\Member;
 use App\Models\Project;
 use Illuminate\Http\Request;

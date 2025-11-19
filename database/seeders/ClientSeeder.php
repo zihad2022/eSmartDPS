@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Enums\Package\BillingCycle;
-use App\Models\Client;
+use App\Domain\Clients\Models\Client;
 use App\Models\ClientPackage;
-use App\Models\Package;
+use App\Domain\Packages\Models\Package;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;

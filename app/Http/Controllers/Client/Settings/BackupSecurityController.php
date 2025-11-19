@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Client\Settings;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Client;
+use App\Domain\Clients\Models\Client;
 
 class BackupSecurityController extends Controller
 {

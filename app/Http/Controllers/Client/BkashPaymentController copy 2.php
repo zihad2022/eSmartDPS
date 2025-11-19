@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
-use App\Models\Invoice;
+use App\Domain\Billing\Models\Invoice;
 use App\Services\Payments\PaymentService;
 use App\Services\Payments\Gateways\BkashGateway;
 use Illuminate\Http\Request;

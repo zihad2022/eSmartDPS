@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminSetting;
-use App\Models\Client;
-use App\Models\Package;
-use App\Services\PackageService;
+use App\Domain\Clients\Models\Client;
+use App\Domain\Packages\Models\Package;
+use App\Domain\Clients\Services\PackageService;
 use App\Services\MailService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\Package\BillingCycle;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PackageRequest;
-use App\Models\Package;
+use App\Domain\Packages\Models\Package;
 use Illuminate\Http\Request;
 
 class PackageController extends Controller

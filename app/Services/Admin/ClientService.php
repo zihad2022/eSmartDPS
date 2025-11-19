@@ -3,7 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Events\Admin\ClientCreated;
-use App\Models\Client;
+use App\Domain\Clients\Models\Client;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;

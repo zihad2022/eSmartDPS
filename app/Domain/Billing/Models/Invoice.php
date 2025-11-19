@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\Billing\Models;
 
+use App\Domain\Clients\Models\Client;
+use App\Domain\Packages\Models\Package;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
 use Illuminate\Database\Eloquent\Model;
@@ -15,19 +17,31 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Invoice extends Model
 {
-    /*--------------------------------
-    | MASS ASSIGNABLE
-    --------------------------------*/
-    // Fields that can be mass-assigned (e.g., via create or update)
     protected $fillable = [
-        'client_id',        // Linked client ID
-        'invoice_number',   // Unique invoice number
-        'invoice_amount',   // Total amount of invoice
-        'status',           // Invoice status (enum: InvoiceStatus)
-        'payment_id',       // Reference to payment record
-        'trx_id',           // Transaction ID
-        'payment_method',   // Payment method used (enum: PaymentMethod)
-        'wallet_address',   // Wallet address (if crypto or wallet-based payment)
+        'client_id',
+        'package_id',
+
+        // Package snapshot
+        'package_name',
+        'package_description',
+
+        // Billing dates
+        'billing_start',
+        'billing_end',
+
+        // Invoice
+        'invoice_number',
+        'invoice_amount',
+        'status',
+        'paid_at',
+        'next_invoice_at',
+
+        // payment info
+        'payment_reference',
+        'payment_id',
+        'trx_id',
+        'payment_method',
+        'wallet_address',
     ];
 
     /*--------------------------------
@@ -35,21 +49,27 @@ class Invoice extends Model
     --------------------------------*/
     // Cast attributes to enums or other types
     protected $casts = [
-        'status' => InvoiceStatus::class,           // Casts status to InvoiceStatus enum
-        'payment_method' => PaymentMethod::class,   // Casts payment_method to PaymentMethod enum
-        'due_date' => 'datetime',
+        'status' => InvoiceStatus::class,         
+        'payment_method' => PaymentMethod::class,
+        'billing_start' => 'datetime',
+        'billing_end' => 'datetime',
         'paid_at' => 'datetime',
+        'next_invoice_at' => 'datetime',
     ];
 
     /*--------------------------------
     | RELATIONSHIPS
     --------------------------------*/
-
     // Each invoice belongs to one client
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function package(): BelongsTo
+    {
+        return $this->belongsTo(Package::class);
+    }   
 
     /*--------------------------------
     | SCOPES (query helpers)

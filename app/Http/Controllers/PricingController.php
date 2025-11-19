@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Package;
+use App\Domain\Packages\Models\Package;
 use Illuminate\Http\Request;
 
 class PricingController extends Controller

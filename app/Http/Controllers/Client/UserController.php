@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\UserRequest;
-use App\Models\Client;
+use App\Domain\Clients\Models\Client;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 

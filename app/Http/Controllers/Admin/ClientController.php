@@ -2,162 +2,199 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Clients\Actions\CreateClientAction;
+use App\Domain\Clients\Actions\DeleteClientAction;
+use App\Domain\Clients\Actions\GetClientsAction;
+use App\Domain\Clients\Actions\UpdateClientAction;
+use App\Domain\Clients\DTOs\ClientData;
+use App\Domain\Clients\Models\Client;
+use App\Domain\Clients\Services\PackageService;
+use App\Domain\Packages\Models\Package;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ClientRequest;
-use App\Models\Client;
-use App\Models\Package;
-use App\Repositories\Admin\ClientRepository;
-use App\Services\Admin\ClientService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\MessageBag;
-use Illuminate\Support\ViewErrorBag;
+use Illuminate\View\View;
 
 class ClientController extends Controller
 {
-    // =========================================================
-    // Constructor & Dependencies
-    // =========================================================
-    public function __construct(
-        private readonly ClientRepository $clientRepo,
-        private readonly ClientService $clientService
-    ) {}
-
-    // =========================================================
-    // Client Listing
-    // =========================================================
-    public function index(Request $request): View
+    public function index(Request $request, GetClientsAction $getClientsAction): View
     {
-        $search = trim((string) $request->get('search', '')) ?: null;
-        $status = trim((string) $request->get('status', '')) ?: null;
-
         try {
-            $clients = $this->clientRepo->searchAndFilter($search, $status);
-            $stats = $this->clientRepo->getStats();
-        } catch (\Throwable $e) {
-            Log::error('Failed to load clients list', [
-                'search' => $search,
-                'status' => $status,
-                'error' => $e->getMessage(),
-            ]);
-            // Fallbacks to keep page functional
-            $clients = collect();
-            $stats = ['total' => 0, 'active' => 0, 'inactive' => 0];
-            // Pass an error message to the view via a ViewErrorBag
-            $errorBag = new ViewErrorBag();
-            $errorBag->put('default', new MessageBag(['general' => 'Failed to load clients. Please try again later.']));
+            $clients = $getClientsAction->execute(
+                search: $request->get('search'),
+                status: $request->get('status')
+            );
+
             return view('admin.client.index', [
                 'clients' => $clients,
-                'search' => $search,
-                ...$stats
-            ])->with('errors', $errorBag);
-        }
+                'search'  => $request->get('search'),
+                ...$getClientsAction->getStats(),
+            ]);
 
-        return view('admin.client.index', [
-            'clients' => $clients,
-            'search' => $search,
-            ...$stats
-        ]);
+        } catch (\Throwable $e) {
+            Log::error('Failed to load clients', ['error' => $e->getMessage()]);
+
+            return view('admin.client.index', [
+                'clients' => collect(),
+                'search' => null,
+                'totalClients' => 0,
+                'activeClients' => 0,
+                'inactiveClients' => 0,
+            ])->withErrors(['error' => 'Failed to load clients.']);
+        }
     }
 
-    // =========================================================
-    // Create Client
-    // =========================================================
     public function create(): View
     {
-        try {
-            $packages = Cache::remember('packages.active.simple', now()->addMinutes(5), function () {
-                return Package::select('id', 'name')->active()->get();
-            });
-        } catch (\Throwable $e) {
-            Log::error('Failed to load packages for client create', ['error' => $e->getMessage()]);
-            $packages = collect();
-        }
-
         return view('admin.client.form', [
-            'packages' => $packages,
-            'user_id' => generate_client_user_id(),
+            'packages' => $this->getActivePackages(),
+            'user_id'  => generate_client_user_id(),
         ]);
     }
 
-    // =========================================================
-    // Store Client
-    // =========================================================
-    public function store(ClientRequest $request): RedirectResponse
-    {
-        try {
-            $this->clientService->create($request->validated(), $request);
-            return redirect()->route('admin.clients.index')->with('success', 'Client created successfully.');
-        } catch (\Throwable $e) {
-            Log::error('Failed to create client', ['error' => $e->getMessage()]);
-            return redirect()->back()->withInput()->withErrors(['general' => 'Failed to create client. Please try again.']);
-        }
+    public function store(
+        ClientRequest $request,
+        CreateClientAction $createClientAction,
+        PackageService $packageService
+    ): RedirectResponse {
+
+        $client = $createClientAction->execute(
+            $this->makeClientData($request)
+        );
+
+        $this->handleClientPackage($client, $request->package_id, $packageService);
+
+        return redirect()
+            ->route('admin.clients.index')
+            ->with('success', 'Client created successfully.');
     }
 
-    // =========================================================
-    // Edit Client
-    // =========================================================
-    public function edit(Client $client): View
-    {
-        $this->guardRootClient($client);
-        try {
-            $packages = Cache::remember('packages.active.simple', now()->addMinutes(5), function () {
-                return Package::select('id', 'name')->active()->get();
-            });
-        } catch (\Throwable $e) {
-            Log::error('Failed to load packages for client edit', ['client_id' => $client->id, 'error' => $e->getMessage()]);
-            $packages = collect();
-        }
-
-        return view('admin.client.form', [
-            'client' => $client,
-            'packages' => $packages,
-        ]);
-    }
-
-    public function update(ClientRequest $request, Client $client): RedirectResponse
-    {
-        $this->guardRootClient($client);
-
-        try {
-            $this->clientService->update($client, $request->validated(), $request);
-            return redirect()->route('admin.clients.index')->with('success', 'Client updated successfully.');
-        } catch (\Throwable $e) {
-            Log::error('Failed to update client', ['client_id' => $client->id, 'error' => $e->getMessage()]);
-            return redirect()->back()->withInput()->withErrors(['general' => 'Failed to update client. Please try again.']);
-        }
-    }
-
-    // =========================================================
-    // Delete Client
-    // =========================================================
-    public function destroy(Client $client): RedirectResponse
-    {
-        $this->guardRootClient($client);
-
-        try {
-            $this->clientService->delete($client);
-            return redirect()->route('admin.clients.index')->with('success', 'Client deleted successfully.');
-        } catch (\Throwable $e) {
-            Log::error('Failed to delete client', ['client_id' => $client->id, 'error' => $e->getMessage()]);
-            return redirect()->back()->withErrors(['general' => 'Failed to delete client. Please try again.']);
-        }
-    }
-
-    // =========================================================
-    // Show Client Details
-    // =========================================================
     public function show(Client $client): View
     {
         return view('admin.client.show', compact('client'));
     }
 
-    // =========================================================
-    // Helpers
-    // =========================================================
+    /* ============================================================
+       EDIT
+    ============================================================ */
+    public function edit(Client $client): View
+    {
+        $this->guardRootClient($client);
+
+        return view('admin.client.form', [
+            'client'   => $client,
+            'packages' => $this->getActivePackages(),
+        ]);
+    }
+
+    /* ============================================================
+       UPDATE
+    ============================================================ */
+    public function update(
+        Client $client,
+        ClientRequest $request,
+        UpdateClientAction $updateClientAction,
+        PackageService $packageService
+    ): RedirectResponse {
+
+        $this->guardRootClient($client);
+
+        $updateClientAction->execute(
+            $client,
+            $this->makeClientData($request, $client)
+        );
+
+        $this->handleClientPackage($client, $request->package_id, $packageService);
+
+        return redirect()
+            ->route('admin.clients.index')
+            ->with('success', 'Client updated successfully.');
+    }
+
+
+    /* ============================================================
+       DESTROY
+    ============================================================ */
+    public function destroy(
+        Client $client,
+        DeleteClientAction $deleteClientAction
+    ): RedirectResponse {
+
+        $this->guardRootClient($client);
+
+        try {
+            $deleteClientAction->execute($client);
+
+            return redirect()
+                ->route('admin.clients.index')
+                ->with('success', 'Client deleted successfully.');
+
+        } catch (\Throwable $e) {
+            Log::error('Delete client failed', [
+                'id' => $client->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->withErrors(['error' => 'Failed to delete client.']);
+        }
+    }
+
+    /* ============================================================
+       PRIVATE UTILITIES
+    ============================================================ */
+
+    private function getActivePackages()
+    {
+        return Cache::remember('packages.active.simple', 300, function () {
+            return Package::select('id', 'name')->active()->get();
+        });
+    }
+
+    private function makeClientData(ClientRequest $request, ?Client $client = null): ClientData
+    {
+        $v = $request->validated();
+
+        return new ClientData(
+            user_id: $client->user_id ?? generate_client_user_id(),
+            first_name: $v['first_name'],
+            last_name: $v['last_name'],
+            email: $v['email'],
+            phone: $v['phone'] ?? null,
+            division: $v['division'] ?? null,
+            district: $v['district'] ?? null,
+            address: $v['address'] ?? null,
+            postal_code: $v['postal_code'] ?? null,
+            nid_number: $v['nid_number'] ?? null,
+            nid_card_front: $request->file('nid_card_front'),
+            nid_card_back: $request->file('nid_card_back'),
+            profile_photo: $request->file('profile_photo'),
+            password: $v['password'] ?? null,
+            package_id: $v['package_id'] ?? null,
+        );
+    }
+
+    /**
+     * Handle package start/renew during create or update.
+     */
+    private function handleClientPackage(Client $client, ?int $packageId, PackageService $service): void
+    {
+        if (!$packageId) {
+            return;
+        }
+
+        $package = Package::findOrFail($packageId);
+        $activePackage = $client->clientPackages()->where('is_active', true)->first();
+
+        if (!$activePackage || $activePackage->package_id !== $package->id) {
+            $service->startPackage($client, $package);
+        } else {
+            $service->renewSubscription($client, $package);
+        }
+    }
+
     private function guardRootClient(Client $client): void
     {
         abort_if($client->parent_id, 403);

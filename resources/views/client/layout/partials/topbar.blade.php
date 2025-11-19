@@ -1,46 +1,7 @@
     <header class="bg-white shadow-sm sticky top-0 z-30">
         <div class="flex justify-between items-center px-4 md:px-6 py-4">
-            <div class="flex items-center">
-                <button id="sidebarToggle"
-                    class="text-primary-500 hover:text-primary-700 focus:outline-none mr-4 md:hidden">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
-                <h1 class="text-xl font-semibold text-primary-900">Dashboard</h1>
-
-                @php
-                    $client = \App\Models\Client::find(owner_client_id());
-                    $activeClientPackage = $client?->activeClientPackage;
-                    $activePackage = $activeClientPackage?->package;
-                @endphp
-
-                @if ($activePackage)
-                    @php
-                        $endsAt = $activeClientPackage->ends_at;
-                        $remaining =
-                            $endsAt && $endsAt->isFuture()
-                                ? $endsAt->diffForHumans(now(), [
-                                    'parts' => 2,
-                                    'short' => true,
-                                    'syntax' => \Carbon\CarbonInterface::DIFF_RELATIVE_TO_NOW,
-                                ])
-                                : 'Expired';
-                    @endphp
-
-                    @if ($activePackage->has_trial && $activePackage->trial_days > 0)
-                        <span class="text-green-600 font-semibold pl-2">
-                            Free Trial ({{ $remaining }})
-                        </span>
-                    @else
-                        <span class="text-blue-600 font-semibold pl-2">
-                            Paid Subscription ({{ $remaining }})
-                        </span>
-                    @endif
-                @else
-                    <span class="text-gray-500 pl-2">No Active Subscription</span>
-                @endif
-
-
-            </div>
+            {{-- Subscription Countdown --}}
+            <x-subscription.countdown />
 
             <div class="flex items-center space-x-2 md:space-x-4">
                 <!-- Notifications -->

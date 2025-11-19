@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Admin;
 
-use App\Models\Client;
+use App\Domain\Clients\Models\Client;
 
 class ClientRepository
 {

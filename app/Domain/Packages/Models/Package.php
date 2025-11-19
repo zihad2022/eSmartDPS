@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\Packages\Models;
 
+use App\Domain\Clients\Models\Client;
+use App\Domain\Clients\Models\ClientPackage;
 use App\Enums\Package\BillingCycle;
 use App\Enums\Package\DiscountType;
 use Illuminate\Database\Eloquent\Model;

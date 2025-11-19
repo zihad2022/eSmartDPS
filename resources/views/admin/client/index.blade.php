@@ -52,11 +52,7 @@
              Flash Messages Section
         ============================ --}}
         @if (session('success') || session('error'))
-            <x-flash-message
-                :type="session('success') ? 'success' : 'error'"
-                :title="session('success') ? 'Success' : 'Error'"
-                :message="session('success') ?? session('error')"
-            />
+            <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
         @endif
 
         {{-- ===========================
@@ -64,49 +60,26 @@
         ============================ --}}
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-6">
             {{-- Total Clients --}}
-            <x-card.stat-card
-                :label="'Total Clients'"
-                :value="$totalClients"
-                :iconBgColor="'bg-primary-100'"
-                :iconTextColor="'text-primary-600'"
-                :icon="'fas fa-users'"
-            />
+            <x-card.stat-card :label="'Total Clients'" :value="$totalClients" :iconBgColor="'bg-primary-100'" :iconTextColor="'text-primary-600'"
+                :icon="'fas fa-users'" />
 
             {{-- Active Clients --}}
-            <x-card.stat-card
-                :label="'Active Clients'"
-                :value="$activeClients"
-                :iconBgColor="'bg-green-100'"
-                :iconTextColor="'text-green-600'"
-                :icon="'fas fa-user-check'"
-            />
+            <x-card.stat-card :label="'Active Clients'" :value="$activeClients" :iconBgColor="'bg-green-100'" :iconTextColor="'text-green-600'"
+                :icon="'fas fa-user-check'" />
 
             {{-- Suspended Clients --}}
-            <x-card.stat-card
-                :label="'Suspended Clients'"
-                :value="$inactiveClients"
-                :iconBgColor="'bg-red-100'"
-                :iconTextColor="'text-red-600'"
-                :icon="'fas fa-user-times'"
-            />
+            <x-card.stat-card :label="'Suspended Clients'" :value="$inactiveClients" :iconBgColor="'bg-red-100'" :iconTextColor="'text-red-600'"
+                :icon="'fas fa-user-times'" />
         </div>
 
         {{-- ===========================
             Clients Table Section (component-based)
         ============================ --}}
-        <x-data-table
-            :page-title="$pageTitle"
-            :rows="$clients"
-            :headers="[
-                'SL','User ID','Name','Email','Phone','Role','Division','District','Status','Joined On','Actions'
-            ]"
-            row-view="admin.client.partials.row"
-        >
+        <x-data-table :page-title="$pageTitle" :rows="$clients" :headers="['SL', 'User ID', 'Name', 'Email', 'Phone', 'Role', 'Status', 'Joined On', 'Actions']" row-view="admin.client.partials.row">
             <x-slot:actions>
                 {{-- Search Form --}}
                 <form method="GET" action="{{ route('admin.clients.index') }}" class="relative w-full md:w-auto">
-                    <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Search clients..."
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search clients..."
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition duration-300">
                     <button type="submit"
                         class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-accent-500 transition">
@@ -126,8 +99,6 @@
                     <i class="fas fa-download mr-2"></i>Export
                 </a>
             </x-slot:actions>
-
-            {{-- Row rendering handled by row-view partial --}}
         </x-data-table>
-    </div> 
+    </div>
 </x-admin.layout.app>

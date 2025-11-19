@@ -10,10 +10,9 @@
 <td class="px-6 py-4 text-sm text-primary-600">{{ $client->email }}</td>
 <td class="px-6 py-4 text-sm text-primary-600">{{ $client->phone ?? 'N/A' }}</td>
 <td class="px-6 py-4 text-sm text-primary-900 font-semibold">{{ ucfirst($client->role) }}</td>
-<td class="px-6 py-4 text-sm text-primary-600">{{ $client->division ?? 'N/A' }}</td>
-<td class="px-6 py-4 text-sm text-primary-600">{{ $client->district ?? 'N/A' }}</td>
 <td class="px-6 py-4">
-    <span class="px-2 py-1 text-xs font-medium rounded-full {{ $client->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+    <span
+        class="px-2 py-1 text-xs font-medium rounded-full {{ $client->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
         {{ $client->status ? 'Active' : 'Inactive' }}
     </span>
 </td>
@@ -24,10 +23,12 @@
 </td>
 <td class="px-6 py-4 text-sm font-medium">
     <div class="flex space-x-2">
-        <a href="{{ route('admin.clients.show', $client->id) }}" class="text-accent-600 hover:text-accent-900" title="View">
+        <a href="{{ route('admin.clients.show', $client->id) }}" class="text-accent-600 hover:text-accent-900"
+            title="View">
             <i class="fas fa-eye"></i>
         </a>
-        <a href="{{ route('admin.clients.edit', $client->id) }}" class="text-secondary-600 hover:text-secondary-900" title="Edit">
+        <a href="{{ route('admin.clients.edit', $client->id) }}" class="text-secondary-600 hover:text-secondary-900"
+            title="Edit">
             <i class="fas fa-edit"></i>
         </a>
         <form method="POST" action="{{ route('admin.clients.destroy', $client->id) }}" class="delete-form">

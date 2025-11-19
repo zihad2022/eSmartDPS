@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Client\Settings;
 
 use App\Http\Controllers\Controller;
-use App\Models\Client;
+use App\Domain\Clients\Models\Client;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller

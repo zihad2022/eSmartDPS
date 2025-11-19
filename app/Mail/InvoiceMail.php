@@ -3,7 +3,7 @@
 namespace App\Mail;
 
 use App\Models\AdminSetting;
-use App\Models\Invoice;
+use App\Domain\Billing\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;

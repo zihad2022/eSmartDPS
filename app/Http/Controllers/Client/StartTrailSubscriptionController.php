@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Client;
-use App\Models\Package;
-use App\Services\PackageService;
+use App\Domain\Clients\Models\Client;
+use App\Domain\Packages\Models\Package;
+use App\Domain\Clients\Services\PackageService;
 
 class StartTrailSubscriptionController extends Controller
 {

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Clients\Models\Client;
+use App\Domain\Packages\Models\Package;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Admin;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\Package;
+use App\Domain\Billing\Models\Invoice;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Route;
 
 class ClientRequest extends FormRequest
 {
@@ -17,7 +18,8 @@ class ClientRequest extends FormRequest
 
     public function rules(): array
     {
-        $clientId = $this->route('client')->id ?? null;
+        $client = $this->route('client');
+        $clientId = $client ? $client->id : null;
 
         return [
             'first_name' => ['required', 'string', 'max:255'],
@@ -44,14 +46,12 @@ class ClientRequest extends FormRequest
             'nid_card_front' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
             'nid_card_back' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
 
+            'package_id' => ['required', 'integer', 'exists:packages,id'],
             'division' => ['nullable', 'string', 'max:255'],
             'district' => ['nullable', 'string', 'max:255'],
             'address' => ['nullable', 'string'],
             'postal_code' => ['nullable', 'string', 'max:20'],
-
             'status' => ['required', 'boolean'],
-
-            'package_id' => ['required', 'exists:packages,id'],
         ];
     }
 }

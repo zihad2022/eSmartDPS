@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ClientRequest;
-use App\Models\Client;
-use App\Models\Package;
+use App\Domain\Clients\Models\Client;
+use App\Domain\Packages\Models\Package;
 use App\Repositories\Admin\ClientRepository;
 use App\Services\Admin\ClientService;
 use Illuminate\Http\RedirectResponse;

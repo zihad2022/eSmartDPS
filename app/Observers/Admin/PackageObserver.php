@@ -2,7 +2,7 @@
 
 namespace App\Observers\Admin;
 
-use App\Models\Package;
+use App\Domain\Packages\Models\Package;
 use App\Services\ActivityLogger;
 
 class PackageObserver

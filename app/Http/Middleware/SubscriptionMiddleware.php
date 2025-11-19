@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Client;
+use App\Domain\Clients\Models\Client;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

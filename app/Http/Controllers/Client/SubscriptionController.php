@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\Package;
-use App\Services\PackageService;
+use App\Domain\Clients\Models\Client;
+use App\Domain\Billing\Models\Invoice;
+use App\Domain\Packages\Models\Package;
+use App\Domain\Clients\Services\PackageService;
 
 class SubscriptionController extends Controller
 {

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Client;
-use App\Models\Invoice;
+use App\Domain\Clients\Models\Client;
+use App\Domain\Billing\Models\Invoice;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Http\Controllers\Controller;
-use App\Models\Client;
+use App\Domain\Clients\Models\Client;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\View\View;

@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ClientRequest;
-use App\Models\Client;
-use App\Models\Package;
+use App\Domain\Clients\Models\Client;
+use App\Domain\Packages\Models\Package;
 use App\Services\ImageService;
 use App\Services\MailService;
-use App\Services\PackageService;
+use App\Domain\Clients\Services\PackageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;

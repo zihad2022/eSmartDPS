@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
-use App\Models\Client;
-use App\Models\Invoice;
+use App\Domain\Clients\Models\Client;
+use App\Domain\Billing\Models\Invoice;
 use Illuminate\Http\Request;
 
 class InvoiceController extends Controller

@@ -23,10 +23,10 @@
             <!-- Call-to-Action Buttons -->
             <div class="flex flex-col md:flex-row justify-center gap-4">
                 <!-- View Invoice Button -->
-                <a href="{{ route('client.invoices.show', $invoice->id) }}"
+                {{-- <a href="{{ route('client.invoices.show', $invoice->id) }}"
                    class="flex-1 px-6 py-3 bg-accent-500 text-white rounded-xl font-semibold hover:bg-accent-600 transition duration-300">
                     View Invoice
-                </a>
+                </a> --}}
             
                 <!-- Return to Dashboard -->
                 <a href="{{ route('client.dashboard') }}"

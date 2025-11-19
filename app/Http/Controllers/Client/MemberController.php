@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\MemberRequest;
-use App\Models\Client;
+use App\Domain\Clients\Models\Client;
 use App\Models\ClientSetting;
 use App\Models\Member;
 use App\Services\ImageService;
