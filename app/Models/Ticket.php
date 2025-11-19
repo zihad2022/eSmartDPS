@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domain\Clients\Models\Client;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use Illuminate\Database\Eloquent\Model;
