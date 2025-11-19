@@ -52,18 +52,18 @@
             <x-slot:actions>
 
                 {{-- Search --}}
-                <x-admin.search-form :action="route('admin.clients.index')" :value="$searchQuery" placeholder="Search clients..." />
+                <x-search-form :action="route('admin.clients.index')" :value="$searchQuery" placeholder="Search clients..." />
 
                 {{-- Add --}}
-                <a href="{{ route('admin.clients.create') }}"
-                    class="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Add
-                    Client</a>
+                <x-buttons.button href="{{ route('admin.clients.create') }}">
+                    Add Client
+                </x-buttons.button>
 
                 {{-- Export --}}
-                <a href="{{ route('admin.clients.export', ['status' => $status]) }}"
-                    class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition">
-                    <i class="fas fa-download mr-2"></i> Export
-                </a>
+                <x-buttons.button variant="gray" href="{{ route('admin.clients.export', ['status' => $status]) }}"
+                    icon="fas fa-download">
+                    Export
+                </x-buttons.button>
 
             </x-slot:actions>
         </x-data-table>

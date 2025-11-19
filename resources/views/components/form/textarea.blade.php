@@ -7,7 +7,7 @@
 ])
 
 <div class="w-full">
-    <label for="{{ $name }}" class="block text-sm font-medium text-primary-700 mb-2">
+    <label for="{{ $name }}" class="block text-sm font-medium text-primary-700">
         {{ $label }}
         @if ($required)
             <span class="text-red-500">*</span>
