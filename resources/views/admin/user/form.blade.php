@@ -31,36 +31,50 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
             <x-form.input name="phone" type="tel" label="Phone" :value="old('phone', $user->phone ?? '')" placeholder="Phone number" />
             <div>
-                <x-form.input name="password" type="password" label="Password" placeholder="Enter password"
-                    :required="!$editing" />
-                @if ($editing)
-                    <p class="text-xs text-gray-500 mt-1">
-                        Leave blank to keep the current password.
-                    </p>
-                @endif
+                <x-form.input name="password" type="password" label="Password" :placeholder="$editing ? 'Leave blank to keep the current password.' : 'Enter password'" :required="!$editing" />
             </div>
 
             <div>
                 <x-form.label for="role">Role</x-form.label>
-                <select name="role" id="role"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-accent-500">
-                    @foreach ($roles as $role)
-                        <option value="{{ $role->name }}"
-                            {{ old('role', isset($user) && $user->roles->isNotEmpty() ? $user->roles->first()->name : '') == $role->name ? 'selected' : '' }}>
-                            {{ ucfirst($role->name) }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('role')
-                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                @enderror
+
+                @if ($showStatus)
+                    {{-- Editable Select --}}
+                    <select name="role" id="role"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-accent-500">
+
+                        @foreach ($roles as $role)
+                            @if ($role->name !== 'super-admin')
+                                <option value="{{ $role->name }}"
+                                    {{ old('role', isset($user) && $user->roles->isNotEmpty() ? $user->roles->first()->name : '') == $role->name ? 'selected' : '' }}>
+                                    {{ ucfirst($role->name) }}
+                                </option>
+                            @endif
+                        @endforeach
+
+                    </select>
+
+                    @error('role')
+                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                @else
+                    {{-- Static Display (Non-clickable) --}}
+                    <div class="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-lg text-sm text-gray-700">
+                        {{ ucfirst($user->roles->first()->name ?? 'N/A') }}
+                    </div>
+
+                    {{-- Keep hidden field so the value still submits --}}
+                    <input type="hidden" name="role" value="{{ $user->roles->first()->name ?? '' }}">
+                @endif
             </div>
+
         </div>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
             {{-- Hide for super-admin --}}
             @if ($showStatus)
                 <div>
                     <x-form.label for="status">Status</x-form.label>
+
                     <select name="status" id="status"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-accent-500">
                         <option value="1" {{ old('status', $user->status ?? '1') == '1' ? 'selected' : '' }}>Active
@@ -68,13 +82,22 @@
                         <option value="0" {{ old('status', $user->status ?? '1') == '0' ? 'selected' : '' }}>
                             Inactive</option>
                     </select>
+
                     @error('status')
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+            @else
+                <div>
+                    <x-form.label for="status">Status</x-form.label>
+
+                    <p class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100">
+                        {{ ($user->status ?? 1) == 1 ? 'Active' : 'Inactive' }}
+                    </p>
+                </div>
             @endif
         </div>
-        
+
         {{-- Actions --}}
         <x-slot:footer>
             <x-buttons.button variant="gray" href="{{ route('admin.users.index') }}">
