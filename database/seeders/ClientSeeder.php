@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\Package\BillingCycle;
 use App\Domain\Clients\Models\Client;
-use App\Models\ClientPackage;
+use App\Domain\Clients\Models\ClientPackage;
 use App\Domain\Packages\Models\Package;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
