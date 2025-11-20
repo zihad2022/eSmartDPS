@@ -224,6 +224,7 @@ class MemberController extends Controller
     {
         authorize_owner($member);
 
+        $this->imageService->deleteImage($member->profile_photo);
         // -----------------------------
         // 1. Delete member
         // -----------------------------
