@@ -22,14 +22,28 @@ class Client extends Authenticatable
     use HasFactory;
 
     protected $fillable = [
-        'parent_id','user_id','password','first_name','last_name',
-        'profile_photo','email','phone','nid_number','nid_card_front',
-        'nid_card_back','division','district','address','postal_code',
-        'role','status',
+        'parent_id',
+        'user_id',
+        'password',
+        'first_name',
+        'last_name',
+        'profile_photo',
+        'email',
+        'phone',
+        'nid_number',
+        'nid_card_front',
+        'nid_card_back',
+        'division',
+        'district',
+        'address',
+        'postal_code',
+        'role',
+        'status',
     ];
 
     protected $hidden = [
-        'password','remember_token',
+        'password',
+        'remember_token',
     ];
 
     protected $casts = [
@@ -41,15 +55,46 @@ class Client extends Authenticatable
     /*--------------------------------
     | RELATIONSHIPS
     --------------------------------*/
-    public function parent() { return $this->belongsTo(Client::class, 'parent_id'); }
-    public function children(): HasMany { return $this->hasMany(Client::class, 'parent_id'); }
-    public function members(): HasMany { return $this->hasMany(Member::class); }
-    public function projects(): HasMany { return $this->hasMany(Project::class); }
-    public function payments(): HasManyThrough { return $this->hasManyThrough(Payment::class, Member::class); }
-    public function invoices(): HasMany { return $this->hasMany(Invoice::class); }
-    public function clientPackages(): HasMany { return $this->hasMany(ClientPackage::class); }
-    public function latestClientPackage(): HasOne { return $this->hasOne(ClientPackage::class)->latestOfMany(); }
-    
+    public function parent()
+    {
+        return $this->belongsTo(Client::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Client::class, 'parent_id');
+    }
+
+    public function members(): HasMany
+    {
+        return $this->hasMany(Member::class);
+    }
+
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    public function payments(): HasManyThrough
+    {
+        return $this->hasManyThrough(Payment::class, Member::class);
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function clientPackages(): HasMany
+    {
+        return $this->hasMany(ClientPackage::class);
+    }
+
+    public function latestClientPackage(): HasOne
+    {
+        return $this->hasOne(ClientPackage::class)->latestOfMany();
+    }
+
     public function activeClientPackage(): HasOne
     {
         return $this->hasOne(ClientPackage::class)
@@ -70,7 +115,10 @@ class Client extends Authenticatable
             ->where('ends_at', '<=', now());
     }
 
-    public function settings(): HasOne { return $this->hasOne(ClientSetting::class); }
+    public function settings(): HasOne
+    {
+        return $this->hasOne(ClientSetting::class);
+    }
 
     /*--------------------------------
     | BUSINESS LOGIC
@@ -88,9 +136,20 @@ class Client extends Authenticatable
         return $limit === 0 || $this->{$relation}()->count() < $limit;
     }
 
-    public function canAddUser(): bool { return $this->hasCapacity('users', 'user_limit'); }
-    public function canAddMember(): bool { return $this->hasCapacity('members', 'member_limit'); }
-    public function canAddProject(): bool { return $this->hasCapacity('projects', 'project_limit'); }
+    public function canAddUser(): bool
+    {
+        return $this->hasCapacity('users', 'user_limit');
+    }
+    
+    public function canAddMember(): bool
+    {
+        return $this->hasCapacity('members', 'member_limit');
+    }
+
+    public function canAddProject(): bool
+    {
+        return $this->hasCapacity('projects', 'project_limit');
+    }
 
     public function users()
     {
@@ -147,7 +206,7 @@ class Client extends Authenticatable
     {
         if (!$search) return $query;
         return $query->where(function ($q) use ($search) {
-            $fields = ['first_name','last_name','user_id','email','phone','nid_number','division','district','address','postal_code'];
+            $fields = ['first_name', 'last_name', 'user_id', 'email', 'phone', 'nid_number', 'division', 'district', 'address', 'postal_code'];
             foreach ($fields as $field) $q->orWhere($field, 'like', "%{$search}%");
         });
     }
