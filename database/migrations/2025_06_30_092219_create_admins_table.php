@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('phone')->unique();
             $table->string('profile_photo')->nullable();
             $table->boolean('status')->default(true);
+            $table->timestamp('last_login')->nullable();
             $table->timestamps();
         });
 
