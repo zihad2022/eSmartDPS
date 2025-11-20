@@ -23,7 +23,7 @@ class AdminSeeder extends Seeder
         Admin::create([
             'name' => 'ESmart Admin',
             'username' => 'esmartadmin',
-            'password' => Hash::make('admin123'),
+            'password' => Hash::make('password'),
             'email' => 'admin@mail.com',
             'phone' => '01710000003',
             'profile_photo' => null,
@@ -33,7 +33,7 @@ class AdminSeeder extends Seeder
         Admin::create([
             'name' => 'ESmart Manager',
             'username' => 'esmartmanager',
-            'password' => Hash::make('manager123'),
+            'password' => Hash::make('password'),
             'email' => 'manager@mail.com',
             'phone' => '01710000002',
             'profile_photo' => null,
