@@ -20,6 +20,7 @@ class Admin extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
         'status' => 'boolean',
+        'last_login' => 'datetime',
     ];
 
     public function scopeActive($query)
