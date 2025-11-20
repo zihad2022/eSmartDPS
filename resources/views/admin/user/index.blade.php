@@ -171,20 +171,26 @@
                                 </td>
 
                                 {{-- Last Login --}}
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-primary-600">—</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-primary-600">
+                                    {{ $user->last_login ? $user->last_login->format('M d, Y h:i A') : '—' }}
+                                </td>
 
                                 {{-- Created At --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-primary-600">
                                     {{ $user->created_at->format('M d, Y h:i A') }}</td>
 
                                 {{-- Status Badge --}}
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                {{-- <td class="px-6 py-4 whitespace-nowrap">
                                     <span
                                         class="px-2 py-1 text-xs font-medium rounded-full 
                                         {{ $user->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $user->status ? 'Active' : 'Inactive' }}
                                     </span>
+                                </td> --}}
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <livewire:user-status-toggle :admin="$user" :key="$user->id" />
                                 </td>
+
 
                                 {{-- Actions --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
