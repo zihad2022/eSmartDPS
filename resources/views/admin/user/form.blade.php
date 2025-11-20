@@ -14,6 +14,7 @@
     @endphp
 
     <x-slot:title>{{ $title }}</x-slot:title>
+
     <x-breadcrumb :items="$breadcrumbItems" />
 
     <x-form-card :title="$title" :action="$editing ? route('admin.users.update', $user->id) : route('admin.users.store')" :method="$editing ? 'PUT' : 'POST'" multipart>
