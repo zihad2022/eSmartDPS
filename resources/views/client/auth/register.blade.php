@@ -17,10 +17,14 @@
                                     Organization Details
                                 </h2>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                   <x-form.input name="organization_name" label="Organization Name" required placeholder="Organization Name"/>
-                                   <x-form.input name="short_name" label="Short Name" required placeholder="Short Name"/>
-                                   <x-form.input name="contact_email" label="Contact Email" required placeholder="Contact Email"/>
-                                   <x-form.input name="contact_phone" label="Contact Phone" required placeholder="Contact Phone"/>
+                                    <x-form.input name="organization_name" label="Organization Name" required
+                                        placeholder="Organization Name" />
+                                    <x-form.input name="short_name" label="Short Name" required
+                                        placeholder="Short Name" />
+                                    <x-form.input name="contact_email" label="Contact Email" required
+                                        placeholder="Contact Email" />
+                                    <x-form.input name="contact_phone" label="Contact Phone" required
+                                        placeholder="Contact Phone" />
                                 </div>
                             </div>
                             <!-- Admin Account Details -->
@@ -30,14 +34,16 @@
                                     Admin Account Details
                                 </h2>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <x-form.input name="first_name" label="First Name" required placeholder="First Name"/>
-                                    <x-form.input name="last_name" label="Last Name" required placeholder="Last Name"/>
+                                    <x-form.input name="first_name" label="First Name" required
+                                        placeholder="First Name" />
+                                    <x-form.input name="last_name" label="Last Name" required placeholder="Last Name" />
                                     <!-- Email full width -->
                                     <div class="md:col-span-2">
-                                        <x-form.input name="email" label="Email" required placeholder="Email"/>
+                                        <x-form.input name="email" label="Email" required placeholder="Email" />
                                     </div>
-                                    <x-form.input name="phone" label="Phone" required placeholder="Phone"/>
-                                    <x-form.input name="password" label="Password" type="password" required placeholder="Password"/>
+                                    <x-form.input name="phone" label="Phone" required placeholder="Phone" />
+                                    <x-form.input name="password" label="Password" type="password" required
+                                        placeholder="Password" />
                                 </div>
                             </div>
                         </form>
@@ -85,7 +91,8 @@
                             <div class="border-t pt-3">
                                 <div class="flex justify-between text-lg font-bold">
                                     <span>{{ $package->billing_cycle->label() }} Subscription</span>
-                                    <span id="totalAmount">{{ $settings->currency }} {{ number_format($package->price) }}</span>
+                                    <span id="totalAmount">{{ $settings->currency }}
+                                        {{ number_format($package->price) }}</span>
                                 </div>
                             </div>
                         </div>
