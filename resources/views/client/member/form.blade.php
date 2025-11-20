@@ -79,7 +79,7 @@
                     <x-form.input name="share_quantity" label="Share Quantity" type="number" min="0"
                         :value="old('share_quantity', $member->share_quantity ?? '')" placeholder="Enter share quantity" />
 
-                    <x-form.input name="profile_photo" label="Profile Photo" type="file" />
+                    <x-form.input name="profile_photo" label="Profile Photo" type="file" :previewUrl="$member->profile_photo_url ?? null"/>
                 </div>
 
                 {{-- ACTION BUTTONS --}}
