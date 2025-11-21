@@ -1,12 +1,9 @@
 <x-admin.layout.app>
 
     @php
-        /**
-         * ============================
-         * Page Context Setup
-         * ============================
-         */
+
         $status = request('status');
+
         $searchQuery = request('search');
 
         // Page Title
@@ -21,6 +18,7 @@
         if ($status) {
             $breadcrumbItems[] = ['label' => $pageTitle, 'url' => route('admin.clients.index', ['status' => $status])];
         }
+
     @endphp
 
     <x-slot:title>{{ $pageTitle }}</x-slot:title>
@@ -67,6 +65,7 @@
 
             </x-slot:actions>
         </x-data-table>
+        
     </div>
 
 </x-admin.layout.app>
