@@ -11,6 +11,7 @@ use App\Http\Controllers\Client\Auth\{
 };
 use App\Http\Controllers\Client\{
     BkashPaymentController,
+    CheckoutController,
     DashboardController,
     InvoiceController,
     LedgerCategoryController,
@@ -30,7 +31,6 @@ use App\Http\Controllers\Client\{
     Settings\ShareController,
     SslcommerzPaymentController,
     StartPaidSubscriptionController,
-    StartSubscriptionController,
     StartTrailSubscriptionController,
     SubscriptionController,
     SubscriptionPaymentController,
@@ -93,9 +93,7 @@ Route::prefix('client')->name('client.')->group(function () {
     Route::middleware('client')->group(function () {
 
         // Dashboard (requires active subscription)
-        Route::get('/', DashboardController::class)
-            ->name('dashboard')
-            ->middleware('subscription');
+        Route::get('/', DashboardController::class)->name('dashboard')->middleware('subscription');
 
         /**
          * -------------------------
@@ -121,8 +119,7 @@ Route::prefix('client')->name('client.')->group(function () {
             Route::post('process/{invoice}', [SubscriptionPaymentController::class, 'processPayment'])->name('process');
 
             // bKash callback
-            Route::match(['get', 'post'], 'bkash/callback', [BkashPaymentController::class, 'callback'])
-                ->name('bkash.callback');
+            Route::match(['get', 'post'], 'bkash/callback', [BkashPaymentController::class, 'callback'])->name('bkash.callback');
 
             // SSLCommerz
             Route::get('sslcommerz/pay/{invoice}', [SslcommerzPaymentController::class, 'pay'])->name('sslcommerz.pay');
@@ -202,6 +199,9 @@ Route::prefix('client')->name('client.')->group(function () {
                 Route::put('backup-security', [BackupSecurityController::class, 'update'])->name('backup-security.update');
             });
         });
+
+        // Checkout 
+        Route::get('checkout/{invoice}', [CheckoutController::class, 'create'])->name('checkout.create');
     });
 });
 
