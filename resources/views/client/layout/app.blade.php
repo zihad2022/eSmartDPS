@@ -5,17 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    {{-- Laravel Vite (CSS + JS) --}}
+    {{-- Vite Assets --}}
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/custom-styles.css'])
 
-    {{-- Dynamic Page Title --}}
     <title>{{ $title ?? 'Dashboard' }} - {{ $settings->site_name ?? config('app.name') }}</title>
 
     {{-- Fonts & Icons --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    {{-- Vendor Scripts --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ asset('assets/js/countdown.js') }}"></script>
 </head>
@@ -23,171 +22,164 @@
 <body class="font-sans bg-gray-50 text-primary-900">
     <div class="flex h-screen bg-gray-100">
 
-        {{-- Mobile Overlay (background when sidebar opens on small screens) --}}
+        {{-- Mobile Sidebar Overlay --}}
         <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
 
         {{-- Sidebar --}}
         @include('client.layout.partials.sidebar')
 
         {{-- Main Content --}}
-        <main class="flex-1 md:ml-0 transition-all duration-300">
+        <main class="flex-1 transition-all duration-300">
 
-            {{-- Top Navigation Bar --}}
             @include('client.layout.partials.topbar')
+
+            {{-- Payment Banner (Dynamic) --}}
             @if (!request()->is('client/checkout*'))
                 @php
                     $client = Auth::guard('client')->user();
-                    $latestInvoice = $client?->invoices()->latest()->first();
+                    $latestUnpaidInvoice = $client?->invoices()->where('status', \App\Enums\InvoiceStatus::UNPAID)->latest()->first();
                 @endphp
 
-                @if ($latestInvoice && $latestInvoice->status == \App\Enums\InvoiceStatus::UNPAID)
+                @if ($latestUnpaidInvoice)
                     <x-client.banners.payment-required-banner />
                 @endif
             @endif
 
-            {{-- Page Content (dynamic) --}}
-            @if (url()->current() === url('client/subscription/expired'))
-                <div>
-                    {{ $slot }}
-                </div>
-            @else
-                <div class="p-4 md:p-6">
-                    {{ $slot }}
-                </div>
-            @endif
+            {{-- Page Content --}}
+            <div class="{{ url()->current() === url('client/subscription/expired') ? '' : 'p-4 md:p-6' }}">
+                {{ $slot }}
+            </div>
 
-            {{-- Footer --}}
             @include('client.layout.partials.footer')
+
         </main>
 
     </div>
 
-    {{-- App Scripts --}}
+    {{-- Layout Scripts --}}
     <script>
-        // Sidebar toggle (mobile view)
+        /* -------------------------------
+         * Sidebar Handling (Mobile)
+         * ------------------------------ */
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
         const mobileOverlay = document.getElementById('mobileOverlay');
         const closeSidebar = document.getElementById('closeSidebar');
 
-        function openSidebar() {
-            sidebar.classList.add('active');
-            mobileOverlay.classList.remove('hidden');
+        function toggleSidebar(show) {
+            sidebar.classList.toggle('active', show);
+            mobileOverlay.classList.toggle('hidden', !show);
         }
 
-        function closeSidebarFunc() {
-            sidebar.classList.remove('active');
-            mobileOverlay.classList.add('hidden');
-        }
+        sidebarToggle?.addEventListener('click', () => toggleSidebar(true));
+        closeSidebar?.addEventListener('click', () => toggleSidebar(false));
+        mobileOverlay?.addEventListener('click', () => toggleSidebar(false));
 
-        sidebarToggle.addEventListener('click', openSidebar);
-        closeSidebar.addEventListener('click', closeSidebarFunc);
-        mobileOverlay.addEventListener('click', closeSidebarFunc);
-
-        // Dropdown toggle (sidebar menus)
-        document.querySelectorAll('.dropdown-toggle').forEach(button => {
-            button.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const dropdown = document.getElementById(targetId);
-                const chevron = this.querySelector('.fa-chevron-down');
+        /* -------------------------------
+         * Sidebar Dropdown Menus
+         * ------------------------------ */
+        document.querySelectorAll('.dropdown-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = document.getElementById(btn.dataset.target);
+                const rotationIcon = btn.querySelector('.fa-chevron-down');
 
                 // Close all other dropdowns first
                 document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                    if (menu.id !== targetId) {
+                    if (menu !== target) {
                         menu.classList.remove('active');
-                        const otherChevron = document.querySelector(
-                            `[data-target="${menu.id}"] .fa-chevron-down`);
-                        if (otherChevron) {
-                            otherChevron.style.transform = 'rotate(0deg)';
-                        }
+                        const icon = document.querySelector(`[data-target="${menu.id}"] .fa-chevron-down`);
+                        if (icon) icon.style.transform = 'rotate(0deg)';
                     }
                 });
 
                 // Toggle current dropdown
-                dropdown.classList.toggle('active');
-                chevron.style.transform = dropdown.classList.contains('active') ? 'rotate(180deg)' :
-                    'rotate(0deg)';
+                target.classList.toggle('active');
+                rotationIcon.style.transform = target.classList.contains('active')
+                    ? 'rotate(180deg)' : 'rotate(0deg)';
             });
         });
 
-        // Notification dropdown
+        /* -------------------------------
+         * Notification & Profile Menus
+         * ------------------------------ */
         const notificationBtn = document.getElementById('notificationBtn');
         const notificationDropdown = document.getElementById('notificationDropdown');
-        notificationBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            notificationDropdown.classList.toggle('active');
-            profileDropdown.classList.remove('active');
-        });
-
-        // Profile dropdown
         const profileBtn = document.getElementById('profileBtn');
         const profileDropdown = document.getElementById('profileDropdown');
-        profileBtn.addEventListener('click', function(e) {
+
+        notificationBtn?.addEventListener('click', e => {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('active');
+            profileDropdown?.classList.remove('active');
+        });
+
+        profileBtn?.addEventListener('click', e => {
             e.stopPropagation();
             profileDropdown.classList.toggle('active');
-            notificationDropdown.classList.remove('active');
+            notificationDropdown?.classList.remove('active');
         });
 
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function() {
-            notificationDropdown.classList.remove('active');
-            profileDropdown.classList.remove('active');
+        document.addEventListener('click', () => {
+            notificationDropdown?.classList.remove('active');
+            profileDropdown?.classList.remove('active');
         });
+
+        /* -------------------------------
+         * Charts Initialization
+         * ------------------------------ */
+        const renderChart = (id, config) => {
+            const canvas = document.getElementById(id);
+            if (canvas) {
+                new Chart(canvas.getContext('2d'), config);
+            }
+        };
 
         // Financial Chart
-        const ctx = document.getElementById('financialChart').getContext('2d');
-        const financialChart = new Chart(ctx, {
+        renderChart('financialChart', {
             type: 'line',
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
+                datasets: [
+                    {
                         label: 'Income',
                         data: [200000, 250000, 220000, 280000, 320000, 350000],
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        tension: 0.3,
-                        fill: true
+                        fill: true,
+                        tension: 0.3
                     },
                     {
                         label: 'Expenses',
                         data: [80000, 95000, 70000, 110000, 130000, 120000],
                         borderColor: '#ef4444',
                         backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        tension: 0.3,
-                        fill: true
+                        fill: true,
+                        tension: 0.3
                     },
                     {
                         label: 'Loans',
                         data: [50000, 75000, 60000, 85000, 90000, 82000],
                         borderColor: '#f59e0b',
                         backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        tension: 0.3,
-                        fill: true
+                        fill: true,
+                        tension: 0.3
                     }
                 ]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    }
-                },
+                plugins: { legend: { position: 'top' } },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            callback: value => '₹' + (value / 1000) + 'K'
-                        }
+                        ticks: { callback: value => '৳' + (value / 1000) + 'K' }
                     }
                 }
             }
         });
 
-        // Loan Distribution Chart
-        const loanCtx = document.getElementById('loanChart').getContext('2d');
-        const loanChart = new Chart(loanCtx, {
+        // Loan Chart
+        renderChart('loanChart', {
             type: 'doughnut',
             data: {
                 labels: ['Quick Loans', 'Personal Loans', 'Business Loans', 'Emergency Loans'],
@@ -195,23 +187,14 @@
                     data: [35, 25, 25, 15],
                     backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'],
                     borderWidth: 2,
-                    borderColor: '#ffffff'
+                    borderColor: '#fff'
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
         });
 
         // Member Growth Chart
-        const memberCtx = document.getElementById('memberGrowthChart').getContext('2d');
-        const memberGrowthChart = new Chart(memberCtx, {
+        renderChart('memberGrowthChart', {
             type: 'bar',
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -224,26 +207,15 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 2
-                        }
-                    }
+                    y: { beginAtZero: true, ticks: { stepSize: 2 } }
                 }
             }
         });
     </script>
 
-    {{-- Stack for extra scripts (pushed from child views) --}}
     @stack('scripts')
+
 </body>
 
 </html>
