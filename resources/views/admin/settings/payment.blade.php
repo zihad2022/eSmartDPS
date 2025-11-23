@@ -1,33 +1,5 @@
-{{-- 
-|--------------------------------------------------------------------------
-| Admin Payment Settings Page
-|--------------------------------------------------------------------------
-| This view allows the admin to configure:
-| - General payment settings (currency, late fees)
-| - bKash payment gateway settings
-| - UddoktaPay payment gateway settings
-| - SSLCommerz payment gateway settings
-|
-| Structure:
-|   1. Flash messages for success/error
-|   2. Form with multiple sections
-|   3. Each section saves individually via "section" parameter
-|
-| Notes:
-| - Uses reusable Blade components for form fields: <x-form.input> and <x-form.select>
-| - Settings values are loaded from $settings (database or config)
-| - Old input values are preserved using old()
---}}
-
 <x-admin.settings.layout>
 
-    {{-- 
-    --------------------------------------------------------------------------
-    | FLASH MESSAGES
-    | Shows success or error messages if available in session
-    | Uses custom <x-flash-message> component for consistency
-    --------------------------------------------------------------------------
-    --}}
     @if (session('success') || session('error'))
         <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
     @endif
@@ -44,11 +16,7 @@
             @csrf
             @method('PUT')
 
-            {{-- 
-            ==================================================================
-            ✅ 1. GENERAL PAYMENT SETTINGS
-            ==================================================================
-            --}}
+            {{-- GENERAL PAYMENT SETTINGS --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
                 <h3 class="text-lg font-semibold text-primary-800 mb-4 border-b pb-2">
                     General Payment Settings
@@ -93,11 +61,7 @@
                 </div>
             </div>
 
-            {{-- 
-==================================================================
-✅ 2. BKASH PAYMENT SETTINGS
-==================================================================
---}}
+            {{-- BKASH PAYMENT SETTINGS --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
                 <h3 class="text-lg font-semibold text-primary-800 mb-4 border-b pb-2">bKash Settings</h3>
 
@@ -151,34 +115,7 @@
                 </div>
             </div>
 
-            {{-- 
-            ==================================================================
-            ✅ 3. UDDOKTAPAY SETTINGS
-            ==================================================================
-            --}}
-            <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
-                <h3 class="text-lg font-semibold text-primary-800 mb-4 border-b pb-2">UddoktaPay Settings</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <x-form.input name="uddoktapay_api_key" label="API Key" :value="old('uddoktapay_api_key', $settings->uddoktapay_api_key ?? '')"
-                        placeholder="Enter UddoktaPay API Key" />
-                    <x-form.input name="uddoktapay_secret" label="Secret" :value="old('uddoktapay_secret', $settings->uddoktapay_secret ?? '')"
-                        placeholder="Enter UddoktaPay Secret" />
-                    <x-form.input name="uddoktapay_callback_url" label="Callback URL" :value="old('uddoktapay_callback_url', $settings->uddoktapay_callback_url ?? '')"
-                        placeholder="Enter UddoktaPay Callback URL" />
-                </div>
-                <div class="flex justify-end pt-4">
-                    <button type="submit" name="section" value="uddoktapay"
-                        class="px-4 py-2 bg-accent-500 text-white text-sm rounded-lg hover:bg-accent-600 transition">
-                        Save UddoktaPay Settings
-                    </button>
-                </div>
-            </div>
-
-            {{-- 
-            ==================================================================
-            ✅ 4. SSLCOMMERZ SETTINGS
-            ==================================================================
-            --}}
+            {{-- SSLCOMMERZ SETTINGS --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
                 <h3 class="text-lg font-semibold text-primary-800 mb-4 border-b pb-2">SSLCommerz Settings</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
