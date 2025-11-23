@@ -34,6 +34,16 @@
 
             {{-- Top Navigation Bar --}}
             @include('client.layout.partials.topbar')
+            @if (!request()->is('client/checkout*'))
+                @php
+                    $client = Auth::guard('client')->user();
+                    $latestInvoice = $client?->invoices()->latest()->first();
+                @endphp
+
+                @if ($latestInvoice && $latestInvoice->status == \App\Enums\InvoiceStatus::UNPAID)
+                    <x-client.banners.payment-required-banner />
+                @endif
+            @endif
 
             {{-- Page Content (dynamic) --}}
             @if (url()->current() === url('client/subscription/expired'))
