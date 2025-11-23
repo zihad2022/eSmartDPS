@@ -57,32 +57,10 @@
                         </dd>
                     </div>
 
-                    {{-- Price --}}
-                    <div class="flex justify-between">
-                        <dt class="font-medium">Price</dt>
-                        <dd class="font-semibold">{{ number_format($package->price, 2) }} USD</dd>
-                    </div>
-
-                    {{-- Discount --}}
-                    @if ($package->discount_value > 0)
-                        <div class="flex justify-between text-green-600">
-                            <dt class="font-medium">Discount</dt>
-                            <dd class="font-semibold">
-                                -
-                                @if ($package->discount_type === \App\Enums\Package\DiscountType::FIXED)
-                                    {{ number_format($package->discount_amount, 2) }} USD
-                                @elseif ($package->discount_type === \App\Enums\Package\DiscountType::PERCENT)
-                                    {{ $package->discount_value }}% ({{ number_format($package->discount_amount, 2) }}
-                                    USD)
-                                @endif
-                            </dd>
-                        </div>
-                    @endif
-
-                    {{-- Total --}}
+                    {{-- Total Price --}}
                     <div class="flex justify-between font-bold text-gray-900 border-t pt-3 mt-2">
                         <dt>Total</dt>
-                        <dd>{{ number_format($package->total_after_discount, 2) }} USD</dd>
+                        <dd>{{ number_format($package->price, 2) }} USD</dd>
                     </div>
 
                     {{-- Trial --}}
@@ -139,7 +117,6 @@
             {{-- Action Buttons --}}
             <div class="flex flex-col md:flex-row gap-4">
 
-                <!-- Always allow user to access dashboard -->
                 <a href="{{ route('client.dashboard') }}"
                     class="flex-1 py-3 px-6 bg-accent-500 text-white rounded-xl font-semibold hover:bg-accent-600 transition flex items-center justify-center">
                     <i class="fas fa-play mr-2"></i>
