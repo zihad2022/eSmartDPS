@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\InvoiceMail;
-use App\Domain\Invoices\Invoice;
+use App\Domain\Invoices\Models\Invoice;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 

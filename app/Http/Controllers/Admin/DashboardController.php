@@ -7,7 +7,7 @@ use App\Domain\Packages\Models\Package;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Admin;
-use App\Domain\Invoices\Invoice;
+use App\Domain\Invoices\Models\Invoice;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller

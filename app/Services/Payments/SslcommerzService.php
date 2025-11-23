@@ -2,7 +2,7 @@
 
 namespace App\Services\Payments;
 
-use App\Domain\Invoices\Invoice;
+use App\Domain\Invoices\Models\Invoice;
 use App\Models\AdminSetting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;

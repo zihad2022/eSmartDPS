@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
-use App\Domain\Invoices\Invoice;
+use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Packages\Models\Package;
 use Illuminate\Http\Request;
 use App\Enums\InvoiceStatus;

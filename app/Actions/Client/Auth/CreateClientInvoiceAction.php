@@ -2,7 +2,7 @@
 
 namespace App\Actions\Client\Auth;
 
-use App\Domain\Invoices\Invoice;
+use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Packages\Models\Package;
 use App\Enums\InvoiceStatus;

@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Invoice;
+use App\Domain\Invoices\Models\Invoice;
 use App\Models\Ledger;
 use App\Models\Member;
 use App\Domain\Packages\Models\Package;

@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Invoice;
+use App\Domain\Invoices\Models\Invoice;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 
