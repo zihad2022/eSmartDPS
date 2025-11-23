@@ -22,7 +22,6 @@
                         <th class="px-4 py-3">Amount</th>
                         <th class="px-4 py-3">Payment Method</th>
                         <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3">Due Date</th>
                         <th class="px-4 py-3">Paid At</th>
                         <th class="px-4 py-3">Generated Date</th>
                     </tr>
@@ -52,9 +51,6 @@
                                 <span class="px-2 py-1 text-xs font-medium rounded-full {{ $payment->status->color() }}">
                                     {{ $payment->status->label() }}
                                 </span>
-                            </td>
-                            <td class="px-4 py-3 text-gray-500">
-                                {{ \Carbon\Carbon::parse($payment->due_date)->format('d M Y') }}
                             </td>
                             <td class="px-4 py-3 text-gray-500">
                                 {{ $payment->paid_at ? \Carbon\Carbon::parse($payment->paid_at)->format('d M Y') : '—' }}
