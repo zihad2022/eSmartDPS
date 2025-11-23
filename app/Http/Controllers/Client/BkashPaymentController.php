@@ -111,8 +111,11 @@ class BkashPaymentController extends Controller
         ]);
 
         if (($verification['statusCode'] ?? null) === '0000' &&
-            ($verification['transactionStatus'] ?? null) === 'Completed') {
+            ($verification['transactionStatus'] ?? null) === 'Completed'
+        ) {
 
+            Log::info("[bKash Callback] Payment verified as completed");
+            
             $invoice->update([
                 'status'         => InvoiceStatus::PAID,
                 'paid_at'        => now(),
