@@ -5,7 +5,7 @@ namespace App\Domain\Clients\Models;
 use App\Models\Member;
 use App\Models\Project;
 use App\Models\Payment;
-use App\Domain\Billing\Models\Invoice;
+use App\Domain\Invoices\Invoice;
 use App\Domain\Clients\Models\ClientPackage;
 use App\Models\ClientSetting;
 use Illuminate\Database\Eloquent\Builder;

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
 use App\Domain\Clients\Models\Client;
-use App\Domain\Billing\Models\Invoice;
+use App\Domain\Invoices\Invoice;
 use App\Domain\Packages\Models\Package;
 use App\Domain\Clients\Services\PackageService;
 

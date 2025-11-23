@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
-use App\Domain\Billing\Models\Invoice;
+use App\Domain\Invoices\Invoice;
 use App\Domain\Clients\Services\PackageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;

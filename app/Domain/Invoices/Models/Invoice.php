@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Billing\Models;
+namespace App\Domain\Invoices\Models;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Packages\Models\Package;

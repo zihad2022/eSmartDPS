@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\InvoiceStatus;
 use App\Domain\Clients\Models\Client;
-use App\Domain\Billing\Models\Invoice;
+use App\Domain\Invoices\Invoice;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;

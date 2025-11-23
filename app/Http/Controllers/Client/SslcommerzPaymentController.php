@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
-use App\Domain\Billing\Models\Invoice;
+use App\Domain\Invoices\Invoice;
 use App\Domain\Clients\Services\PackageService;
 use App\Services\Payments\SslcommerzService;
 use Illuminate\Http\Request;
