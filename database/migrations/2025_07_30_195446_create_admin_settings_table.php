@@ -53,12 +53,6 @@ return new class extends Migration
             $table->decimal('bkash_charge', 10, 2)->default(0.00); // use decimal instead of string for money
             $table->boolean('bkash_status')->default(false); // true = active, false = disabled
 
-
-            // UddoktaPay
-            $table->string('uddoktapay_api_key')->nullable();
-            $table->string('uddoktapay_secret')->nullable();
-            $table->string('uddoktapay_callback_url')->nullable();
-
             // SSLCommerz
             $table->string('sslcommerz_store_id')->nullable();
             $table->string('sslcommerz_store_password')->nullable();
