@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Client\Auth;
 
+use App\Domain\Billing\Models\Invoice;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\AdminSetting;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Packages\Models\Package;
 use App\Domain\Clients\Services\PackageService;
+use App\Enums\InvoiceStatus;
 use App\Services\MailService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -57,7 +59,7 @@ class RegisterController extends Controller
             'last_name'  => $request->last_name,
             'email'      => $request->email,
             'phone'      => $request->phone,
-            'password'   => $request->password, // TODO: consider hashing
+            'password'   => $request->password, // TODO: Hash this later
             'status'     => true,
             'role'       => 'super_admin',
         ]);
@@ -79,16 +81,59 @@ class RegisterController extends Controller
             'currency'          => 'BDT',
         ]);
 
+
+        // =====================================================
+        // 4. Generate Invoice (Directly Inside Controller)
+        // =====================================================
+
+        $billingStart = now()->toDateString();
+        $billingEnd   = now()->addMonth()->toDateString();       // 1 Month package cycle
+        $nextInvoice  = now()->addMonth()->toDateTimeString();   // Next invoice date
+
+        $invoiceNumber = generate_invoice_number();          // Unique invoice ID
+
+        $invoice = Invoice::create([
+            'client_id'           => $client->id,
+            'package_id'          => $package->id,
+
+            // Snapshot
+            'package_name'        => $package->name,
+            'package_description' => $package->description,
+
+            // Billing
+            'billing_start'       => $billingStart,
+            'billing_end'         => $billingEnd,
+
+            // Invoice info
+            'invoice_number'      => $invoiceNumber,
+            'invoice_amount'      => $package->price,
+            'status'              => InvoiceStatus::UNPAID,  
+            'paid_at'             => null,
+            'next_invoice_at'     => $nextInvoice,
+
+            // Payment info (null for now)
+            'payment_reference'   => null,
+            'payment_id'          => null,
+            'trx_id'              => null,
+            'payment_method'      => null,
+            'wallet_address'      => null,
+        ]);
+
+
         // -----------------------------
-        // 4. Send credentials via email
+        // 5. Send credentials via email
         // -----------------------------
         $this->mailService->sendMail($client, $request->password);
 
         // -----------------------------
-        // 5. Redirect to success page
+        // 6. Redirect to success page
         // -----------------------------
-        return redirect()->route('client.auth.success', ['id' => $package->id]);
+        return redirect()->route('client.auth.success', [
+            'id'       => $package->id,
+            'invoice'  => $invoice->id,
+        ]);
     }
+
 
     /**
      * Show success page after registration.
