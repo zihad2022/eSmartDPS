@@ -134,13 +134,8 @@
                         {{-- Submit Button --}}
                         <button type="submit" form="registrationForm"
                             class="w-full bg-accent-500 text-white py-3 px-6 rounded-lg font-semibold mb-4 hover:bg-accent-600 transition">
-                            @if ($package->has_trial)
-                                <i class="fas fa-play mr-2"></i>
-                                Start Free Trial
-                            @else
-                                <i class="fas fa-lock mr-2"></i>
-                                Complete Payment
-                            @endif
+                            <i class="fas fa-user-plus mr-2"></i>
+                            Register & Continue
                         </button>
 
                         {{-- Security Info --}}
@@ -153,7 +148,7 @@
                 </div>
 
             </div>
-            
+
         </div>
     </section>
 </x-app-layout>
