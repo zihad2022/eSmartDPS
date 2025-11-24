@@ -56,12 +56,6 @@ class SettingsSeeder extends Seeder
             'bkash_charge'     => 0.00,
             'bkash_status'     => false, // false = disabled, true = active
 
-
-            // UddoktaPay
-            'uddoktapay_api_key' => 'uddokta_test_api_key',
-            'uddoktapay_secret' => 'uddokta_test_secret',
-            'uddoktapay_callback_url' => 'https://esmartdps.com/callback/uddoktapay',
-
             // SSLCommerz
             'sslcommerz_store_id' => 'test_store_id',
             'sslcommerz_store_password' => 'test_store_pass',
