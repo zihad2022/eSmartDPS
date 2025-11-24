@@ -68,7 +68,12 @@
                         </div>
                     </div>
                 </div>
-
+                @if (session()->has('impersonate_admin_id'))
+                    <a href="{{ route('admin.client.impersonate.stop') }}"
+                        class="px-3 py-2 bg-red-600 text-white rounded">
+                        Return to Admin
+                    </a>
+                @endif
                 <!-- User Menu -->
                 <div class="relative">
                     <button id="profileBtn" class="flex items-center space-x-2 focus:outline-none">
@@ -109,6 +114,7 @@
                                     </button>
                                 </form>
                             </div>
+
                         </div>
                     </div>
                 </div>
