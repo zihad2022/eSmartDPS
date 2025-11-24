@@ -108,7 +108,7 @@
         <x-data-table
             :page-title="$pageTitle"
             :rows="$invoices"
-            :headers="['SL','Invoice No','Client Name','Package','Amount','Payment Method','Status','Due Date','Paid At','Generated Date','Actions']"
+            :headers="['SL','Invoice No','Client Name','Package','Amount','Payment Method','Status','Paid At','Generated Date','Actions']"
             row-view="admin.invoice.partials.row"
         >
             <x-slot:actions>
