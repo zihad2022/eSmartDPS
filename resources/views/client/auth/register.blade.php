@@ -1,4 +1,5 @@
 <x-app-layout>
+
     {{-- Page Title --}}
     <x-slot:title>Register</x-slot:title>
 
@@ -34,6 +35,7 @@
                                     <x-form.input name="contact_phone" label="Contact Phone" required
                                         placeholder="Contact Phone" />
                                 </div>
+                                
                             </div>
 
                             {{-- Admin Account Details --}}
@@ -59,6 +61,7 @@
                                     <x-form.input name="phone" label="Phone" required placeholder="Phone" />
                                     <x-form.input name="password" label="Password" type="password" required
                                         placeholder="Password" />
+
                                 </div>
                             </div>
 
@@ -151,4 +154,5 @@
 
         </div>
     </section>
+
 </x-app-layout>
