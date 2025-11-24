@@ -13,12 +13,6 @@
     </span>
 </td>
 <td class="px-6 py-4 text-sm text-primary-600">
-    @php($isPastDue = $invoice->due_date && $invoice->due_date->isPast() && !$invoice->paid_at)
-    <span class="px-2 py-1 text-xs font-medium rounded-full {{ $isPastDue ? 'text-red-600 bg-red-100' : 'text-green-600 bg-green-100' }}">
-        {{ $invoice->due_date?->format('M d, Y') ?? '-' }}
-    </span>
-</td>
-<td class="px-6 py-4 text-sm text-primary-600">
     <span class="px-2 py-1 text-xs font-medium rounded-full {{ $invoice->paid_at ? 'text-green-600 bg-green-100' : 'text-gray-600 bg-gray-100' }}">
         {{ $invoice->paid_at?->format('M d, Y') ?? '-' }}
     </span>
