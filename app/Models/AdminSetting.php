@@ -45,11 +45,6 @@ class AdminSetting extends Model
         'bkash_username',
         'bkash_password',
 
-        // UddoktaPay
-        'uddoktapay_api_key',
-        'uddoktapay_secret',
-        'uddoktapay_callback_url',
-
         // SSLCommerz
         'sslcommerz_store_id',
         'sslcommerz_store_password',
