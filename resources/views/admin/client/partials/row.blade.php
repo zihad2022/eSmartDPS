@@ -23,14 +23,22 @@
 </td>
 <td class="px-6 py-4 text-sm font-medium">
     <div class="flex space-x-2">
-        <a href="{{ route('admin.clients.show', $client->id) }}" class="text-accent-600 hover:text-accent-900"
-            title="View">
+
+        {{-- View --}}
+        <a href="{{ route('admin.clients.show', $client->id) }}"
+           class="text-accent-600 hover:text-accent-900"
+           title="View">
             <i class="fas fa-eye"></i>
         </a>
-        <a href="{{ route('admin.clients.edit', $client->id) }}" class="text-secondary-600 hover:text-secondary-900"
-            title="Edit">
+
+        {{-- Edit --}}
+        <a href="{{ route('admin.clients.edit', $client->id) }}"
+           class="text-secondary-600 hover:text-secondary-900"
+           title="Edit">
             <i class="fas fa-edit"></i>
         </a>
+
+        {{-- Delete --}}
         <form method="POST" action="{{ route('admin.clients.destroy', $client->id) }}" class="delete-form">
             @csrf
             @method('DELETE')
@@ -38,6 +46,16 @@
                 <i class="fas fa-trash"></i>
             </button>
         </form>
+
+        {{-- Login as Client --}}
+        <a href="{{ route('admin.client.impersonate', $client->id) }}" target="_blank"
+           class="text-yellow-500 hover:text-yellow-700"
+           title="Login as Client">
+            <i class="fas fa-user-shield"></i>
+        </a>
+
     </div>
+
+    {{-- Confirmation modal component --}}
     <x-confirm-modal />
 </td>
