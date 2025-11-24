@@ -7,28 +7,25 @@ use App\Actions\Client\Auth\CreateClientInvoiceAction;
 use App\Actions\Client\Auth\GetRegistrationDataAction;
 use App\Actions\Client\Auth\SendClientCredentialsAction;
 use App\Actions\Client\Auth\StartClientPackageAction;
-use App\Domain\Clients\Models\Client;
 use App\Domain\Packages\Models\Package;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\ClientRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class RegisterController extends Controller
 {
     /**
-     * Show registration form for a client with selected package.
+     * Display registration page.
      */
     public function create(GetRegistrationDataAction $action): View
     {
-        $data = $action->execute(request('package'));
-        return view('client.auth.register', $data);
+        return view('client.auth.register', $action->execute(request('package')));
     }
 
     /**
-     * Store a new client and start the selected package.
+     * Register a new client and initialize subscription.
      */
     public function store(
         ClientRequest $request,
@@ -37,41 +34,40 @@ class RegisterController extends Controller
         CreateClientInvoiceAction $createInvoice,
         SendClientCredentialsAction $sendCredentials
     ): RedirectResponse {
-        Log::info('method store is called');
-        // 1. Create client
+        
+        Log::info('Client registration initiated');
+
+        // Create client
         $client = $createClient->execute($request->only([
-            'first_name',
-            'last_name',
-            'email',
-            'phone',
-            'password',
+            'first_name', 'last_name', 'email', 'phone', 'password'
         ]));
 
-        // 2. Start package and update client settings
+        // Load package with a single DB hit
         $package = Package::findOrFail($request->package_id);
+
+        // Start subscription package
         $startPackage->execute($client, $package);
 
-        // if package are paid than only generate invoice otherwise skip invoice generation
-        if (!$package->has_trial || $package->trial_days == 0) {
-            // 3. Create invoice
-            $invoice = $createInvoice->execute($client, $package);
+        // Create invoice only for paid packages
+        if (!$package->has_trial || $package->trial_days === 0) {
+            $createInvoice->execute($client, $package);
         }
 
-        // 4. Send credentials
+        // Send login credentials
         $sendCredentials->execute($client, $request->password);
 
-        // 5. Redirect to success page
         return redirect()->route('client.auth.success', [
             'id' => $package->id,
         ]);
     }
 
     /**
-     * Show success page after registration.
+     * Registration success screen.
      */
     public function success(int $id): View
     {
-        $package = Package::findOrFail($id);
-        return view('client.auth.success', compact('package'));
+        return view('client.auth.success', [
+            'package' => Package::findOrFail($id),
+        ]);
     }
 }
