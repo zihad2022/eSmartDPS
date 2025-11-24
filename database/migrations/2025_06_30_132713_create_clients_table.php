@@ -12,41 +12,68 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('clients', function (Blueprint $table) {
+            /**
+             * Primary & Foreign Keys
+             */
             $table->id();
+            $table->foreignId('parent_id')
+                ->nullable()
+                ->constrained('clients')
+                ->onDelete('cascade');   // For sub-user hierarchy
 
-            // Parent client (for sub-user management)
-            $table->foreignId('parent_id')->nullable()->constrained('clients')->onDelete('cascade');
-
-            // Authentication
+            /**
+             * Authentication
+             */
             $table->string('user_id')->unique();
             $table->string('password');
             $table->rememberToken();
 
-            // Personal Information
+            /**
+             * Personal Information
+             */
             $table->string('first_name');
             $table->string('last_name');
             $table->string('profile_photo')->nullable();
 
-            // Contact Information
+            /**
+             * Contact Information
+             */
             $table->string('email')->unique();
-            $table->string('phone')->nullable();
+            $table->string('phone')->unique();
 
-            // NID Information
+            /**
+             * Identity / NID Information
+             */
             $table->string('nid_number')->nullable();
             $table->string('nid_card_front')->nullable();
             $table->string('nid_card_back')->nullable();
 
-            // Location
+            /**
+             * Location
+             */
             $table->string('division')->nullable();
             $table->string('district')->nullable();
             $table->string('address')->nullable();
             $table->string('postal_code')->nullable();
 
-            // Role & Permissions
-            $table->enum('role', ['super_admin','admin', 'manager', 'editor'])->default('manager');
+            /**
+             * Roles & Permissions
+             */
+            $table->enum('role', [
+                'super_admin',
+                'admin',
+                'manager',
+                'editor',
+            ])->default('manager');
 
-            // Account Status
+            /**
+             * Account Status
+             */
             $table->boolean('status')->default(true);
+
+            /**
+             * Timestamps
+             */
             $table->timestamps();
         });
     }
