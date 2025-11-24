@@ -52,9 +52,7 @@ use App\Http\Controllers\Client\{
 Route::prefix('client')->name('client.')->group(function () {
 
     /**
-     * -------------------------
      * Authentication
-     * -------------------------
      */
     Route::controller(LoginController::class)->group(function () {
         Route::get('login', 'login')->name('login');
@@ -69,9 +67,7 @@ Route::prefix('client')->name('client.')->group(function () {
     });
 
     /**
-     * -------------------------
      * OTP & Password Reset
-     * -------------------------
      */
     Route::prefix('password')->name('password.')->group(function () {
         Route::get('forgot', [ForgotPasswordPhoneController::class, 'create'])->name('forgot');
@@ -86,19 +82,15 @@ Route::prefix('client')->name('client.')->group(function () {
     });
 
     /**
-     * -------------------------
      * Protected Client Routes
-     * -------------------------
      */
     Route::middleware('client')->group(function () {
 
-        // Dashboard (requires active subscription)
+        // Dashboard
         Route::get('/', DashboardController::class)->name('dashboard')->middleware('subscription');
 
         /**
-         * -------------------------
          * Subscription Management
-         * -------------------------
          */
         Route::prefix('subscription')->name('subscription.')->group(function () {
             Route::get('expired', [SubscriptionController::class, 'expired'])->name('expired');
@@ -110,9 +102,7 @@ Route::prefix('client')->name('client.')->group(function () {
         });
 
         /**
-         * -------------------------
          * Payments & Invoices
-         * -------------------------
          */
         Route::prefix('payments')->name('payments.')->group(function () {
             Route::get('select/{invoice}', [SubscriptionPaymentController::class, 'selectMethod'])->name('select');
@@ -125,15 +115,14 @@ Route::prefix('client')->name('client.')->group(function () {
             Route::get('sslcommerz/pay/{invoice}', [SslcommerzPaymentController::class, 'pay'])->name('sslcommerz.pay');
         });
 
-        // Invoices (read-only)
         Route::resource('invoices', InvoiceController::class)->only(['index', 'show']);
 
         /**
-         * -------------------------
-         * Resource Management (requires active subscription)
-         * -------------------------
+         * Resources (require active subscription)
          */
         Route::middleware('subscription')->group(function () {
+
+            // Standard resources
             Route::resources([
                 'members'            => MemberController::class,
                 'projects'           => ProjectController::class,
@@ -143,7 +132,7 @@ Route::prefix('client')->name('client.')->group(function () {
                 'tickets'            => TicketController::class,
             ]);
 
-            // Additional routes
+            // Extra routes
             Route::get('ledgers-report', LedgerReportController::class)->name('ledgers.report');
 
             Route::prefix('tickets/{ticket}')->name('tickets.')->group(function () {
@@ -151,8 +140,8 @@ Route::prefix('client')->name('client.')->group(function () {
                 Route::post('message', [TicketChatController::class, 'storeMessage'])->name('message.store');
             });
 
-            Route::resource('payments', PaymentController::class)->only(['index', 'edit', 'update', 'show', 'destroy']);
-            Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+            Route::resource('payments', PaymentController::class)->only(['index','edit','update','show','destroy']);
+            Route::resource('users', UserController::class)->only(['index','create','store','show','edit','update','destroy']);
 
             Route::get('users-activities', UserActivityController::class)->name('users.activities');
 
@@ -164,63 +153,45 @@ Route::prefix('client')->name('client.')->group(function () {
             Route::get('tickets-export', TicketExportController::class)->name('tickets.export');
 
             /**
-             * -------------------------
              * Profile
-             * -------------------------
              */
             Route::prefix('profile')->name('profile.')->group(function () {
-                Route::get('/', [UserProfileController::class, 'edit'])
-                    ->name('edit')
-                    ->middleware('permission:view profile,admin');
-                Route::put('/', [UserProfileController::class, 'update'])
-                    ->name('update')
-                    ->middleware('permission:edit profile,admin');
+                Route::get('/', [UserProfileController::class, 'edit'])->name('edit');
+                Route::put('/', [UserProfileController::class, 'update'])->name('update');
             });
 
             /**
-             * -------------------------
              * Settings
-             * -------------------------
              */
-            Route::prefix('settings')->name('settings.')->group(function () {
-                Route::get('general', [GeneralController::class, 'edit'])->name('general.edit');
-                Route::put('general', [GeneralController::class, 'update'])->name('general.update');
+            $settingsRoutes = [
+                'general'         => GeneralController::class,
+                'share'           => ShareController::class,
+                'payment'         => SettingsPaymentController::class,
+                'notification'    => NotificationController::class,
+                'backup-security' => BackupSecurityController::class,
+            ];
 
-                Route::get('share', [ShareController::class, 'edit'])->name('share.edit');
-                Route::put('share', [ShareController::class, 'update'])->name('share.update');
-
-                Route::get('payment', [SettingsPaymentController::class, 'edit'])->name('payment.edit');
-                Route::put('payment', [SettingsPaymentController::class, 'update'])->name('payment.update');
-
-                Route::get('notification', [NotificationController::class, 'edit'])->name('notification.edit');
-                Route::put('notification', [NotificationController::class, 'update'])->name('notification.update');
-
-                Route::get('backup-security', [BackupSecurityController::class, 'edit'])->name('backup-security.edit');
-                Route::put('backup-security', [BackupSecurityController::class, 'update'])->name('backup-security.update');
-            });
+            foreach ($settingsRoutes as $uri => $controller) {
+                Route::get("settings/{$uri}", [$controller, 'edit'])->name("settings.{$uri}.edit");
+                Route::put("settings/{$uri}", [$controller, 'update'])->name("settings.{$uri}.update");
+            }
         });
 
-        // Checkout 
+        // Checkout
         Route::get('checkout/{invoice}', [CheckoutController::class, 'create'])->name('checkout.create');
     });
 });
 
 /**
- * -------------------------
- * SSLCommerz Callback Routes
- * -------------------------
- * Grouped by route name only to avoid changing public callback URLs.
+ * SSLCommerz Callback Routes (no CSRF)
  */
 Route::name('client.payments.sslcommerz.')->group(function () {
-    Route::match(['get', 'post'], '/sslcommerz/success/{invoice}', [SslcommerzPaymentController::class, 'success'])
-        ->withoutMiddleware([VerifyCsrfToken::class])
-        ->name('success');
+    Route::match(['get','post'], '/sslcommerz/success/{invoice}', [SslcommerzPaymentController::class, 'success'])
+        ->withoutMiddleware([VerifyCsrfToken::class])->name('success');
 
-    Route::match(['get', 'post'], '/sslcommerz/fail/{invoice}', [SslcommerzPaymentController::class, 'fail'])
-        ->withoutMiddleware([VerifyCsrfToken::class])
-        ->name('fail');
+    Route::match(['get','post'], '/sslcommerz/fail/{invoice}', [SslcommerzPaymentController::class, 'fail'])
+        ->withoutMiddleware([VerifyCsrfToken::class])->name('fail');
 
-    Route::match(['get', 'post'], '/sslcommerz/cancel/{invoice}', [SslcommerzPaymentController::class, 'cancel'])
-        ->withoutMiddleware([VerifyCsrfToken::class])
-        ->name('cancel');
+    Route::match(['get','post'], '/sslcommerz/cancel/{invoice}', [SslcommerzPaymentController::class, 'cancel'])
+        ->withoutMiddleware([VerifyCsrfToken::class])->name('cancel');
 });
