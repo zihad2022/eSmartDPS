@@ -25,8 +25,6 @@ class CreateInvoiceAction
             'invoice_number' => generate_invoice_number(),
             'invoice_amount' => $package->price,
             'status' => InvoiceStatus::UNPAID,
-
-            'next_invoice_at' => $billingEnd, // renew exactly when ending
         ]);
     }
 }

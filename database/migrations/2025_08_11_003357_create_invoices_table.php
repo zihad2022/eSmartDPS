@@ -41,7 +41,6 @@ return new class extends Migration
             $table->unsignedBigInteger('invoice_amount');
             $table->integer('status')->default(1);
             $table->timestamp('paid_at')->nullable();
-            $table->timestamp('next_invoice_at');
 
             /**
              * Payment info

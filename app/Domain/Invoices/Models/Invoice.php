@@ -34,7 +34,6 @@ class Invoice extends Model
         'invoice_amount',
         'status',
         'paid_at',
-        'next_invoice_at',
 
         // payment info
         'payment_reference',
@@ -54,7 +53,6 @@ class Invoice extends Model
         'billing_start' => 'datetime',
         'billing_end' => 'datetime',
         'paid_at' => 'datetime',
-        'next_invoice_at' => 'datetime',
     ];
 
     /*--------------------------------
