@@ -10,8 +10,10 @@ use App\Actions\Client\Auth\StartClientPackageAction;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Packages\Models\Package;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Client\ClientRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class RegisterController extends Controller
@@ -29,12 +31,13 @@ class RegisterController extends Controller
      * Store a new client and start the selected package.
      */
     public function store(
-        Request $request,
+        ClientRequest $request,
         CreateClientAction $createClient,
         StartClientPackageAction $startPackage,
         CreateClientInvoiceAction $createInvoice,
         SendClientCredentialsAction $sendCredentials
     ): RedirectResponse {
+        Log::info('method store is called');
         // 1. Create client
         $client = $createClient->execute($request->only([
             'first_name',
@@ -48,8 +51,11 @@ class RegisterController extends Controller
         $package = Package::findOrFail($request->package_id);
         $startPackage->execute($client, $package);
 
-        // 3. Create invoice
-        $invoice = $createInvoice->execute($client, $package);
+        // if package are paid than only generate invoice otherwise skip invoice generation
+        if (!$package->has_trial || $package->trial_days == 0) {
+            // 3. Create invoice
+            $invoice = $createInvoice->execute($client, $package);
+        }
 
         // 4. Send credentials
         $sendCredentials->execute($client, $request->password);
@@ -57,7 +63,6 @@ class RegisterController extends Controller
         // 5. Redirect to success page
         return redirect()->route('client.auth.success', [
             'id' => $package->id,
-            'invoice' => $invoice->id,
         ]);
     }
 
