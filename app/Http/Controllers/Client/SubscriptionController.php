@@ -21,7 +21,6 @@ class SubscriptionController extends Controller
         // Get the latest unpaid invoice for this client
         $invoice = Invoice::where('client_id', $clientId)
             ->where('status', '!=', \App\Enums\InvoiceStatus::PAID)
-            ->latest('due_date')
             ->first();
     
         return view('client.subscription.expired', compact('invoice'));
