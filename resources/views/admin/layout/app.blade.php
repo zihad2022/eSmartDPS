@@ -40,8 +40,8 @@
     {{-- Main Styles & Scripts (compiled with Vite) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js','resources/css/custom-styles.css'])
     
-    {{-- Chart.js for Graphs --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {{-- Head Scripts --}}
+    @stack('headScripts')
 </head>
 
 <body class="font-sans bg-gray-50 text-primary-900">
@@ -66,86 +66,26 @@
 
             {{-- Footer --}}
             @include('admin.layout.partials.footer')
+
         </main>
+        
     </div>
 
     {{-- Core Scripts --}}
     <script>
-        // Sidebar Controls (For Mobile)
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebar = document.getElementById('sidebar');
-        const mobileOverlay = document.getElementById('mobileOverlay');
-        const closeSidebar = document.getElementById('closeSidebar');
+        const S=(o)=>o.classList.toggle('active'),H=(o)=>o.classList.toggle('hidden'); 
+        sidebarToggle.onclick=()=>{S(sidebar);H(mobileOverlay)}; 
+        closeSidebar.onclick=mobileOverlay.onclick=()=>{sidebar.classList.remove('active');mobileOverlay.classList.add('hidden')};
 
-        function openSidebar() {
-            sidebar.classList.add('active');
-            mobileOverlay.classList.remove('hidden');
-        }
+        document.querySelectorAll('.dropdown-toggle').forEach(b=>b.onclick=function(){let d=document.getElementById(this.dataset.target);document.querySelectorAll('.dropdown-menu').forEach(m=>m!=d&&m.classList.remove('active'));d.classList.toggle('active');this.querySelector('.fa-chevron-down').style.transform=d.classList.contains('active')?'rotate(180deg)':'rotate(0deg)'});
 
-        function closeSidebarFunc() {
-            sidebar.classList.remove('active');
-            mobileOverlay.classList.add('hidden');
-        }
-
-        sidebarToggle.addEventListener('click', openSidebar);
-        closeSidebar.addEventListener('click', closeSidebarFunc);
-        mobileOverlay.addEventListener('click', closeSidebarFunc);
-
-        // Dropdown Controls (Sidebar & Navigation)
-        document.querySelectorAll('.dropdown-toggle').forEach(button => {
-            button.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const dropdown = document.getElementById(targetId);
-                const chevron = this.querySelector('.fa-chevron-down');
-
-                // Close all other dropdowns first
-                document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                    if (menu.id !== targetId) {
-                        menu.classList.remove('active');
-                        const otherChevron = document.querySelector(`[data-target="${menu.id}"] .fa-chevron-down`);
-                        if (otherChevron) {
-                            otherChevron.style.transform = 'rotate(0deg)';
-                        }
-                    }
-                });
-
-                // Toggle the clicked dropdown
-                dropdown.classList.toggle('active');
-                chevron.style.transform = dropdown.classList.contains('active') 
-                    ? 'rotate(180deg)' 
-                    : 'rotate(0deg)';
-            });
-        });
-
-        // Notification Dropdown
-        const notificationBtn = document.getElementById('notificationBtn');
-        const notificationDropdown = document.getElementById('notificationDropdown');
-
-        notificationBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            notificationDropdown.classList.toggle('active');
-            profileDropdown.classList.remove('active');
-        });
-
-        // Profile Dropdown
-        const profileBtn = document.getElementById('profileBtn');
-        const profileDropdown = document.getElementById('profileDropdown');
-
-        profileBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            profileDropdown.classList.toggle('active');
-            notificationDropdown.classList.remove('active');
-        });
-
-        // Close dropdowns if user clicks outside
-        document.addEventListener('click', function() {
-            notificationDropdown.classList.remove('active');
-            profileDropdown.classList.remove('active');
-        });
+        notificationBtn.onclick=(e)=>{e.stopPropagation();S(notificationDropdown);profileDropdown.classList.remove('active')};
+        profileBtn.onclick=(e)=>{e.stopPropagation();S(profileDropdown);notificationDropdown.classList.remove('active')};
+        document.onclick=()=>{notificationDropdown.classList.remove('active');profileDropdown.classList.remove('active')};
     </script>
 
     {{-- Extra Scripts (Injected using @push) --}}
     @stack('scripts')
-
+    @stack('bodyScripts')
 </body>
 </html>
