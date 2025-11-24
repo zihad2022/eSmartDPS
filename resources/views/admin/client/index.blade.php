@@ -48,7 +48,6 @@
         {{-- Data Table --}}
         <x-data-table :page-title="$pageTitle" :rows="$clients" :headers="['SL', 'User ID', 'Name', 'Email', 'Phone', 'Role', 'Status', 'Joined On', 'Actions']" row-view="admin.client.partials.row">
             <x-slot:actions>
-
                 {{-- Search --}}
                 <x-search-form :action="route('admin.clients.index')" :value="$searchQuery" placeholder="Search clients..." />
 
