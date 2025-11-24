@@ -5,6 +5,7 @@ namespace App\Domain\Clients\Actions;
 use App\Domain\Billing\Actions\CreateInvoiceAction;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Packages\Models\Package;
+use Illuminate\Support\Facades\Log;
 
 class AssignTrialAction
 {
@@ -29,6 +30,7 @@ class AssignTrialAction
             'is_active'  => true,
         ]);
 
+        Log::info('store exect trial days');
         // app(CreateInvoiceAction::class)->execute($client, $package);
 
         return true;
