@@ -63,12 +63,9 @@
                 {{-- Third Row: Password & Status --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                     <div>
-                        <x-form.input name="password" label="Password" type="password" placeholder="Enter password"
+                        <x-form.password-input label="Password" name="password"
+                            placeholder="{{ $editing ? 'Leave blank to keep existing password' : 'Enter password' }}"
                             :required="!$editing" />
-                        @if ($editing)
-                            {{-- Inform user they can leave password blank to keep existing --}}
-                            <p class="text-xs text-gray-500 mt-1">Leave blank to keep existing password.</p>
-                        @endif
                     </div>
 
                     <x-form.select name="status" label="Status" :options="['1' => 'Active', '0' => 'Inactive']" :selected="old('status', $member->status ?? '1')" />
@@ -79,7 +76,7 @@
                     <x-form.input name="share_quantity" label="Share Quantity" type="number" min="0"
                         :value="old('share_quantity', $member->share_quantity ?? '')" placeholder="Enter share quantity" />
 
-                    <x-form.input name="profile_photo" label="Profile Photo" type="file" :previewUrl="$member->profile_photo_url ?? null"/>
+                    <x-form.input name="profile_photo" label="Profile Photo" type="file" :previewUrl="$member->profile_photo_url ?? null" />
                 </div>
 
                 {{-- ACTION BUTTONS --}}
