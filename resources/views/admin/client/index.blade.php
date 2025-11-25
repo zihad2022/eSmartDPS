@@ -85,7 +85,7 @@
                                 <i class="fas fa-user-shield"></i>
                             </a>
                         </div>
-                        <x-confirm-modal />
+                       @include('admin.client.destroy')
                     </td>
                 </tr>
             @empty
