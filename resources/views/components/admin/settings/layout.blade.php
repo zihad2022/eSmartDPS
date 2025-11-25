@@ -5,8 +5,8 @@
         $pages = [
             'admin.settings.general.edit' => ['label' => 'General Settings', 'icon' => 'fas fa-cog'],
             'admin.settings.payments.edit' => ['label' => 'Payment Settings', 'icon' => 'fas fa-money-bill-wave'],
-            'admin.settings.contact_info.edit' => ['label' => 'Contact Info Settings', 'icon' => 'fas fa-address-book'],
-            'admin.settings.social_media.edit' => ['label' => 'Social Media Settings', 'icon' => 'fas fa-share-alt'],
+            'admin.settings.contact-info.edit' => ['label' => 'Contact Info Settings', 'icon' => 'fas fa-address-book'],
+            'admin.settings.social-media.edit' => ['label' => 'Social Media Settings', 'icon' => 'fas fa-share-alt'],
             'admin.settings.sms.edit' => ['label' => 'SMS Settings', 'icon' => 'fas fa-sms'],
             'admin.settings.email.edit' => ['label' => 'Email Settings', 'icon' => 'fas fa-envelope'],
             'admin.settings.backup.edit' => ['label' => 'Backup & Security', 'icon' => 'fas fa-database'],

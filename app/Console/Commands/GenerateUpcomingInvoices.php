@@ -15,18 +15,19 @@ class GenerateUpcomingInvoices extends Command
 
     public function handle(CreateClientInvoiceAction $createInvoice)
     {
-        $today = Carbon::now();
-        $daysBeforeExpiry = 1;
-        $targetDate = $today->copy()->addDays($daysBeforeExpiry);
+        $daysBeforeExpiry = 3;
+        $targetDate = now()->addDays($daysBeforeExpiry)->toDateString();
 
+        // Query packages ending exactly after the given number of days
         $endingPackages = ClientPackage::with(['client', 'package'])
             ->where('is_active', true)
-            ->whereDate('ends_at', $targetDate)
+            ->whereDate('ends_at', '=', $targetDate)
             ->get();
 
-        Log::info('command is running');
+        Log::info('Upcoming invoice generation started.');
+
         foreach ($endingPackages as $cp) {
-            Log::info($cp);
+
             if (!$cp->client || !$cp->package) {
                 continue;
             }
@@ -37,7 +38,7 @@ class GenerateUpcomingInvoices extends Command
             $billingStart = Carbon::parse($cp->ends_at)->startOfDay();
             $billingEnd   = $billingStart->copy()->addDays($package->duration_days ?? 30);
 
-            // Prevent duplicate invoice creation
+            // Avoid duplicate invoice creation
             $alreadyExists = $client->invoices()
                 ->where('package_id', $package->id)
                 ->whereDate('billing_start', $billingStart)
@@ -48,7 +49,7 @@ class GenerateUpcomingInvoices extends Command
                 continue;
             }
 
-            // Generate invoice
+            // Create invoice
             $invoice = $createInvoice->execute($client, $package, [
                 'billing_start' => $billingStart,
                 'billing_end'   => $billingEnd,
@@ -56,6 +57,8 @@ class GenerateUpcomingInvoices extends Command
 
             $this->info("Invoice {$invoice->invoice_number} created for Client {$client->id}");
         }
+
+        Log::info('Upcoming invoice generation completed.');
 
         return Command::SUCCESS;
     }

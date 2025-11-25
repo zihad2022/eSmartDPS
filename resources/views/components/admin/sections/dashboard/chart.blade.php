@@ -56,7 +56,13 @@
     $settings = \App\Models\AdminSetting::select('currency')->first();
 @endphp
 
-<script>
+
+
+@push('headScripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@endpush
+@push('bodyScripts')
+    <script>
     const ctx = document.getElementById('financialChart').getContext('2d');
     const chartData = @json($chartData);
 
@@ -84,3 +90,4 @@
         }
     });
 </script>
+@endpush

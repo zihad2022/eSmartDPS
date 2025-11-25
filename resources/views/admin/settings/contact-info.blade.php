@@ -33,7 +33,7 @@
             - Route: admin.settings.contact_info.update
             - Handles CSRF protection
         ============================ --}}
-        <form method="POST" action="{{ route('admin.settings.contact_info.update') }}" enctype="multipart/form-data"
+        <form method="POST" action="{{ route('admin.settings.contact-info.update') }}" enctype="multipart/form-data"
             class="space-y-8">
             @csrf
             @method('PUT')
@@ -67,7 +67,7 @@
             <div class="flex justify-end space-x-4 pt-4">
 
                 {{-- Cancel (Reloads edit page without saving changes) --}}
-                <a href="{{ route('admin.settings.contact_info.edit') }}"
+                <a href="{{ route('admin.settings.contact-info.edit') }}"
                     class="px-4 py-2 border border-gray-300 text-primary-700 rounded-lg hover:bg-gray-50 text-sm transition duration-300">
                     Cancel
                 </a>
