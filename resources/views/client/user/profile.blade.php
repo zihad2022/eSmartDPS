@@ -7,10 +7,7 @@
     <div>
         {{-- Flash Messages --}}
         @if (session('success') || session('error'))
-            <x-flash-message 
-                :type="session('success') ? 'success' : 'error'" 
-                :title="session('success') ? 'Success' : 'Error'" 
-                :message="session('success') ?? session('error')" />
+            <x-flash-message :type="session('success') ? 'success' : 'error'" :title="session('success') ? 'Success' : 'Error'" :message="session('success') ?? session('error')" />
         @endif
 
         <div class="bg-white rounded-2xl shadow-sm p-8 mx-auto">
@@ -19,7 +16,7 @@
             </h2>
 
             <form method="POST" action="{{ route('client.profile.update') }}" enctype="multipart/form-data"
-                  class="space-y-8">
+                class="space-y-8">
                 @csrf
                 @method('PUT')
 
@@ -27,14 +24,14 @@
                 <div class="flex items-center space-x-6">
                     <div class="w-20 h-20 rounded-full overflow-hidden bg-gray-100">
                         <img src="{{ $client->profile_photo
-                            ? asset('storage/'.$client->profile_photo)
-                            : 'https://ui-avatars.com/api/?name=' . urlencode($client->first_name.' '.$client->last_name) }}"
+                            ? asset('storage/' . $client->profile_photo)
+                            : 'https://ui-avatars.com/api/?name=' . urlencode($client->first_name . ' ' . $client->last_name) }}"
                             alt="Profile Photo" class="w-full h-full object-cover">
                     </div>
                     <div>
                         <x-form.label for="profile_photo">Profile Photo</x-form.label>
                         <input type="file" name="profile_photo" id="profile_photo"
-                               class="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg p-2">
+                            class="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg p-2">
                         <p class="text-xs text-gray-500 mt-1">Upload JPG/PNG (max 2MB)</p>
                     </div>
                 </div>
@@ -47,22 +44,42 @@
                 </div>
 
                 {{-- Login & Security --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <x-form.input name="email" label="Email" type="email" :value="$client->email" disabled />
-                    <x-form.input name="user_id" label="User ID" :value="$client->user_id" disabled />
-                    <div>
-                        <x-form.input name="password" label="New Password" type="password"
-                            placeholder="Leave blank to keep current password" />
-                        <p class="text-xs text-gray-500 mt-1">Leave empty if you don't want to change password.</p>
-                    </div>
-                </div>
+               <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+    <x-form.input name="email" label="Email" type="email" :value="$client->email" disabled />
+
+    <x-form.input name="user_id" label="User ID" :value="$client->user_id" disabled />
+
+    <!-- Current Password -->
+    <div>
+        <x-form.input
+            name="current_password"
+            label="Current Password"
+            type="password"
+            placeholder="Enter current password"
+        />
+        <p class="text-xs text-gray-500 mt-1">Required only when changing your password.</p>
+    </div>
+
+    <!-- New Password -->
+    <div>
+        <x-form.input
+            name="new_password"
+            label="New Password"
+            type="password"
+            placeholder="Enter new password"
+        />
+        <p class="text-xs text-gray-500 mt-1">Leave empty if you don't want to change your password.</p>
+    </div>
+
+</div>
+
 
                 {{-- Role (Disabled) --}}
                 <div>
                     <x-form.label>Role</x-form.label>
-                    <input type="text" 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-sm"
-                           value="{{ ucfirst($client->role) }}" disabled>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-sm"
+                        value="{{ ucfirst($client->role) }}" disabled>
                 </div>
 
                 {{-- NID Information --}}
