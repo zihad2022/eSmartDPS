@@ -98,7 +98,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {{-- Member Limit --}}
                     <x-form.input name="member_limit" label="Member Limit" type="number" min="0"
-                        :value="old('member_limit', $package->member_limit ?? 0)" placeholder="0 = Unlimited" />
+                        :value="old('member_limit', $package->member_limit ?? 0)" placeholder="Enter member limit" />
 
                     {{-- User Limit --}}
                     <x-form.input name="user_limit" label="User Limit" type="number" min="0" :value="old('user_limit', $package->user_limit ?? 0)"
@@ -106,7 +106,7 @@
 
                     {{-- Project Limit --}}
                     <x-form.input name="project_limit" label="Project Limit" type="number" min="0"
-                        :value="old('project_limit', $package->project_limit ?? 0)" placeholder="Optional" />
+                        :value="old('project_limit', $package->project_limit ?? 0)" placeholder="Enter project limit" />
                 </div>
 
                 {{-- -----------------------------
