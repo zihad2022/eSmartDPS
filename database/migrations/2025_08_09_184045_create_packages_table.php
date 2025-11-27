@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('discount_type')->nullable();
             $table->unsignedBigInteger('billing_cycle')->nullable();
             $table->integer('member_limit')->default(0);
-            $table->integer('user_limit')->default(0);
+            $table->integer('user_limit')->nullable();
             $table->integer('project_limit')->default(0);
             $table->boolean('is_active')->default(true);
             $table->boolean('has_trial')->default(false);
