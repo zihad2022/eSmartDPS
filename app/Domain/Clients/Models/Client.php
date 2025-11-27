@@ -52,6 +52,16 @@ class Client extends Authenticatable
         'password'          => 'hashed',
     ];
 
+    public function hasRole($roles)
+    {
+        if ($this->role === 'super-admin') {
+            return true;
+        }
+
+        return in_array($this->role, (array) $roles);
+    }
+
+
     /*--------------------------------
     | RELATIONSHIPS
     --------------------------------*/
