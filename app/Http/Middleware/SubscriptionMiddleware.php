@@ -12,7 +12,7 @@ class SubscriptionMiddleware
     public function handle(Request $request, Closure $next)
     {
         // 1️⃣ Get the authenticated client or fallback to parent
-        $client = auth('client')->user() ?? Client::find(owner_client_id());
+        $client = Client::find(owner_client_id());
 
         if (! $client) {
             Log::warning('[SubscriptionMiddleware] Unauthorized access: no client found.', [
@@ -26,9 +26,9 @@ class SubscriptionMiddleware
 
         // 2️⃣ Check active trial package
         $trial = $client->activeClientPackage()
-                        ->where('is_trial', true)
-                        ->where('ends_at', '>', $now)
-                        ->first();
+            ->where('is_trial', true)
+            ->where('ends_at', '>', $now)
+            ->first();
 
         if ($trial) {
             return $next($request);
@@ -36,9 +36,9 @@ class SubscriptionMiddleware
 
         // 3️⃣ Check active paid package
         $paid = $client->activeClientPackage()
-                       ->where('is_trial', false)
-                       ->where('ends_at', '>', $now)
-                       ->first();
+            ->where('is_trial', false)
+            ->where('ends_at', '>', $now)
+            ->first();
 
         if ($paid) {
             return $next($request);
