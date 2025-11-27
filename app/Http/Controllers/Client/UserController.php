@@ -54,6 +54,12 @@ class UserController extends Controller
 
     public function store(UserRequest $request)
     {
+        $client = $this->getOwner();
+
+        if (!$client->canAddUser()) {
+            return back()->with('error', 'You have reached the maximum user limit for your package.');
+        }
+
         Client::create(
             $this->prepareUserData($request)
         );
