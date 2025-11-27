@@ -144,9 +144,16 @@ class UserController extends Controller
         if ($search = $request->search) {
             $query->where(function ($q) use ($search) {
                 $fields = [
-                    'first_name', 'last_name', 'email', 'phone',
-                    'user_id', 'nid_number', 'division', 'district',
-                    'address', 'postal_code'
+                    'first_name',
+                    'last_name',
+                    'email',
+                    'phone',
+                    'user_id',
+                    'nid_number',
+                    'division',
+                    'district',
+                    'address',
+                    'postal_code'
                 ];
 
                 foreach ($fields as $field) {
@@ -173,9 +180,15 @@ class UserController extends Controller
         // Search Filter
         if ($search = $request->search) {
             $fields = [
-                $parent->first_name, $parent->last_name, $parent->email,
-                $parent->phone, $parent->user_id, $parent->nid_number,
-                $parent->division, $parent->district, $parent->address,
+                $parent->first_name,
+                $parent->last_name,
+                $parent->email,
+                $parent->phone,
+                $parent->user_id,
+                $parent->nid_number,
+                $parent->division,
+                $parent->district,
+                $parent->address,
                 $parent->postal_code
             ];
 

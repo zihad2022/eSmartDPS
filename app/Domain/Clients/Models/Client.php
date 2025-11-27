@@ -131,16 +131,30 @@ class Client extends Authenticatable
     private function hasCapacity(string $relation, string $limitField): bool
     {
         $lastPackage = $this->getLastPackage();
-        if (! $lastPackage || ! $lastPackage->package) return false;
+
+        // If no package or no package found → do not allow
+        if (!$lastPackage || !$lastPackage->package) {
+            return false;
+        }
+
+        // Actual limit value from package
         $limit = $lastPackage->package->{$limitField};
-        return $limit === 0 || $this->{$relation}()->count() < $limit;
+
+        // If limit is NULL or 0 → unlimited
+        if (is_null($limit) || $limit == 0) {
+            return true;
+        }
+
+        // Check count
+        return $this->{$relation}()->count() < $limit;
     }
+
 
     public function canAddUser(): bool
     {
         return $this->hasCapacity('users', 'user_limit');
     }
-    
+
     public function canAddMember(): bool
     {
         return $this->hasCapacity('members', 'member_limit');

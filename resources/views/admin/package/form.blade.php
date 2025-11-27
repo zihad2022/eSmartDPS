@@ -101,8 +101,8 @@
                         :value="old('member_limit', $package->member_limit ?? 0)" placeholder="Enter member limit" />
 
                     {{-- User Limit --}}
-                    <x-form.input name="user_limit" label="User Limit" type="number" min="0" :value="old('user_limit', $package->user_limit ?? 0)"
-                        placeholder="0 = Unlimited" />
+                    <x-form.input name="user_limit" label="User Limit" type="number" min="0" :value="old('user_limit', $package->user_limit ?? null)"
+                        placeholder="Leave blank for Unlimited" />
 
                     {{-- Project Limit --}}
                     <x-form.input name="project_limit" label="Project Limit" type="number" min="0"

@@ -23,7 +23,7 @@ class PackageRequest extends FormRequest
             'billing_cycle' => 'required',
 
             'member_limit' => 'required|integer|min:0',
-            'user_limit' => 'required|integer|min:0',
+            'user_limit' => 'nullable|integer',
             'project_limit' => 'required|integer|min:0',
 
             'has_trial' => 'required|boolean',

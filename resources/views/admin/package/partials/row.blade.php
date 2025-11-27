@@ -21,7 +21,7 @@
     {{ $package->billing_cycle ? $package->billing_cycle->label() : '—' }}
 </td>
 <td class="px-6 py-4 text-sm text-primary-900 font-mono">{{ $package->member_limit }}</td>
-<td class="px-6 py-4 text-sm text-primary-900 font-mono">{{ $package->user_limit }}</td>
+<td class="px-6 py-4 text-sm text-primary-900 font-mono">{{ $package->user_limit == null ? 'Unlimited' : $package->user_limit }}</td>
 <td class="px-6 py-4 text-sm text-primary-900 font-mono">{{ $package->project_limit }}</td>
 <td class="px-6 py-4">
     <span class="px-2 py-1 text-xs font-medium rounded-full {{ $package->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
