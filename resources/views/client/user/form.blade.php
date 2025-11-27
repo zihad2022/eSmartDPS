@@ -44,13 +44,13 @@
 
                 {{-- Profile Photo --}}
                 <x-form.input name="profile_photo" type="file" label="Profile Photo" accept="image/*"
-                    :previewUrl="$user->profile_photo ?? null" />
+                    :previewUrl="$user->profile_photo_url ?? null" />
 
                 {{-- Authentication --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                     {{-- User ID (auto-generated, readonly) --}}
-                    <x-form.input name="user_id" label="User ID" :value="$editing ? $user->user_id : $user_id" disabled />
+                    <x-form.input name="user_id" label="User ID" :value="$editing ? $user->user_id : $user_id" :disabled="true" />
 
                     {{-- Password --}}
                     <div>
@@ -76,10 +76,10 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <x-form.input name="nid_card_front" type="file" label="NID Front" accept="image/*"
-                            :previewUrl="$user->nid_card_front ?? null" />
+                            :previewUrl="$user->nid_card_front_url ?? null" />
 
                         <x-form.input name="nid_card_back" type="file" label="NID Back" accept="image/*"
-                            :previewUrl="$user->nid_card_back ?? null" />
+                            :previewUrl="$user->nid_card_back_url ?? null" />
                     </div>
                 </div>
 

@@ -13,59 +13,36 @@ class UserController extends Controller
     public function __construct(protected ImageService $imageService) {}
 
     /**
-     * List all users under the current client with filters.
+     * Display a listing of users under the authenticated parent client.
      */
     public function index(Request $request)
     {
-        $parent = Client::findOrFail(owner_client_id());
-        $query  = $parent->children();
+        $parent = $this->getOwner();
+        $query  = $parent->children()->newQuery();
 
-        // Filters
-        if ($request->role) {
-            $query->where('role', $request->role);
-        }
-
-        if ($request->status === 'active') {
-            $query->where('status', 1);
-        } elseif ($request->status === 'inactive') {
-            $query->where('status', 0);
-        }
-
-        if ($search = $request->search) {
-            $query->where(function ($q) use ($search) {
-                foreach ([
-                    'first_name', 'last_name', 'email', 'phone',
-                    'user_id', 'nid_number', 'division', 'district',
-                    'address', 'postal_code'
-                ] as $field) {
-                    $q->orWhere($field, 'like', "%{$search}%");
-                }
-            });
-        }
+        // Apply filters
+        $this->applyFilters($query, $request);
 
         $users = $query->paginate(10);
 
-        // Include parent client if matches filter
-        $includeParent = $this->shouldIncludeParent($parent, $request, $search);
-
-        if ($includeParent) {
+        // Add parent client to results when required
+        if ($this->shouldIncludeParent($parent, $request)) {
             $merged = collect([$parent])->merge($users->items());
             $users->setCollection($merged);
         }
 
         // Stats
-        $allClients        = collect([$parent])->merge($parent->children()->get());
-        $totalUsers        = $allClients->count();
-        $administratorUsers = $allClients->where('role', 'admin')->count();
-        $managerUsers      = $allClients->where('role', 'manager')->count();
-        $editorUsers       = $allClients->where('role', 'editor')->count();
-        $activeUsers       = $allClients->where('status', 1)->count();
-        $inactiveUsers     = $allClients->where('status', 0)->count();
+        $allClients = collect([$parent])->merge($parent->children()->get());
 
-        return view('client.user.index', compact(
-            'users', 'totalUsers', 'administratorUsers',
-            'managerUsers', 'editorUsers', 'activeUsers', 'inactiveUsers'
-        ));
+        return view('client.user.index', [
+            'users'              => $users,
+            'totalUsers'         => $allClients->count(),
+            'administratorUsers' => $allClients->where('role', 'admin')->count(),
+            'managerUsers'       => $allClients->where('role', 'manager')->count(),
+            'editorUsers'        => $allClients->where('role', 'editor')->count(),
+            'activeUsers'        => $allClients->where('status', 1)->count(),
+            'inactiveUsers'      => $allClients->where('status', 0)->count(),
+        ]);
     }
 
     public function create()
@@ -77,15 +54,11 @@ class UserController extends Controller
 
     public function store(UserRequest $request)
     {
-        $client = $this->getOwner();
+        Client::create(
+            $this->prepareUserData($request)
+        );
 
-        if (!$client->canAddUser()) {
-            return back()->with('error', 'You have reached the maximum user limit for your package.');
-        }
-
-        Client::create($this->prepareUserData($request));
-
-        return to_route('client.users.index')
+        return redirect()->route('client.users.index')
             ->with('success', 'User has been added successfully.');
     }
 
@@ -107,9 +80,11 @@ class UserController extends Controller
     {
         $this->authorizeOwner($user);
 
-        $user->update($this->prepareUserData($request, $user));
+        $user->update(
+            $this->prepareUserData($request, $user)
+        );
 
-        return to_route('client.users.index')
+        return redirect()->route('client.users.index')
             ->with('success', 'User has been updated successfully.');
     }
 
@@ -118,8 +93,10 @@ class UserController extends Controller
         $this->authorizeOwner($user);
 
         if ($user->role === 'super_admin') {
-            return back()->with('error', 'You cannot delete super admin.');
+            return back()->with('error', 'You cannot delete a super admin.');
         }
+
+        $this->deleteUserImages($user);
 
         $user->delete();
 
@@ -138,61 +115,139 @@ class UserController extends Controller
     {
         $ownerId = owner_client_id();
 
-        if ($user->id !== $ownerId && $user->parent_id !== $ownerId) {
+        if (!in_array($ownerId, [$user->id, $user->parent_id])) {
             abort(403, 'Unauthorized access');
         }
     }
 
+    /**
+     * Apply all filters to user listing.
+     */
+    private function applyFilters($query, Request $request): void
+    {
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        if ($request->status === 'active') {
+            $query->where('status', 1);
+        } elseif ($request->status === 'inactive') {
+            $query->where('status', 0);
+        }
+
+        if ($search = $request->search) {
+            $query->where(function ($q) use ($search) {
+                $fields = [
+                    'first_name', 'last_name', 'email', 'phone',
+                    'user_id', 'nid_number', 'division', 'district',
+                    'address', 'postal_code'
+                ];
+
+                foreach ($fields as $field) {
+                    $q->orWhere($field, 'like', "%{$search}%");
+                }
+            });
+        }
+    }
+
+    /**
+     * Determine if the parent should appear in results.
+     */
+    private function shouldIncludeParent(Client $parent, Request $request): bool
+    {
+        // Role Filter
+        if ($request->role && $parent->role !== $request->role) {
+            return false;
+        }
+
+        // Status Filter
+        if ($request->status === 'active' && !$parent->status) return false;
+        if ($request->status === 'inactive' && $parent->status) return false;
+
+        // Search Filter
+        if ($search = $request->search) {
+            $fields = [
+                $parent->first_name, $parent->last_name, $parent->email,
+                $parent->phone, $parent->user_id, $parent->nid_number,
+                $parent->division, $parent->district, $parent->address,
+                $parent->postal_code
+            ];
+
+            $match = collect($fields)
+                ->filter()
+                ->contains(fn($v) => str_contains(strtolower($v), strtolower($search)));
+
+            if (!$match) return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Prepare validated + transformed data for create/update.
+     */
     private function prepareUserData(UserRequest $request, Client $user = null): array
     {
         $data = $request->validated();
 
-        if ($request->hasFile('profile_photo')) {
-            $this->handleProfilePhoto($request, $user, $data);
-        }
+        // User ID
+        $data['user_id'] = $user?->user_id ?? generate_client_user_id();
 
+        // Parent assignment
         $data['parent_id'] = owner_client_id();
 
+        // Password handling
         if (!empty($data['password'])) {
             $data['password'] = bcrypt($data['password']);
         } else {
             unset($data['password']);
         }
 
+        // Image uploads
+        $this->processUploads($request, $user, $data);
+
         return $data;
     }
 
-    private function handleProfilePhoto(UserRequest $request, ?Client $user, array &$data): void
+    /**
+     * Handle image uploads for profile photo & NID.
+     */
+    private function processUploads(UserRequest $request, ?Client $user, array &$data): void
     {
-        if ($user?->profile_photo) {
-            $this->imageService->deleteImage($user->profile_photo);
+        $uploads = [
+            'profile_photo',
+            'nid_card_front',
+            'nid_card_back',
+        ];
+
+        foreach ($uploads as $field) {
+            if ($request->hasFile($field)) {
+                $this->uploadAndReplace($request, $user, $data, $field);
+            }
+        }
+    }
+
+    private function uploadAndReplace(Request $request, ?Client $user, array &$data, string $field): void
+    {
+        if ($user?->$field) {
+            $this->imageService->deleteImage($user->$field);
         }
 
-        $data['profile_photo'] = $this->imageService->uploadImage(
-            $request->file('profile_photo'),
+        $data[$field] = $this->imageService->uploadImage(
+            $request->file($field),
             'uploads/clients/users'
         );
     }
 
-    private function shouldIncludeParent(Client $parent, Request $request, ?string $search): bool
+    /**
+     * Delete all images for user before deletion.
+     */
+    private function deleteUserImages(Client $user): void
     {
-        $include = true;
-
-        if ($request->role && $parent->role !== $request->role) $include = false;
-        if ($request->status === 'active' && !$parent->status) $include = false;
-        if ($request->status === 'inactive' && $parent->status) $include = false;
-
-        if ($search) {
-            $matches = collect([
-                $parent->first_name, $parent->last_name, $parent->email,
-                $parent->phone, $parent->user_id, $parent->nid_number,
-                $parent->division, $parent->district, $parent->address,
-                $parent->postal_code
-            ])->filter()->contains(fn($v) => str_contains(strtolower($v), strtolower($search)));
-
-            if (!$matches) $include = false;
+        foreach (['profile_photo', 'nid_card_front', 'nid_card_back'] as $field) {
+            if ($user->$field) {
+                $this->imageService->deleteImage($user->$field);
+            }
         }
-
-        return $include;
     }
 }
