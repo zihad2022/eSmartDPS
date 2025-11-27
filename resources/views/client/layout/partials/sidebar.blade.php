@@ -155,7 +155,7 @@
                     ]" />
 
                 {{-- Settings (only Super Admins) --}}
-                @if ($authUser->role === 'super_admin')
+                @if ($authUser->role === 'super-admin')
                     <a href="{{ route('client.settings.general.edit') }}"
                         class="sidebar-link flex items-center space-x-3 px-3 py-2 rounded-lg">
                         <i class="fas fa-cog w-5 text-center"></i>

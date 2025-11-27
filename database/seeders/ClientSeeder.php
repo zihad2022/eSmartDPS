@@ -18,7 +18,7 @@ class ClientSeeder extends Seeder
             $now = now();
             $defaultPassword = Hash::make('password');
 
-            // Create one main super_admin client
+            // Create one main super-admin client
             $owner = Client::create([
                 'parent_id'   => null,
                 'user_id'     => generate_client_user_id(),
@@ -31,11 +31,11 @@ class ClientSeeder extends Seeder
                 'district'    => 'Dhaka',
                 'address'     => 'Main office of Main Company',
                 'postal_code' => '1000',
-                'role'        => 'super_admin',
+                'role'        => 'super-admin',
                 'status'      => true,
             ]);
 
-            // Child clients under super_admin
+            // Child clients under super-admin
             $children = [
                 [
                     'first_name'  => 'Manager',
@@ -75,7 +75,7 @@ class ClientSeeder extends Seeder
                 ]);
             }
 
-            // Subscription for super_admin
+            // Subscription for super-admin
             $package = Package::first();
             if ($package) {
                 $endsAt = match ($package->billing_cycle) {

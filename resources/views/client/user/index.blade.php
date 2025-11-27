@@ -238,7 +238,7 @@
                                         </a>
 
                                         {{-- Delete (not allowed for Super Admin) --}}
-                                        @if ($user->role != 'super_admin')
+                                        @if ($user->role != 'super-admin')
                                             <form method="POST"
                                                 action="{{ route('client.users.destroy', $user->id) }}"
                                                 class="delete-form">

@@ -251,7 +251,7 @@ class ClientController extends Controller
         // 2. Ensure root-level client
         // -----------------------------
         $data['parent_id'] = null;
-        $data['role'] = 'super_admin';
+        $data['role'] = 'super-admin';
 
         // -----------------------------
         // 3. Handle password hashing

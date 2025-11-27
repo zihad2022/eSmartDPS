@@ -103,7 +103,7 @@
                     <div>
                         <x-form.label for="role">Role</x-form.label>
 
-                        @if ($editing && $user->role === 'super_admin')
+                        @if ($editing && $user->role === 'super-admin')
                             <input type="text" value="Super Admin" disabled
                                 class="w-full px-4 py-2 border rounded-lg bg-gray-100 text-sm">
                         @else

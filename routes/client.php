@@ -115,7 +115,7 @@ Route::prefix('client')->name('client.')->group(function () {
             Route::get('sslcommerz/pay/{invoice}', [SslcommerzPaymentController::class, 'pay'])->name('sslcommerz.pay');
         });
 
-        Route::resource('invoices', InvoiceController::class)->only(['index', 'show']);
+        Route::resource('invoices', InvoiceController::class)->only(['index', 'show'])->middleware('client.role:super-admin,admin');
 
         /**
          * Resources (require active subscription)

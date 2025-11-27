@@ -60,7 +60,7 @@ return new class extends Migration
              * Roles & Permissions
              */
             $table->enum('role', [
-                'super_admin',
+                'super-admin',
                 'admin',
                 'manager',
                 'editor',

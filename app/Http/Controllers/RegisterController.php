@@ -58,7 +58,7 @@ class RegisterController extends Controller
             'phone'      => $request->phone,
             'password'   => $request->password, // TODO: consider hashing
             'status'     => true,
-            'role'       => 'super_admin',
+            'role'       => 'super-admin',
         ]);
 
         // -----------------------------

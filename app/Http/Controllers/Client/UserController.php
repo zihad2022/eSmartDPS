@@ -98,7 +98,7 @@ class UserController extends Controller
     {
         $this->authorizeOwner($user);
 
-        if ($user->role === 'super_admin') {
+        if ($user->role === 'super-admin') {
             return back()->with('error', 'You cannot delete a super admin.');
         }
 

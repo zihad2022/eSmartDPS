@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.auth' => App\Http\Middleware\AdminAuthenticated::class,
             'member' => App\Http\Middleware\MemberAuthenticated::class,
             'client' => App\Http\Middleware\ClientAuthenticated::class,
+            'client.role' => App\Http\Middleware\ClineRoleMiddleware::class,
             'subscription' => App\Http\Middleware\SubscriptionMiddleware::class,
 
             // Role and Permission

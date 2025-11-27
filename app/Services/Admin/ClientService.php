@@ -41,7 +41,7 @@ class ClientService
 
     private function prepareData(array $data, Request $request, ?Client $client = null): array
     {
-        $data['role'] = 'super_admin';
+        $data['role'] = 'super-admin';
         $data['parent_id'] = null;
 
         foreach (['profile_photo', 'nid_card_front', 'nid_card_back'] as $field) {

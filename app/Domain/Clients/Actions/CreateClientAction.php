@@ -26,7 +26,7 @@ class CreateClientAction
             'nid_card_back' => $data->nid_card_back,
             'profile_photo' => $data->profile_photo,
             'password' => $data->password,
-            'role'=> 'super_admin',
+            'role'=> 'super-admin',
         ]);
     }
 }

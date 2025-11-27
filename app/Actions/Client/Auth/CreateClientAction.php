@@ -17,7 +17,7 @@ class CreateClientAction
             'phone'      => $data['phone'],
             'password'   => $data['password'],
             'status'     => true,
-            'role'       => 'super_admin',
+            'role'       => 'super-admin',
         ]);
     }
 }

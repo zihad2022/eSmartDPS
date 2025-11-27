@@ -63,7 +63,7 @@ class ClientRequest extends FormRequest
             /**
              * Role & Permissions
              */
-            // 'role'          => ['required', 'in:super_admin,admin,manager,editor'], Auto Set
+            // 'role'          => ['required', 'in:super-admin,admin,manager,editor'], Auto Set
 
             /**
              * Status
