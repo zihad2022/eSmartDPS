@@ -1,37 +1,69 @@
 @php
-    $settings = \App\Models\AdminSetting::select('facebook_page_url','facebook_group_url','whatsapp_channel_url','telegram_channel_url','linkedin_url','twitter_x_url','youtube_url','tiktok_url')->first();
+    $settings = \App\Models\AdminSetting::select(
+        'facebook_page_url',
+        'facebook_group_url',
+        'whatsapp_channel_url',
+        'telegram_channel_url',
+        'linkedin_url',
+        'twitter_x_url',
+        'youtube_url',
+        'tiktok_url'
+    )->first();
+
+    // Map all links with label + Font Awesome classes
+    $socialLinks = [
+        [
+            'url' => $settings?->facebook_page_url,
+            'label' => 'Facebook',
+            'icon' => 'fab fa-facebook-f',
+        ],
+        [
+            'url' => $settings?->facebook_group_url,
+            'label' => 'Facebook Group',
+            'icon' => 'fab fa-facebook',
+        ],
+        [
+            'url' => $settings?->whatsapp_channel_url,
+            'label' => 'WhatsApp',
+            'icon' => 'fab fa-whatsapp',
+        ],
+        [
+            'url' => $settings?->telegram_channel_url,
+            'label' => 'Telegram',
+            'icon' => 'fab fa-telegram-plane',
+        ],
+        [
+            'url' => $settings?->linkedin_url,
+            'label' => 'LinkedIn',
+            'icon' => 'fab fa-linkedin-in',
+        ],
+        [
+            'url' => $settings?->twitter_x_url,
+            'label' => 'Twitter / X',
+            'icon' => 'fab fa-x-twitter',
+        ],
+        [
+            'url' => $settings?->youtube_url,
+            'label' => 'YouTube',
+            'icon' => 'fab fa-youtube',
+        ],
+        [
+            'url' => $settings?->tiktok_url,
+            'label' => 'TikTok',
+            'icon' => 'fab fa-tiktok',
+        ],
+    ];
 @endphp
 
 <div class="flex space-x-4 mt-4">
-    @if ($settings?->facebook_page_url)
-        <a href="{{ $settings->facebook_page_url }}" class="text-gray-300 hover:text-white">Facebook</a>
-    @endif
-
-    @if ($settings?->facebook_group_url)
-        <a href="{{ $settings->facebook_group_url }}" class="text-gray-300 hover:text-white">Facebook Group</a>
-    @endif
-
-    @if ($settings?->whatsapp_channel_url)
-        <a href="{{ $settings->whatsapp_channel_url }}" class="text-gray-300 hover:text-white">WhatsApp</a>
-    @endif
-
-    @if ($settings?->telegram_channel_url)
-        <a href="{{ $settings->telegram_channel_url }}" class="text-gray-300 hover:text-white">Telegram</a>
-    @endif
-
-    @if ($settings?->linkedin_url)
-        <a href="{{ $settings->linkedin_url }}" class="text-gray-300 hover:text-white">LinkedIn</a>
-    @endif
-
-    @if ($settings?->twitter_x_url)
-        <a href="{{ $settings->twitter_x_url }}" class="text-gray-300 hover:text-white">Twitter</a>
-    @endif
-
-    @if ($settings?->youtube_url)
-        <a href="{{ $settings->youtube_url }}" class="text-gray-300 hover:text-white">YouTube</a>
-    @endif
-
-    @if ($settings?->tiktok_url)
-        <a href="{{ $settings->tiktok_url }}" class="text-gray-300 hover:text-white">TikTok</a>
-    @endif
+    @foreach ($socialLinks as $item)
+        @if ($item['url'])
+            <a href="{{ $item['url'] }}"
+               target="_blank"
+               class="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center hover:bg-accent-600 transition duration-300"
+               aria-label="{{ $item['label'] }}">
+                <i class="{{ $item['icon'] }} text-white"></i>
+            </a>
+        @endif
+    @endforeach
 </div>
