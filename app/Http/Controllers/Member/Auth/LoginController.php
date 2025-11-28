@@ -52,6 +52,6 @@ class LoginController extends Controller
     {
         Auth::guard('member')->logout();
 
-        return redirect()->route('landing');
+        return redirect()->route('home');
     }
 }
