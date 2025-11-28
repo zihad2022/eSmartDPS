@@ -34,14 +34,14 @@ class SettingsSeeder extends Seeder
             'google_map' => '<iframe src="https://maps.google.com/..."></iframe>',
 
             /* ========== Social Media ========== */
-            'facebook_page' => 'https://facebook.com/esmartdps',
-            'facebook_group' => 'https://facebook.com/groups/esmartdps',
-            'whatsapp_channel' => 'https://wa.me/8801700000000',
-            'telegram_channel' => 'https://t.me/esmartdps',
-            'linkedin' => 'https://linkedin.com/company/esmartdps',
-            'twitter_x' => 'https://twitter.com/esmartdps',
-            'youtube' => 'https://youtube.com/@esmartdps',
-            'tiktok' => 'https://tiktok.com/@esmartdps',
+            'facebook_page_url' => 'https://facebook.com/esmartdps',
+            'facebook_group_url' => 'https://facebook.com/groups/esmartdps',
+            'whatsapp_channel_url' => 'https://wa.me/8801700000000',
+            'telegram_channel_url' => 'https://t.me/esmartdps',
+            'linkedin_url' => 'https://linkedin.com/company/esmartdps',
+            'twitter_x_url' => 'https://twitter.com/esmartdps',
+            'youtube_url' => 'https://youtube.com/@esmartdps',
+            'tiktok_url' => 'https://tiktok.com/@esmartdps',
 
             /* ========== Payment Settings ========== */
             'currency' => 'BDT',

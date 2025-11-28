@@ -31,14 +31,14 @@ return new class extends Migration
             $table->text('google_map')->nullable();
 
             /* ========== Social Media ========== */
-            $table->string('facebook_page')->nullable();
-            $table->string('facebook_group')->nullable();
-            $table->string('whatsapp_channel')->nullable();
-            $table->string('telegram_channel')->nullable();
-            $table->string('linkedin')->nullable();
-            $table->string('twitter_x')->nullable();
-            $table->string('youtube')->nullable();
-            $table->string('tiktok')->nullable();
+            $table->string('facebook_page_url')->nullable();
+            $table->string('facebook_group_url')->nullable();
+            $table->string('whatsapp_channel_url')->nullable();
+            $table->string('telegram_channel_url')->nullable();
+            $table->string('linkedin_url')->nullable();
+            $table->string('twitter_x_url')->nullable();
+            $table->string('youtube_url')->nullable();
+            $table->string('tiktok_url')->nullable();
 
             /* ========== Payment Settings ========== */
             $table->string('currency')->nullable();
