@@ -1,5 +1,4 @@
 <x-app-layout>
-    <x-slot:title>Home</x-slot:title>
     {{-- Hero Section --}}
     <x-home.sections.hero />
 
