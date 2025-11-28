@@ -2,14 +2,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div class="col-span-1 md:col-span-2">
-                <div class="flex items-center space-x-3 mb-6">
-                    <div class="bg-accent-500 text-white p-2 rounded-lg">
-                        <i class="fas fa-piggy-bank text-xl"></i>
-                    </div>
-                    <div>
-                        <span class="font-display font-bold text-xl">DYDS</span>
-                        <span class="block text-sm text-gray-300">Dream Young Development Society</span>
-                    </div>
+                <div>
+                    <x-application-logo />
                 </div>
                 <p class="text-gray-300 mb-6 max-w-md">
                     Empowering communities through collaborative savings and sustainable development projects. Join
@@ -38,10 +32,10 @@
             <div>
                 <h3 class="font-semibold text-lg mb-6">Quick Links</h3>
                 <ul class="space-y-3">
-                    <li><a href="#home"
-                            class="text-gray-300 hover:text-accent-400 transition duration-300">Home</a></li>
-                    <li><a href="#about"
-                            class="text-gray-300 hover:text-accent-400 transition duration-300">About Us</a></li>
+                    <li><a href="#home" class="text-gray-300 hover:text-accent-400 transition duration-300">Home</a>
+                    </li>
+                    <li><a href="#about" class="text-gray-300 hover:text-accent-400 transition duration-300">About
+                            Us</a></li>
                     <li><a href="#services"
                             class="text-gray-300 hover:text-accent-400 transition duration-300">Services</a></li>
                     <li><a href="#contact"
@@ -52,17 +46,14 @@
             <div>
                 <h3 class="font-semibold text-lg mb-6">Services</h3>
                 <ul class="space-y-3">
-                    <li><a href="#"
-                            class="text-gray-300 hover:text-accent-400 transition duration-300">Savings
+                    <li><a href="#" class="text-gray-300 hover:text-accent-400 transition duration-300">Savings
                             Accounts</a></li>
-                    <li><a href="#"
-                            class="text-gray-300 hover:text-accent-400 transition duration-300">Investment
+                    <li><a href="#" class="text-gray-300 hover:text-accent-400 transition duration-300">Investment
                             Plans</a></li>
-                    <li><a href="#"
-                            class="text-gray-300 hover:text-accent-400 transition duration-300">Micro Loans</a>
+                    <li><a href="#" class="text-gray-300 hover:text-accent-400 transition duration-300">Micro
+                            Loans</a>
                     </li>
-                    <li><a href="#"
-                            class="text-gray-300 hover:text-accent-400 transition duration-300">Financial
+                    <li><a href="#" class="text-gray-300 hover:text-accent-400 transition duration-300">Financial
                             Education</a></li>
                 </ul>
             </div>
