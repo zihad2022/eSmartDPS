@@ -1,5 +1,4 @@
 <x-app-layout>
-    <x-slot:title>About</x-slot:title>
     <section id="about" class="py-20 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16 animate-fade-in-up">

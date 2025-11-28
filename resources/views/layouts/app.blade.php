@@ -19,9 +19,6 @@
 
     {{-- SEO --}}
     @seoKit
-
-    {{-- Page Title --}}
-    <title>{{ $title ?? config('app.name') }}</title>
 </head>
 
 <body class="font-sans text-primary-900 scroll-smooth">
