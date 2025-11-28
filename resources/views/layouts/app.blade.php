@@ -19,20 +19,14 @@
 
 <body class="font-sans text-primary-900 scroll-smooth">
     <!-- Navigation -->
-    @include('layouts.partials.navbar')
+    <x-navbar />
 
     {{ $slot }}
 
     <!-- Footer -->
     <x-footer />
 
-    <script>
-        // Mobile Menu Toggle
-        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            mobileMenu.classList.toggle('hidden');
-        });
-    </script>
+
 </body>
 
 </html>
