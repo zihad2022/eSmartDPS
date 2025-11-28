@@ -69,7 +69,7 @@ class SocialMediaController extends Controller
 
         // Redirect back to the edit form with a success flash message
         return redirect()
-            ->route('admin.settings.social_media.edit')
+            ->route('admin.settings.social-media.edit')
             ->with('success', 'Social media settings updated successfully.');
     }
 }

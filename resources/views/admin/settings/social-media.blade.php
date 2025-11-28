@@ -31,10 +31,10 @@
         {{-- =================== Form Start ===================
             Form to update social media links.
             - Uses PUT method for updating existing settings.
-            - The route admin.settings.social_media.update 
+            - The route admin.settings.social-media.update 
               will handle saving the data.
         --}}
-        <form method="POST" action="{{ route('admin.settings.social_media.update') }}" enctype="multipart/form-data"
+        <form method="POST" action="{{ route('admin.settings.social-media.update') }}" enctype="multipart/form-data"
             class="space-y-8">
             @csrf
             @method('PUT')
@@ -83,7 +83,7 @@
                 Save Changes → Submits the form and updates settings.
             --}}
             <div class="flex justify-end space-x-4 pt-4">
-                <a href="{{ route('admin.settings.social_media.edit') }}"
+                <a href="{{ route('admin.settings.social-media.edit') }}"
                     class="px-4 py-2 border border-gray-300 text-primary-700 rounded-lg hover:bg-gray-50 text-sm transition duration-300">
                     Cancel
                 </a>
