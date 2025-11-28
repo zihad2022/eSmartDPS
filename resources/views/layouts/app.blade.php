@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{$title ?? 'Home'}} - {{$settings->site_name}}</title>
+    <title>{{ $title ?? 'Home' }} - {{ $settings->site_name }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -24,7 +24,7 @@
     {{ $slot }}
 
     <!-- Footer -->
-    @include('layouts.partials.footer')
+    <x-footer />
 
     <script>
         // Mobile Menu Toggle
