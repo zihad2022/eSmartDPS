@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "28ae31771b06654d350e2f21235deb84",
+    "content-hash": "9a4a286cc06258bfb20f7581f7edb516",
     "packages": [
         {
             "name": "brick/math",
@@ -1404,6 +1404,100 @@
                 }
             ],
             "time": "2020-06-13T08:05:20+00:00"
+        },
+        {
+            "name": "larament/seokit",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/larament/seokit.git",
+                "reference": "525c670e6683f5382e788b723be4d83584e1cb3f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/larament/seokit/zipball/525c670e6683f5382e788b723be4d83584e1cb3f",
+                "reference": "525c670e6683f5382e788b723be4d83584e1cb3f",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^11.0||^12.0",
+                "php": "^8.3",
+                "spatie/laravel-package-tools": "^1.16"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "laravel/pint": "^1.14",
+                "nunomaduro/collision": "^8.8",
+                "orchestra/testbench": "^10.0.0||^9.0.0",
+                "pestphp/pest": "^4.0",
+                "pestphp/pest-plugin-arch": "^4.0",
+                "pestphp/pest-plugin-laravel": "^4.0",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "SeoKit": "Larament\\SeoKit\\Facades\\SeoKit"
+                    },
+                    "providers": [
+                        "Larament\\SeoKit\\SeoKitServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Larament\\SeoKit\\": "src/",
+                    "Larament\\SeoKit\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Raziul Islam",
+                    "email": "hello@raziul.dev"
+                }
+            ],
+            "description": "A complete SEO package for Laravel, covering everything from meta tags to social sharing and structured data.",
+            "homepage": "https://github.com/larament/seokit",
+            "keywords": [
+                "JSON-LD",
+                "laravel",
+                "laravel-package",
+                "laravel-seo",
+                "meta-tags",
+                "open-graph",
+                "schema-org",
+                "search-engine-optimization",
+                "seo",
+                "seo-helper",
+                "seo-integration",
+                "seo-kit",
+                "seo-manager",
+                "seo-optimization",
+                "seo-tools",
+                "seokit",
+                "social-sharing",
+                "structured-data",
+                "twitter-cards",
+                "web-seo"
+            ],
+            "support": {
+                "issues": "https://github.com/larament/seokit/issues",
+                "source": "https://github.com/larament/seokit/tree/v1.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/iRaziul",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-10-11T16:31:34+00:00"
         },
         {
             "name": "laravel/framework",
@@ -4135,6 +4229,67 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.0"
             },
             "time": "2025-06-25T14:20:11+00:00"
+        },
+        {
+            "name": "spatie/laravel-package-tools",
+            "version": "1.92.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-package-tools.git",
+                "reference": "f09a799850b1ed765103a4f0b4355006360c49a5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/f09a799850b1ed765103a4f0b4355006360c49a5",
+                "reference": "f09a799850b1ed765103a4f0b4355006360c49a5",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^9.28|^10.0|^11.0|^12.0",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.5",
+                "orchestra/testbench": "^7.7|^8.0|^9.0|^10.0",
+                "pestphp/pest": "^1.23|^2.1|^3.1",
+                "phpunit/php-code-coverage": "^9.0|^10.0|^11.0",
+                "phpunit/phpunit": "^9.5.24|^10.5|^11.5",
+                "spatie/pest-plugin-test-time": "^1.1|^2.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\LaravelPackageTools\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Tools for creating Laravel packages",
+            "homepage": "https://github.com/spatie/laravel-package-tools",
+            "keywords": [
+                "laravel-package-tools",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/laravel-package-tools/issues",
+                "source": "https://github.com/spatie/laravel-package-tools/tree/1.92.7"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-07-17T15:46:43+00:00"
         },
         {
             "name": "spatie/laravel-permission",
