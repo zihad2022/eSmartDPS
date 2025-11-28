@@ -1,14 +1,8 @@
 <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
-            <div class="flex items-center space-x-3">
-                <div class="bg-accent-500 text-white p-2 rounded-lg">
-                    <i class="fas fa-piggy-bank text-xl"></i>
-                </div>
-                <div>
-                    <span class="font-display font-bold text-xl text-primary-900">DYDS</span>
-                    <span class="block text-xs text-primary-500">Dream Young Development Society</span>
-                </div>
+            <div>
+                    <x-application-logo/>
             </div>
 
             <div class="hidden md:flex items-center space-x-8">
