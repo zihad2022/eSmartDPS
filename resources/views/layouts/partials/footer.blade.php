@@ -1,3 +1,6 @@
+@php
+    $settings = \App\Models\AdminSetting::select('site_description')->first();
+@endphp
 <footer class="bg-primary-900 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -6,8 +9,7 @@
                     <x-application-logo />
                 </div>
                 <p class="text-gray-300 mb-6 max-w-md">
-                    Empowering communities through collaborative savings and sustainable development projects. Join
-                    us in building a better future together.
+                    {{ $settings->site_description }}
                 </p>
                 <div class="flex space-x-4">
                     <a href="#"
