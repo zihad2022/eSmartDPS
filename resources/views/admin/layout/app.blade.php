@@ -45,7 +45,7 @@
 </head>
 
 <body class="font-sans bg-gray-50 text-primary-900">
-    <div class="flex h-screen bg-gray-100">
+    <div class="flex h-screen bg-gray-100 overflow-hidden">
         
         {{-- Mobile Sidebar Overlay --}}
         <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
@@ -54,7 +54,7 @@
         @include('admin.layout.partials.sidebar')
 
         {{-- Main Content Area --}}
-        <main class="flex-1 md:ml-0 transition-all duration-300">
+        <main class="flex-1 md:ml-0 transition-all duration-300 overflow-y-auto w-full">
 
             {{-- Top Navigation --}}
             @include('admin.layout.partials.topbar')
