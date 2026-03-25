@@ -84,6 +84,9 @@
         document.onclick=()=>{notificationDropdown.classList.remove('active');profileDropdown.classList.remove('active')};
     </script>
 
+    {{-- Global Confirmation Modal --}}
+    <x-confirm-modal />
+
     {{-- Extra Scripts (Injected using @push) --}}
     @stack('scripts')
     @stack('bodyScripts')

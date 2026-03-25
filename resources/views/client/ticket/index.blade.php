@@ -200,7 +200,6 @@
                                         @include('client.ticket.destroy')
                                     </div>
                                 </td>
-                                <x-confirm-modal />
                             </tr>
                         @empty
                             <tr>

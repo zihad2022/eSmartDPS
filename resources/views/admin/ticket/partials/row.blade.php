@@ -21,5 +21,4 @@
         </a>
         @include('admin.ticket.destroy')
     </div>
-    <x-confirm-modal />
 </td>

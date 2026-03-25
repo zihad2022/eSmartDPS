@@ -49,5 +49,4 @@
             </button>
         </form>
     </div>
-    <x-confirm-modal />
 </td>

@@ -218,7 +218,6 @@
                                             </form>
                                         @endif
                                     </div>
-                                    <x-confirm-modal />
                                 </td>
                             </tr>
                         @empty

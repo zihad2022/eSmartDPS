@@ -149,7 +149,6 @@
                                     </div>
 
                                     {{-- Confirmation Modal --}}
-                                    <x-confirm-modal />
                                 </td>
                             </tr>
                         @empty
