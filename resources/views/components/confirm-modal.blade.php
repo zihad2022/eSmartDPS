@@ -49,7 +49,7 @@ aria-labelledby="modal-title" role="dialog" aria-modal="true">
         x-transition:leave="ease-in duration-200" 
         x-transition:leave-start="opacity-100" 
         x-transition:leave-end="opacity-0" 
-        class="fixed inset-0 bg-gray-950/40 backdrop-blur-[6px] transition-opacity"></div>
+        class="fixed inset-0 bg-primary-900/40 backdrop-blur-sm transition-opacity"></div>
 
     <!-- Modal Content -->
     <div x-show="show" 
@@ -57,63 +57,63 @@ aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <div x-show="show" 
                 x-on:click.away="close()"
-                x-transition:enter="ease-out duration-400" 
-                x-transition:enter-start="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95" 
+                x-transition:enter="ease-out duration-300" 
+                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
                 x-transition:leave="ease-in duration-200" 
                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" 
-                x-transition:leave-end="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95" 
-                class="relative transform overflow-hidden rounded-[24px] bg-white text-left shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
+                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-200">
                 
-                <!-- Close Button (X) -->
+                <!-- Close Button -->
                 <button x-on:click="close()" 
-                    class="absolute right-5 top-5 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors duration-200"
+                    class="absolute right-4 top-4 text-primary-400 hover:text-primary-600 focus:outline-none transition-colors duration-200"
                     aria-label="Close modal">
-                    <i class="fas fa-times text-lg"></i>
+                    <i class="fas fa-times"></i>
                 </button>
 
-                <div class="bg-white px-8 pt-10 pb-4">
-                    <div class="flex flex-col items-center">
-                        <!-- Icon with subtle glow -->
-                        <div class="flex h-16 w-16 items-center justify-center rounded-2xl shadow-sm mb-6 transition-all duration-500"
+                <div class="bg-white px-6 pt-8 pb-4">
+                    <div class="flex flex-col items-center sm:items-start sm:flex-row">
+                        <!-- Icon -->
+                        <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg mb-4 sm:mb-0 sm:mr-4"
                             :class="{
-                                'bg-red-50 text-red-500 ring-4 ring-red-50/50': type === 'danger' || type === 'warning',
-                                'bg-blue-50 text-blue-500 ring-4 ring-blue-50/50': type === 'info',
-                                'bg-green-50 text-green-500 ring-4 ring-green-50/50': type === 'success',
+                                'bg-red-100 text-red-600': type === 'danger' || type === 'warning',
+                                'bg-accent-100 text-accent-700': type === 'success',
+                                'bg-primary-100 text-primary-600': type === 'info',
                             }">
                             <template x-if="type === 'danger' || type === 'warning'">
-                                <i class="fas fa-exclamation-triangle text-2xl"></i>
+                                <i class="fas fa-exclamation-triangle text-lg"></i>
                             </template>
                             <template x-if="type === 'info'">
-                                <i class="fas fa-info-circle text-2xl"></i>
+                                <i class="fas fa-info-circle text-lg"></i>
                             </template>
                             <template x-if="type === 'success'">
-                                <i class="fas fa-check-circle text-2xl"></i>
+                                <i class="fas fa-check-circle text-lg"></i>
                             </template>
                         </div>
                         
-                        <!-- Content -->
-                        <div class="text-center w-full">
-                            <h3 class="text-2xl font-bold text-gray-900 mb-3 tracking-tight font-display" id="modal-title" x-text="title"></h3>
-                            <p class="text-[15px] text-gray-500 leading-relaxed font-sans px-2" x-text="message"></p>
+                        <!-- Text -->
+                        <div class="text-center sm:text-left">
+                            <h3 class="text-lg font-bold text-primary-900 mb-1 font-display" id="modal-title" x-text="title"></h3>
+                            <p class="text-sm text-primary-500 font-sans" x-text="message"></p>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Action Buttons -->
-                <div class="px-8 py-8 flex flex-col sm:flex-row-reverse sm:gap-3">
+                <!-- Footer Buttons -->
+                <div class="px-6 py-6 sm:flex sm:flex-row-reverse sm:gap-3 border-t border-gray-50 bg-gray-50/30">
                     <button type="button" 
                         x-on:click="confirm()"
-                        class="inline-flex w-full justify-center rounded-xl px-6 py-3 text-[15px] font-bold text-white shadow-lg transition-all duration-200 sm:w-1/2 outline-none hover:shadow-xl active:scale-[0.98]"
+                        class="inline-flex w-full justify-center rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 sm:w-auto outline-none"
                         :class="{
-                            'bg-red-500 hover:bg-red-600 shadow-red-200 focus:ring-2 focus:ring-red-400 focus:ring-offset-2': type === 'danger' || type === 'warning',
-                            'bg-blue-500 hover:bg-blue-600 shadow-blue-200 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2': type === 'info',
-                            'bg-green-500 hover:bg-green-600 shadow-green-200 focus:ring-2 focus:ring-green-400 focus:ring-offset-2': type === 'success',
+                            'bg-red-600 hover:bg-red-700': type === 'danger' || type === 'warning',
+                            'bg-primary-700 hover:bg-primary-800': type === 'info',
+                            'bg-accent-500 hover:bg-accent-600': type === 'success',
                         }"
                         x-text="confirmText"></button>
                     <button type="button" 
                         x-on:click="close()"
-                        class="mt-3 inline-flex w-full justify-center rounded-xl bg-gray-50 px-6 py-3 text-[15px] font-bold text-gray-600 hover:bg-gray-100 transition-all duration-200 sm:mt-0 sm:w-1/2 border border-gray-200/50 hover:border-gray-300 active:scale-[0.98]"
+                        class="mt-3 inline-flex w-full justify-center rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-primary-700 shadow-sm border border-gray-300 hover:bg-gray-50 transition-all duration-200 sm:mt-0 sm:w-auto"
                         x-text="cancelText"></button>
                 </div>
             </div>
