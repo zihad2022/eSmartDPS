@@ -38,6 +38,7 @@
 }" 
 x-on:confirm-action.window="open($event.detail)"
 x-on:keydown.escape.window="close()"
+x-cloak
 class="relative z-[9999]"
 aria-labelledby="modal-title" role="dialog" aria-modal="true">
 
