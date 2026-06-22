@@ -71,6 +71,13 @@ class ClientController extends Controller
             ->with('success', 'Client created successfully.');
     }
 
+    public function show(Client $client): View
+    {
+        return view('admin.client.show', [
+            'client' => $client,
+        ]);
+    }
+
     public function edit(
         Client $client,
         GuardRootClientAction $guard,
