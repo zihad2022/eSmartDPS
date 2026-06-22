@@ -16,6 +16,7 @@ class Package extends Model
      */
     protected $fillable = [
         'name',
+        'slug',
         'description',
         'price',
         'discount_value',
@@ -25,6 +26,7 @@ class Package extends Model
         'user_limit',
         'project_limit',
         'is_active',
+        'features',
     ];
 
     /**
@@ -37,6 +39,7 @@ class Package extends Model
         'has_trial' => 'boolean',
         'discount_type' => DiscountType::class,
         'billing_cycle' => BillingCycle::class,
+        'features' => 'json',
     ];
 
     /**
@@ -128,4 +131,16 @@ class Package extends Model
      {
          return max(0, $this->price - $this->discount_amount);
      }
+
+    /**
+     * Check if a specific feature is enabled in this package.
+     */
+    public function hasFeature(string $featureSlug): bool
+    {
+        if (is_null($this->features)) {
+            return false;
+        }
+
+        return isset($this->features[$featureSlug]) && $this->features[$featureSlug] === true;
+    }
 }
