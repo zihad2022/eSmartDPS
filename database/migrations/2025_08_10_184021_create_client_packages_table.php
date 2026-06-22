@@ -22,6 +22,7 @@ return new class extends Migration
 
             $table->boolean('is_trial')->default(false);
             $table->boolean('is_active')->default(true);
+            $table->string('status')->default('active');
 
             $table->timestamps();
         });
