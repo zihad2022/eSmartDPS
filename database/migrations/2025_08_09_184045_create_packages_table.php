@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('packages', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('slug')->unique()->nullable();
             $table->text('description')->nullable();
             $table->unsignedBigInteger('price');
             $table->unsignedBigInteger('discount_value')->nullable()->default(0);
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->boolean('has_trial')->default(false);
             $table->integer('trial_days')->default(0);
+            $table->json('features')->nullable();
             $table->timestamps();
         });
     }
