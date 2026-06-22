@@ -105,11 +105,24 @@ class Client extends Authenticatable
         return $this->hasOne(ClientPackage::class)->latestOfMany();
     }
 
+    public function currentSubscription(): ?ClientPackage
+    {
+        return $this->clientPackages()
+            ->where('is_active', true)
+            ->where('status', 'active')
+            ->where('ends_at', '>', now())
+            ->latest()
+            ->first();
+    }
+
     public function activeClientPackage(): HasOne
     {
         return $this->hasOne(ClientPackage::class)
-            ->where('is_active', true)
-            ->where('ends_at', '>', now());
+            ->where(function ($query) {
+                $query->where('is_active', true)
+                    ->where('status', 'active')
+                    ->where('ends_at', '>', now());
+            });
     }
 
     public function activePaidClientPackage(): HasOne
