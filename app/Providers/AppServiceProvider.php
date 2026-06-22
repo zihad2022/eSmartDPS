@@ -59,5 +59,13 @@ class AppServiceProvider extends ServiceProvider
             return auth('admin')->check()
                 && auth('admin')->user()->can($permission);
         });
+
+        // Global Gate for Subscription Feature Access
+        \Illuminate\Support\Facades\Gate::define('access-feature', function ($client, string $featureSlug) {
+            if (!($client instanceof \App\Domain\Clients\Models\Client)) {
+                return false;
+            }
+            return (new \App\Services\SubscriptionService($client))->canAccessFeature($featureSlug);
+        });
     }
 }
