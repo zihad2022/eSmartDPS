@@ -9,48 +9,39 @@ use Illuminate\Support\Facades\Log;
 
 class SubscriptionMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, ?string $feature = null)
     {
-        // 1️⃣ Get the authenticated client or fallback to parent
-        $client = Client::find(owner_client_id());
+        // Get the owner client ID (custom helper in this project)
+        $clientId = owner_client_id();
+        $client = \App\Domain\Clients\Models\Client::find($clientId);
 
         if (! $client) {
-            Log::warning('[SubscriptionMiddleware] Unauthorized access: no client found.', [
-                'ip' => $request->ip(),
-                'url' => $request->fullUrl(),
-            ]);
             return redirect()->route('client.login');
         }
 
-        $now = now();
+        $subscription = new \App\Services\SubscriptionService($client);
 
-        // 2️⃣ Check active trial package
-        $trial = $client->activeClientPackage()
-            ->where('is_trial', true)
-            ->where('ends_at', '>', $now)
-            ->first();
+        // Global active check
+        if (! $subscription->isActive()) {
+            Log::info('[SubscriptionMiddleware] Access denied: subscription expired or inactive.', [
+                'client_id' => $client->id,
+                'ip' => $request->ip(),
+                'url' => $request->fullUrl(),
+            ]);
 
-        if ($trial) {
-            return $next($request);
+            return redirect()->route('client.subscription.expired');
         }
 
-        // 3️⃣ Check active paid package
-        $paid = $client->activeClientPackage()
-            ->where('is_trial', false)
-            ->where('ends_at', '>', $now)
-            ->first();
+        // Specific feature check if provided
+        if ($feature && ! $subscription->canAccessFeature($feature)) {
+            Log::info('[SubscriptionMiddleware] Feature access denied.', [
+                'client_id' => $client->id,
+                'feature' => $feature,
+            ]);
 
-        if ($paid) {
-            return $next($request);
+            abort(403, 'Your current package does not include this feature.');
         }
 
-        // 4️⃣ Subscription expired
-        Log::info('[SubscriptionMiddleware] Access denied: subscription expired.', [
-            'client_id' => $client->id,
-            'ip' => $request->ip(),
-            'url' => $request->fullUrl(),
-        ]);
-
-        return redirect()->route('client.subscription.expired');
+        return $next($request);
     }
 }
