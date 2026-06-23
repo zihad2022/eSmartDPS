@@ -14,6 +14,7 @@ class PackageSeeder extends Seeder
         DB::table('packages')->insert([
             [
                 'name' => 'Basic',
+                'slug' => 'basic',
                 'description' => 'For individuals getting started.',
                 'price' => 500,
                 'discount_value' => 0,
@@ -30,6 +31,7 @@ class PackageSeeder extends Seeder
             ],
             [
                 'name' => 'Pro',
+                'slug' => 'pro',
                 'description' => 'For small teams with growing needs.',
                 'price' => 1499,
                 'discount_value' => 10,
@@ -46,6 +48,7 @@ class PackageSeeder extends Seeder
             ],
             [
                 'name' => 'Enterprise',
+                'slug' => 'enterprise',
                 'description' => 'For large organizations with custom needs.',
                 'price' => 2499,
                 'discount_value' => 100,
@@ -62,6 +65,7 @@ class PackageSeeder extends Seeder
             ],
             [
                 'name' => 'Starter',
+                'slug' => 'starter',
                 'description' => 'Best for freelancers and hobby projects.',
                 'price' => 299,
                 'discount_value' => 0,
@@ -78,6 +82,7 @@ class PackageSeeder extends Seeder
             ],
             [
                 'name' => 'Business',
+                'slug' => 'business',
                 'description' => 'For growing businesses that need scalability.',
                 'price' => 1999,
                 'discount_value' => 15,
@@ -94,6 +99,7 @@ class PackageSeeder extends Seeder
             ],
             [
                 'name' => 'Premium',
+                'slug' => 'premium',
                 'description' => 'Advanced features and higher limits for professionals.',
                 'price' => 2999,
                 'discount_value' => 20,
