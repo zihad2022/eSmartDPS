@@ -5,47 +5,72 @@ namespace Database\Seeders;
 use App\Models\Admin;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 
 class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        Admin::create([
-            'name' => 'ESmart Super Admin',
-            'username' => 'esmartsuperadmin',
-            'password' => Hash::make('superadmin123'),
-            'email' => 'superadmin@mail.com',
-            'phone' => '01710000001',
-            'profile_photo' => null,
-            'status' => true,
-        ]);
+        $accounts = [
+            [
+                'role' => 'super-admin',
+                'name' => 'ESmart Super Admin',
+                'username' => 'esmartsuperadmin',
+                'email' =>  'superadmin@mail.com',
+                'password' => 'password',
+                'phone' => '01710000001',
+            ],
+            [
+                'role' => 'admin',
+                'name' => 'ESmart Admin',
+                'username' => 'esmartadmin',
+                'email' => env('SEED_ADMIN_EMAIL', 'admin@mail.com'),
+                'password' => $this->seedPassword('SEED_ADMIN_PASSWORD'),
+                'phone' => '01710000003',
+            ],
+            [
+                'role' => 'manager',
+                'name' => 'ESmart Manager',
+                'username' => 'esmartmanager',
+                'email' => env('SEED_MANAGER_EMAIL', 'manager@mail.com'),
+                'password' => $this->seedPassword('SEED_MANAGER_PASSWORD'),
+                'phone' => '01710000002',
+            ],
+        ];
 
-        Admin::create([
-            'name' => 'ESmart Admin',
-            'username' => 'esmartadmin',
-            'password' => Hash::make('password'),
-            'email' => 'admin@mail.com',
-            'phone' => '01710000003',
-            'profile_photo' => null,
-            'status' => true,
-        ]);
+        foreach ($accounts as $account) {
+            $role = $account['role'];
+            unset($account['role']);
 
-        Admin::create([
-            'name' => 'ESmart Manager',
-            'username' => 'esmartmanager',
-            'password' => Hash::make('password'),
-            'email' => 'manager@mail.com',
-            'phone' => '01710000002',
-            'profile_photo' => null,
-            'status' => true,
-        ]);
-        // Assign roles to users
-        $superAdmin = Admin::where('username', 'esmartsuperadmin')->first();
-        $admin = Admin::where('username', 'esmartadmin')->first();
-        $manager = Admin::where('username', 'esmartmanager')->first();
+            $admin = Admin::query()->updateOrCreate(
+                ['email' => $account['email']],
+                [
+                    'name' => $account['name'],
+                    'username' => $account['username'],
+                    'phone' => $account['phone'],
+                    'password' => Hash::make($account['password']),
+                    'status' => true,
+                ],
+            );
 
-        $superAdmin->assignRole('super-admin');
-        $manager->assignRole('manager');
-        $admin->assignRole('admin');
+            $admin->syncRoles([$role]);
+        }
+    }
+
+    private function seedPassword(string $environmentKey): string
+    {
+        $password = trim((string) env($environmentKey, ''));
+
+        if ($password !== '') {
+            return $password;
+        }
+
+        if (app()->environment(['local', 'testing'])) {
+            return 'password';
+        }
+
+        throw new RuntimeException(
+            "Set [{$environmentKey}] before running AdminSeeder outside local/testing environments."
+        );
     }
 }
