@@ -99,16 +99,19 @@
                             </button>
                         </form>
 
-                        <a href="{{ route('admin.users.create') }}"
-                            class="bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent-600 transition">
-                            Add User
-                        </a>
+                        @adminCan('create users')
+                            <a href="{{ route('admin.users.create') }}"
+                                class="bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent-600 transition">
+                                Add User
+                            </a>
+                        @endadminCan
 
-                        {{-- Export Button --}}
-                        <a href="{{ route('admin.users.export', ['status' => $status]) }}"
-                            class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
-                            <i class="fas fa-download mr-2"></i>Export
-                        </a>
+                        @adminCan('export users')
+                            <a href="{{ route('admin.users.export', ['status' => $status]) }}"
+                                class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
+                                <i class="fas fa-download mr-2"></i>Export
+                            </a>
+                        @endadminCan
                     </div>
                 </div>
             </div>
@@ -162,7 +165,7 @@
 
                                 {{-- Role --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @php $roleName = $user->getRoleNames()->first(); @endphp
+                                    @php $roleName = $user->getRoleNames()->first() ?: 'Unassigned'; @endphp
                                     <span
                                         class="px-2 py-1 text-xs font-medium rounded-full
                                         {{ $roleName === 'admin' ? 'bg-red-100 text-red-800' : ($roleName === 'manager' ? 'bg-blue-100 text-blue-800' : ($roleName === 'super-admin' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800')) }}">
@@ -188,7 +191,13 @@
                                     </span>
                                 </td> --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <livewire:user-status-toggle :admin="$user" :key="$user->id" />
+                                    @if (auth('admin')->user()->can('edit users') && in_array($user->id, $manageableUserIds, true) && ! auth('admin')->user()->is($user))
+                                        <livewire:user-status-toggle :admin="$user" :key="$user->id" />
+                                    @else
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full {{ $user->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                            {{ $user->status ? 'Active' : 'Inactive' }}
+                                        </span>
+                                    @endif
                                 </td>
 
 
@@ -201,12 +210,14 @@
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         {{-- Edit --}}
-                                        <a href="{{ route('admin.users.edit', $user->id) }}"
-                                            class="text-secondary-600 hover:text-secondary-900" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
+                                        @if (auth('admin')->user()->can('edit users') && in_array($user->id, $manageableUserIds, true))
+                                            <a href="{{ route('admin.users.edit', $user->id) }}"
+                                                class="text-secondary-600 hover:text-secondary-900" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        @endif
                                         {{-- Delete --}}
-                                        @if ($user->roles->first()->name !== 'super-admin')
+                                        @if (auth('admin')->user()->can('delete users') && in_array($user->id, $manageableUserIds, true) && ! auth('admin')->user()->is($user) && ! $user->hasRole('super-admin'))
                                             <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
                                                 class="delete-form">
                                                 @csrf

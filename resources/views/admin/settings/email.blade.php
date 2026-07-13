@@ -52,15 +52,15 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <x-form.input name="mail_username" label="Mail Username" :value="old('mail_username', $settings->mail_username ?? '')"
                     placeholder="Enter SMTP username" />
-                <x-form.input name="mail_password" label="Mail Password" type="password" :value="old('mail_password', $settings->mail_password ?? '')"
-                    placeholder="Enter SMTP password" />
+                <x-form.input name="mail_password" label="Mail Password" type="password" :value="old('mail_password', '')"
+                    placeholder="Leave blank to keep the current SMTP password" />
             </div>
 
             {{-- =================== Mail Encryption and From Address ===================
                  Select input for encryption type and email input for sender address.
             --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <x-form.select name="mail_encryption" label="Mail Encryption" :value="old('mail_encryption', $settings->mail_encryption ?? '')" :options="['tls' => 'TLS', 'ssl' => 'SSL']" />
+                <x-form.select name="mail_encryption" label="Mail Encryption" :selected="old('mail_encryption', $settings->mail_encryption ?? 'tls')" :options="['tls' => 'TLS', 'starttls' => 'STARTTLS', 'ssl' => 'SSL', 'none' => 'None']" />
                 <x-form.input name="mail_from_address" label="Mail From Address" type="email" :value="old('mail_from_address', $settings->mail_from_address ?? '')"
                     placeholder="Enter from email address" />
             </div>

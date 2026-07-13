@@ -13,14 +13,11 @@ class UserActivityController extends Controller
      */
     public function __invoke(Request $request)
     {
-        // -----------------------------
-        // 1. Fetch activities
-        // -----------------------------
-        $activities = Activity::with('causer')->where('causer_type', 'App\Models\Client')->orderBy('id', 'desc')->paginate(10);
-
-        // -----------------------------
-        // 2. Return view
-        // -----------------------------
+        $activities = Activity::query()
+            ->with('causer')
+            ->forClientAccount(owner_client_id())
+            ->latest('id')
+            ->paginate(10);
         return view('client.user.activities', compact('activities'));
     }
 }

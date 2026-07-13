@@ -8,6 +8,7 @@ use App\Models\ClientSetting;
 use App\Models\Ledger;
 use App\Models\LedgerCategory;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class LedgerController extends Controller
 {
@@ -183,7 +184,12 @@ class LedgerController extends Controller
         // 1. Validate request data
         // -----------------------------
         $data = $request->validate([
-            'ledger_category_id' => 'required|exists:ledger_categories,id',
+            'ledger_category_id' => [
+                'required',
+                'integer',
+                Rule::exists('ledger_categories', 'id')
+                    ->where(fn ($query) => $query->where('client_id', owner_client_id())),
+            ],
             'type' => 'required|in:' . LedgerType::INCOME->value . ',' . LedgerType::EXPENSE->value,
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',
@@ -240,7 +246,12 @@ class LedgerController extends Controller
         // 1. Validate request data
         // -----------------------------
         $data = $request->validate([
-            'ledger_category_id' => 'required|exists:ledger_categories,id',
+            'ledger_category_id' => [
+                'required',
+                'integer',
+                Rule::exists('ledger_categories', 'id')
+                    ->where(fn ($query) => $query->where('client_id', owner_client_id())),
+            ],
             'type' => 'required|in:' . LedgerType::INCOME->value . ',' . LedgerType::EXPENSE->value,
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',

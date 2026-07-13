@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Domain\Clients\Models\Client;
+use App\Domain\Invoices\Actions\CreateInvoiceAction;
+use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Packages\Models\Package;
-use Illuminate\Http\Request;
-use App\Enums\InvoiceStatus;
 use App\Models\AdminSetting;
+use Illuminate\Http\Request;
 
 class SubscriptionPaymentController extends Controller
 {
@@ -30,16 +32,19 @@ class SubscriptionPaymentController extends Controller
     /**
      * Start package subscription → generate invoice first, then go to select method.
      */
-    public function startPackage(Package $package, Request $request)
+    public function startPackage(Package $package, Request $request, CreateInvoiceAction $createInvoice)
     {
-        // Create invoice for this package if not exists
-        $invoice = Invoice::create([
-            'client_id'   => auth('client')->id(),
-            'package_id'  => $package->id,
-            'amount'      => $package->price,
-            'status'      => InvoiceStatus::UNPAID,
-            'due_date'    => now()->addDays(7),
-        ]);
+        $client = Client::findOrFail(owner_client_id());
+        $billingStart = now()->startOfDay();
+        $billingEnd = $package->billingEndDate($billingStart);
+
+        $invoice = $createInvoice->execute(
+            client: $client,
+            package: $package,
+            billingStart: $billingStart,
+            billingEnd: $billingEnd,
+            dueDate: now()->addDays(7),
+        );
 
         return redirect()->route('client.payments.select', $invoice->id);
     }

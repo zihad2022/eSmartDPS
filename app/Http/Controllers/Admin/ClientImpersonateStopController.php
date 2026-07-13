@@ -2,28 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Admin\Clients\StopClientImpersonationAction;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Http\RedirectResponse;
 
 class ClientImpersonateStopController extends Controller
 {
-    /**
-     * Handle the incoming request.
-     */
-    public function __invoke()
+    public function __invoke(StopClientImpersonationAction $action): RedirectResponse
     {
-        if (!Session::has('impersonate_admin_id')) {
-            return redirect()->route('admin.dashboard');
+        if (! $action->execute()) {
+            return redirect()->route('admin.login')
+                ->with('error', 'The impersonation session is no longer valid.');
         }
-
-        $adminId = Session::pull('impersonate_admin_id');
-
-        // Logout from client guard
-        Auth::guard('client')->logout();
-
-        // Login back as admin
-        Auth::guard('admin')->loginUsingId($adminId);
 
         return redirect()->route('admin.dashboard')
             ->with('success', 'Impersonation stopped. Back to admin dashboard.');

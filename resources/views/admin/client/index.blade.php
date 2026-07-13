@@ -46,9 +46,13 @@
 
             <x-slot:header>
                 <x-search-form :action="route('admin.clients.index')" :value="$searchQuery" placeholder="Search clients..." />
-                <x-buttons.button href="{{ route('admin.clients.create') }}">Add Client</x-buttons.button>
-                <x-buttons.button variant="gray" href="{{ route('admin.clients.export', ['status' => $status]) }}"
-                    icon="fas fa-download">Export</x-buttons.button>
+                @adminCan('create clients')
+                    <x-buttons.button href="{{ route('admin.clients.create') }}">Add Client</x-buttons.button>
+                @endadminCan
+                @adminCan('export clients')
+                    <x-buttons.button variant="gray" href="{{ route('admin.clients.export', ['status' => $status]) }}"
+                        icon="fas fa-download">Export</x-buttons.button>
+                @endadminCan
             </x-slot:header>
 
             @forelse ($clients as $client)
@@ -67,25 +71,32 @@
                                 class="text-accent-600 hover:text-accent-900" title="View">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{{ route('admin.clients.edit', $client->id) }}"
-                                class="text-secondary-600 hover:text-secondary-900" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form method="POST" action="{{ route('admin.clients.destroy', $client->id) }}"
-                                class="delete-form">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" class="text-red-600 hover:text-red-900 delete-btn"
-                                    title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                            <a href="{{ route('admin.client.impersonate', $client->id) }}" target="_blank"
-                                class="text-yellow-500 hover:text-yellow-700" title="Login as Client">
-                                <i class="fas fa-user-shield"></i>
-                            </a>
+                            @adminCan('edit clients')
+                                <a href="{{ route('admin.clients.edit', $client) }}"
+                                    class="text-secondary-600 hover:text-secondary-900" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            @endadminCan
+                            @adminCan('delete clients')
+                                <form method="POST" action="{{ route('admin.clients.destroy', $client) }}"
+                                    class="delete-form">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="text-red-600 hover:text-red-900 delete-btn"
+                                        title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            @endadminCan
+                            @adminCan('edit clients')
+                                <form method="POST" action="{{ route('admin.client.impersonate', $client) }}">
+                                    @csrf
+                                    <button type="submit" class="text-yellow-500 hover:text-yellow-700" title="Login as Client">
+                                        <i class="fas fa-user-shield"></i>
+                                    </button>
+                                </form>
+                            @endadminCan
                         </div>
-                       @include('admin.client.destroy')
                     </td>
                 </tr>
             @empty

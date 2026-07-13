@@ -3,122 +3,58 @@
 namespace App\Exports;
 
 use App\Domain\Invoices\Models\Invoice;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Illuminate\Database\Eloquent\Builder;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-/**
- * Class InvoiceExport
- *
- * This class is responsible for exporting invoices to an Excel file.
- * It uses Maatwebsite\Excel to generate an export with custom headings and row mappings.
- */
-class InvoiceExport implements FromCollection, WithHeadings, WithMapping
+class InvoiceExport implements FromQuery, WithHeadings, WithMapping
 {
-    /**
-     * Serial counter for exported rows.
-     *
-     * @var int
-     */
     private int $sl = 1;
 
-    /**
-     * Invoice status filter (paid, unpaid, refunded, etc.).
-     *
-     * @var string|null
-     */
-    private $status;
-
-    /**
-     * Create a new export instance with a given status filter.
-     *
-     * @param string|null $status
-     */
-    public function __construct($status = null)
+    public function __construct(private readonly ?string $status = null)
     {
-        $this->status = $status;
     }
 
-    /**
-     * Get the collection of invoices based on the provided status.
-     * This will be the data source for the export.
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function collection()
+    public function query(): Builder
     {
-        $query = Invoice::orderBy('id', 'desc');
-
-        // Apply status filter if provided
-        if ($this->status === 'paid') {
-            return $query->paid()->get();
-        }
-
-        if ($this->status === 'unpaid') {
-            return $query->unpaid()->get();
-        }
-
-        if ($this->status === 'refunded') {
-            return $query->refunded()->get();
-        }
-
-        if ($this->status === 'refund-requested') {
-            return $query->refundRequested()->get();
-        }
-
-        if ($this->status === 'cancelled') {
-            return $query->cancelled()->get();
-        }
-
-        // If no status filter, return all invoices
-        return $query->get();
+        return Invoice::query()
+            ->with('client:id,first_name,last_name')
+            ->when($this->status === 'paid', fn (Builder $query) => $query->paid())
+            ->when($this->status === 'unpaid', fn (Builder $query) => $query->unpaid())
+            ->when($this->status === 'refunded', fn (Builder $query) => $query->refunded())
+            ->when($this->status === 'refund-requested', fn (Builder $query) => $query->refundRequested())
+            ->when($this->status === 'cancelled', fn (Builder $query) => $query->cancelled())
+            ->orderByDesc('id');
     }
 
-    /**
-     * Define the column headings for the Excel export.
-     *
-     * @return array
-     */
     public function headings(): array
     {
         return [
-            'SL',                // Serial Number
-            'Invoice Number',    // Unique invoice number
-            'Client Name',       // Full name of the client
-            'Invoice Amount',    // Total invoice amount
-            'Status',            // Invoice status
-            'Payment ID',        // Payment reference ID
-            'Trx ID',            // Transaction ID
-            'Payment Method',    // Payment method (Bank, PayPal, etc.)
-            'Wallet Address',    // Wallet address if crypto or digital wallet
-            'Created At',        // Invoice creation date
-            'Updated At',        // Last update date
+            'SL', 'Invoice Number', 'Client Name', 'Package', 'Billing Start', 'Billing End',
+            'Due Date', 'Invoice Amount', 'Status', 'Payment ID', 'Trx ID', 'Payment Method',
+            'Wallet Address', 'Paid At', 'Created At',
         ];
     }
 
-    /**
-     * Map each invoice model into an array of values for export.
-     *
-     * @param Invoice $invoice
-     * @return array
-     */
     public function map($invoice): array
     {
-        // Eager load client relation to avoid multiple queries
-        $invoice->load('client');
-
         return [
-            $this->sl++, // Increment serial number
+            $this->sl++,
             $invoice->invoice_number,
-            optional($invoice->client)->first_name . ' ' . optional($invoice->client)->last_name,
+            trim(($invoice->client?->first_name ?? '').' '.($invoice->client?->last_name ?? '')) ?: 'N/A',
+            $invoice->package_name,
+            $invoice->billing_start?->format('Y-m-d'),
+            $invoice->billing_end?->format('Y-m-d'),
+            $invoice->due_date?->format('Y-m-d'),
             $invoice->invoice_amount,
-            $invoice->status?->label() ?? '-', // Convert enum or status object to label
+            $invoice->status?->label() ?? '-',
             $invoice->payment_id,
             $invoice->trx_id,
-            $invoice->payment_method?->label() ?? '-', // Convert payment method enum to label
+            $invoice->payment_method?->label() ?? '-',
             $invoice->wallet_address,
-            $invoice->created_at,
-            $invoice->updated_at,
+            $invoice->paid_at?->format('Y-m-d H:i:s'),
+            $invoice->created_at?->format('Y-m-d H:i:s'),
         ];
     }
 }

@@ -6,81 +6,46 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('clients', function (Blueprint $table) {
-            /**
-             * Primary & Foreign Keys
-             */
+        Schema::create('clients', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('parent_id')
                 ->nullable()
                 ->constrained('clients')
-                ->onDelete('cascade');   // For sub-user hierarchy
+                ->cascadeOnDelete();
 
-            /**
-             * Authentication
-             */
-            $table->string('user_id')->unique();
+            $table->string('user_id', 50)->unique();
             $table->string('password');
             $table->rememberToken();
+            $table->timestamp('email_verified_at')->nullable();
 
-            /**
-             * Personal Information
-             */
-            $table->string('first_name');
-            $table->string('last_name');
+            $table->string('first_name', 100);
+            $table->string('last_name', 100);
             $table->string('profile_photo')->nullable();
 
-            /**
-             * Contact Information
-             */
             $table->string('email')->unique();
-            $table->string('phone')->unique();
+            $table->string('phone', 30)->nullable()->unique();
 
-            /**
-             * Identity / NID Information
-             */
-            $table->string('nid_number')->nullable();
+            $table->string('nid_number', 100)->nullable()->index();
             $table->string('nid_card_front')->nullable();
             $table->string('nid_card_back')->nullable();
 
-            /**
-             * Location
-             */
-            $table->string('division')->nullable();
-            $table->string('district')->nullable();
-            $table->string('address')->nullable();
-            $table->string('postal_code')->nullable();
+            $table->string('division', 100)->nullable();
+            $table->string('district', 100)->nullable();
+            $table->text('address')->nullable();
+            $table->string('postal_code', 20)->nullable();
 
-            /**
-             * Roles & Permissions
-             */
-            $table->enum('role', [
-                'super-admin',
-                'admin',
-                'manager',
-                'editor',
-            ])->default('manager');
-
-            /**
-             * Account Status
-             */
-            $table->boolean('status')->default(true);
-
-            /**
-             * Timestamps
-             */
+            // String instead of database enum so roles can evolve without a schema migration.
+            $table->string('role', 50)->default('manager')->index();
+            $table->boolean('status')->default(true)->index();
             $table->timestamps();
+
+            $table->index(['parent_id', 'status']);
+            $table->index(['created_at', 'status']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('clients');

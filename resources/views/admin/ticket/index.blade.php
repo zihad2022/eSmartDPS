@@ -127,14 +127,18 @@
                     </button>
                 </form>
 
-                <a href="{{ route('admin.tickets.create') }}"
-                    class="bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent-600 transition">
-                    Add Ticket
-                </a>
-                <a href="{{ route('admin.tickets.export', ['status' => $status]) }}"
-                    class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition">
-                    <i class="fas fa-download mr-2"></i>Export
-                </a>
+                @adminCan('create tickets')
+                    <a href="{{ route('admin.tickets.create') }}"
+                        class="bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent-600 transition">
+                        Add Ticket
+                    </a>
+                @endadminCan
+                @adminCan('export tickets')
+                    <a href="{{ route('admin.tickets.export', ['status' => $status]) }}"
+                        class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </a>
+                @endadminCan
             </x-slot:actions>
         </x-data-table>
     </div>

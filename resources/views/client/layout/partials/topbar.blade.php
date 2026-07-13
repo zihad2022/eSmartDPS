@@ -69,10 +69,12 @@
                     </div>
                 </div>
                 @if (session()->has('impersonate_admin_id'))
-                    <a href="{{ route('admin.client.impersonate.stop') }}"
-                        class="px-3 py-2 bg-red-600 text-white rounded">
-                        Return to Admin
-                    </a>
+                    <form method="POST" action="{{ route('admin.client.impersonate.stop') }}">
+                        @csrf
+                        <button type="submit" class="px-3 py-2 bg-red-600 text-white rounded">
+                            Return to Admin
+                        </button>
+                    </form>
                 @endif
                 <!-- User Menu -->
                 <div class="relative">

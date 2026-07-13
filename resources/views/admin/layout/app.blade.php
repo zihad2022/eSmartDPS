@@ -73,15 +73,63 @@
 
     {{-- Core Scripts --}}
     <script>
-        const S=(o)=>o.classList.toggle('active'),H=(o)=>o.classList.toggle('hidden'); 
-        sidebarToggle.onclick=()=>{S(sidebar);H(mobileOverlay)}; 
-        closeSidebar.onclick=mobileOverlay.onclick=()=>{sidebar.classList.remove('active');mobileOverlay.classList.add('hidden')};
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const closeSidebar = document.getElementById('closeSidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const notificationBtn = document.getElementById('notificationBtn');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const profileBtn = document.getElementById('profileBtn');
+            const profileDropdown = document.getElementById('profileDropdown');
 
-        document.querySelectorAll('.dropdown-toggle').forEach(b=>b.onclick=function(){let d=document.getElementById(this.dataset.target);document.querySelectorAll('.dropdown-menu').forEach(m=>m!=d&&m.classList.remove('active'));d.classList.toggle('active');this.querySelector('.fa-chevron-down').style.transform=d.classList.contains('active')?'rotate(180deg)':'rotate(0deg)'});
+            const closeMobileSidebar = () => {
+                sidebar?.classList.remove('active');
+                mobileOverlay?.classList.add('hidden');
+            };
 
-        notificationBtn.onclick=(e)=>{e.stopPropagation();S(notificationDropdown);profileDropdown.classList.remove('active')};
-        profileBtn.onclick=(e)=>{e.stopPropagation();S(profileDropdown);notificationDropdown.classList.remove('active')};
-        document.onclick=()=>{notificationDropdown.classList.remove('active');profileDropdown.classList.remove('active')};
+            sidebarToggle?.addEventListener('click', () => {
+                sidebar?.classList.toggle('active');
+                mobileOverlay?.classList.toggle('hidden');
+            });
+            closeSidebar?.addEventListener('click', closeMobileSidebar);
+            mobileOverlay?.addEventListener('click', closeMobileSidebar);
+
+            document.querySelectorAll('.dropdown-toggle').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const menu = document.getElementById(button.dataset.target);
+                    if (!menu) return;
+
+                    document.querySelectorAll('.dropdown-menu').forEach((item) => {
+                        if (item !== menu) item.classList.remove('active');
+                    });
+
+                    menu.classList.toggle('active');
+                    button.setAttribute('aria-expanded', menu.classList.contains('active') ? 'true' : 'false');
+                    const chevron = button.querySelector('.fa-chevron-down');
+                    if (chevron) {
+                        chevron.style.transform = menu.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
+                    }
+                });
+            });
+
+            notificationBtn?.addEventListener('click', (event) => {
+                event.stopPropagation();
+                notificationDropdown?.classList.toggle('active');
+                profileDropdown?.classList.remove('active');
+            });
+
+            profileBtn?.addEventListener('click', (event) => {
+                event.stopPropagation();
+                profileDropdown?.classList.toggle('active');
+                notificationDropdown?.classList.remove('active');
+            });
+
+            document.addEventListener('click', () => {
+                notificationDropdown?.classList.remove('active');
+                profileDropdown?.classList.remove('active');
+            });
+        });
     </script>
 
     {{-- Global Confirmation Modal --}}

@@ -8,43 +8,32 @@ use App\Services\ActivityLogger;
 
 class ClientObserver
 {
-    public function creating(Client $client)
+    public function creating(Client $client): void
     {
-        // Generate unique user ID only for parent clients
-        if (is_null($client->parent_id)) {
+        if ($client->parent_id === null && blank($client->user_id)) {
             $client->user_id = generate_client_user_id();
         }
     }
 
-    public function created(Client $client)
+    public function created(Client $client): void
     {
-        // Determine label based on parent_id
-        $label = is_null($client->parent_id) ? 'Client' : 'User';
+        $label = $client->parent_id === null ? 'Client' : 'User';
+        ActivityLogger::log("{$label} '{$client->full_name}' was created.");
 
-        ActivityLogger::log("{$label} '{$client->first_name} {$client->last_name}' was created.");
-
-        // Only create settings for parent clients
-        if (is_null($client->parent_id)) {
-            ClientSetting::create([
-                'client_id' => $client->id,
-            ]);
+        if ($client->parent_id === null) {
+            ClientSetting::query()->firstOrCreate(['client_id' => $client->id]);
         }
     }
 
-    public function updated(Client $client)
+    public function updated(Client $client): void
     {
-        $label = is_null($client->parent_id) ? 'Client' : 'User';
-        ActivityLogger::log("{$label} '{$client->first_name} {$client->last_name}' was updated.");
+        $label = $client->parent_id === null ? 'Client' : 'User';
+        ActivityLogger::log("{$label} '{$client->full_name}' was updated.");
     }
 
-    public function deleted(Client $client)
+    public function deleted(Client $client): void
     {
-        $label = is_null($client->parent_id) ? 'Client' : 'User';
-        ActivityLogger::log("{$label} '{$client->first_name} {$client->last_name}' was deleted.");
-
-        // Remove associated client settings only for parent clients
-        if (is_null($client->parent_id)) {
-            ClientSetting::where('client_id', $client->id)->delete();
-        }
+        $label = $client->parent_id === null ? 'Client' : 'User';
+        ActivityLogger::log("{$label} '{$client->full_name}' was deleted.");
     }
 }

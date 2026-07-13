@@ -3,6 +3,7 @@
 namespace App\Domain\Clients\Actions;
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Clients\Models\ClientPackage;
 use App\Domain\Packages\Models\Package;
 use App\Enums\Package\BillingCycle;
 use Carbon\Carbon;
@@ -16,8 +17,8 @@ abstract class BaseSubscriptionAction
     protected function calculateEndDate(BillingCycle $billingCycle, Carbon $startDate): Carbon
     {
         return match ($billingCycle) {
-            BillingCycle::MONTHLY => $startDate->copy()->addMonth(),
-            BillingCycle::YEARLY  => $startDate->copy()->addYear(),
+            BillingCycle::MONTHLY => $startDate->copy()->addMonthNoOverflow(),
+            BillingCycle::YEARLY  => $startDate->copy()->addYearNoOverflow(),
             default => $startDate->copy()->addDays(7),
         };
     }
@@ -29,7 +30,10 @@ abstract class BaseSubscriptionAction
     {
         $client->clientPackages()
             ->where('is_active', true)
-            ->update(['is_active' => false]);
+            ->update([
+                'is_active' => false,
+                'status' => ClientPackage::STATUS_CANCELLED,
+            ]);
     }
 
     /**
@@ -47,7 +51,8 @@ abstract class BaseSubscriptionAction
             'starts_at'  => $startsAt,
             'ends_at'    => $endsAt,
             'is_trial'   => $isTrial,
-            'is_active'  => true,
+            'is_active' => true,
+            'status' => ClientPackage::STATUS_ACTIVE,
         ]);
     }
 }

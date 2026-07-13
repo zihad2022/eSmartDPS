@@ -46,7 +46,7 @@ class PaymentController extends Controller
         $methodValues = array_map(fn ($m) => $m->value, PaymentMethod::cases());
 
         $validated = $request->validate([
-            'payment_amount' => ['required','numeric','min:0.01'],
+            'payment_amount' => ['required', 'numeric', 'min:1'],
             'payment_date' => ['required','date'],
             'payment_method' => ['required', Rule::in($methodValues)],
             'reference_number' => ['nullable','string','max:64'],
@@ -59,14 +59,14 @@ class PaymentController extends Controller
             // Save receipt file
             $path = $request->file('receipt_file')->store('receipts', 'public');
 
-            // Convert to smallest currency unit (e.g., cents)
-            $amountCents = (int) round(((float) $validated['payment_amount']) * 100);
+            // Monetary values are stored as whole currency units across the schema.
+            $amount = (int) round((float) $validated['payment_amount']);
 
             Payment::create([
                 'payment_id'      => generate_payment_id(),
                 'client_id'       => $member->client_id,
                 'member_id'       => $member->id,
-                'amount'          => $amountCents,
+                'amount' => $amount,
                 'payment_method'  => (int) $validated['payment_method'],
                 'reference_number'=> $validated['reference_number'] ?? null,
                 'status'          => PaymentStatus::PENDING->value,

@@ -34,49 +34,49 @@ class SettingsSeeder extends Seeder
             'google_map' => '<iframe src="https://maps.google.com/..."></iframe>',
 
             /* ========== Social Media ========== */
-            'facebook_page_url' => 'https://facebook.com/esmartdps',
-            'facebook_group_url' => 'https://facebook.com/groups/esmartdps',
-            'whatsapp_channel_url' => 'https://wa.me/8801700000000',
-            'telegram_channel_url' => 'https://t.me/esmartdps',
-            'linkedin_url' => 'https://linkedin.com/company/esmartdps',
-            'twitter_x_url' => 'https://twitter.com/esmartdps',
-            'youtube_url' => 'https://youtube.com/@esmartdps',
-            'tiktok_url' => 'https://tiktok.com/@esmartdps',
+            'facebook_page' => 'https://facebook.com/esmartdps',
+            'facebook_group' => 'https://facebook.com/groups/esmartdps',
+            'whatsapp_channel' => 'https://wa.me/8801700000000',
+            'telegram_channel' => 'https://t.me/esmartdps',
+            'linkedin' => 'https://linkedin.com/company/esmartdps',
+            'twitter_x' => 'https://twitter.com/esmartdps',
+            'youtube' => 'https://youtube.com/@esmartdps',
+            'tiktok' => 'https://tiktok.com/@esmartdps',
 
             /* ========== Payment Settings ========== */
             'currency' => 'BDT',
             'late_fee' => 50.00,
 
             // bKash
-            'bkash_base_url'   => 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout',
-            'bkash_username'   => 'sandboxTokenizedUser02',
-            'bkash_password'   => 'sandboxTokenizedUser02@12345',
-            'bkash_app_key'    => '4f6o0cjiki2rfm34kfdadl1eqq',
-            'bkash_app_secret' => '2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4b',
+            'bkash_base_url' => env('BKASH_BASE_URL'),
+            'bkash_username' => env('BKASH_USERNAME'),
+            'bkash_password' => env('BKASH_PASSWORD'),
+            'bkash_app_key' => env('BKASH_APP_KEY'),
+            'bkash_app_secret' => env('BKASH_APP_SECRET'),
             'bkash_charge'     => 0.00,
             'bkash_status'     => false, // false = disabled, true = active
 
             // SSLCommerz
-            'sslcommerz_store_id' => 'test_store_id',
-            'sslcommerz_store_password' => 'test_store_pass',
-            'sslcommerz_mode' => 'sandbox',
+            'sslcommerz_store_id' => env('SSLC_STORE_ID'),
+            'sslcommerz_store_password' => env('SSLC_STORE_PASSWORD'),
+            'sslcommerz_mode' => env('SSLC_SANDBOX', true) ? 'sandbox' : 'live',
 
             /* ========== SMS Settings ========== */
-            'sms_api_key' => 'VB613Haz5AuGptMYl2e936CgbJfZZgBWcrGwu0352aQ=',
-            'sms_client_id' => '68779bd4-159e-4f49-8ffe-14fd140627c5',
-            'sms_sender_id' => '8809617609953',
-            'sms_api_url' => 'http://panel.softclever.com/api/v2/SendSMS',
-            'sms_balance_api' => 'http://panel.softclever.com/api/v2/GetBalance',
+            'sms_api_key' => env('SMS_API_KEY'),
+            'sms_client_id' => env('SMS_CLIENT_ID'),
+            'sms_sender_id' => env('SMS_SENDER_ID'),
+            'sms_api_url' => env('SMS_API_URL'),
+            'sms_balance_api' => env('SMS_BALANCE_API_URL'),
             'sms_message_template' => "Dear {name}, your One-Time Password (OTP) is {otp}. Please use this code to reset your password. This OTP will expire in 5 minutes. - {app_name} Security Team",
 
             /* ========== Email Settings ========== */
-            'mail_host' => 'smtp.gmail.com',
-            'mail_port' => '465',
-            'mail_username' => 'zihadulislamafnan@gmail.com',
-            'mail_password' => 'cmxafjhcpnybjlqq',
-            'mail_encryption' => 'tls',
-            'mail_from_address' => 'zihadulislamafnan@gmail.com',
-            'mail_from_name' => 'eSmartDPS',
+            'mail_host' => env('MAIL_HOST'),
+            'mail_port' => env('MAIL_PORT'),
+            'mail_username' => env('MAIL_USERNAME'),
+            'mail_password' => env('MAIL_PASSWORD'),
+            'mail_encryption' => env('MAIL_SCHEME'),
+            'mail_from_address' => env('MAIL_FROM_ADDRESS'),
+            'mail_from_name' => env('MAIL_FROM_NAME', 'eSmartDPS'),
             'email_message_template' => "Welcome to our platform, {first_name} {last_name}!\n\nYour account has been created successfully.  
 Your **User ID** is: {user_id}\nYour temporary password is: {password}\n\nPlease use these credentials to log in to your account.\n\n⚠️ For your security, please log in as soon as possible and change your password immediately.  
 Anyone with this password could access your account, so do not share it with anyone.\n\nWe’re excited to have you on board!",

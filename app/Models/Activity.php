@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Domain\Clients\Models\Client;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
@@ -18,12 +20,30 @@ class Activity extends Model
         'activity_date',
     ];
 
-    protected $casts = [
-        'activity_date' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'activity_date' => 'datetime',
+        ];
+    }
 
     public function causer(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function scopeForClientAccount(Builder $query, int $ownerClientId): Builder
+    {
+        return $query
+            ->where('causer_type', Client::class)
+            ->whereIn('causer_id', Client::query()
+                ->select('id')
+                ->where('id', $ownerClientId)
+                ->orWhere('parent_id', $ownerClientId));
+    }
+
+    public function scopeForCauserType(Builder $query, string $causerType): Builder
+    {
+        return $query->where('causer_type', $causerType);
     }
 }

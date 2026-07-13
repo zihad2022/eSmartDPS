@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\AdminSetting;
 use App\Domain\Invoices\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -12,37 +11,21 @@ use Illuminate\Queue\SerializesModels;
 
 class InvoiceMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
-    public Invoice $invoice;
-    public string $currency;
-
-    /**
-     * Create a new message instance.
-     */
-    public function __construct(Invoice $invoice, ?string $currency = null)
-    {
-        $this->invoice = $invoice;
-
-        // -----------------------------
-        // 1. Set currency (fallback to admin setting if not provided)
-        // -----------------------------
-        $this->currency = $currency ?? AdminSetting::query()->value('currency') ?? '$';
+    public function __construct(
+        public Invoice $invoice,
+        public string $currency = 'BDT',
+        public string $siteName = 'eSmartDPS',
+    ) {
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: "Invoice #{$this->invoice->invoice_number}"
-        );
+        return new Envelope(subject: "Invoice #{$this->invoice->invoice_number}");
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
@@ -50,15 +33,11 @@ class InvoiceMail extends Mailable
             with: [
                 'invoice' => $this->invoice,
                 'currency' => $this->currency,
-            ]
+                'siteName' => $this->siteName,
+            ],
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
     public function attachments(): array
     {
         return [];

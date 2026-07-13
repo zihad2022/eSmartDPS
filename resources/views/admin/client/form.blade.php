@@ -48,17 +48,17 @@
             <x-form.input name="phone" label="Phone Number" type="tel" :value="old('phone', $client->phone ?? '')"
                 placeholder="Enter phone number" />
 
-            <x-form.select name="package_id" label="Subscription Plan" :options="$packages->pluck('name', 'id')->toArray()" :selected="old('package_id', $editing ? $client->latestClientPackage?->package?->id : null)" required />
+            <x-form.select name="package_id" label="Subscription Plan" :options="$packages->pluck('name', 'id')->toArray()" :selected="old('package_id', $editing ? $client->activeClientPackage?->package_id : null)" required />
         </div>
 
         {{-- NID Info --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <x-form.input name="nid_number" label="NID Number" :value="old('nid_number', $client->nid_number ?? '')" placeholder="Enter NID number" />
 
-            <x-form.input name="nid_card_front" label="NID Card Front" type="file" accept="image/*"
+            <x-form.input name="nid_card_front" label="NID Card Front" type="file" accept="image/*,.pdf"
                 :editing="$editing" :previewUrl="$client->nid_card_front_url ?? null" />
 
-            <x-form.input name="nid_card_back" label="NID Card Back" type="file" accept="image/*" :editing="$editing"
+            <x-form.input name="nid_card_back" label="NID Card Back" type="file" accept="image/*,.pdf" :editing="$editing"
                 :previewUrl="$client->nid_card_back_url ?? null" />
         </div>
 

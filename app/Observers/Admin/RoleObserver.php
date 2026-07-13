@@ -7,17 +7,23 @@ use Spatie\Permission\Models\Role;
 
 class RoleObserver
 {
-    // Check here if role guard is admin than only create activity
-    public function created(Role $role)
+    public function created(Role $role): void
     {
-        if (auth('admin')->check()) {
+        if ($role->guard_name === 'admin') {
             ActivityLogger::log("Role '{$role->name}' was created.");
         }
     }
 
-    public function deleted(Role $role)
+    public function updated(Role $role): void
     {
-        if (auth('admin')->check()) {
+        if ($role->guard_name === 'admin') {
+            ActivityLogger::log("Role '{$role->name}' was updated.");
+        }
+    }
+
+    public function deleted(Role $role): void
+    {
+        if ($role->guard_name === 'admin') {
             ActivityLogger::log("Role '{$role->name}' was deleted.");
         }
     }

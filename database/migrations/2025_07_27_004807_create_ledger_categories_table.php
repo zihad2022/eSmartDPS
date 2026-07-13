@@ -6,25 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('ledger_categories', function (Blueprint $table) {
+        Schema::create('ledger_categories', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('client_id')
-                ->constrained('clients')
-                ->cascadeOnDelete();
+            $table->foreignId('client_id')->constrained('clients')->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
             $table->timestamps();
+
+            $table->unique(['client_id', 'name']);
+            $table->index(['client_id', 'created_at']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('ledger_categories');

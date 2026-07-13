@@ -3,7 +3,11 @@
 namespace App\Models;
 
 use App\Concerns\HasSlug;
+use App\Domain\Clients\Models\Client;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProjectCategory extends Model
 {
@@ -18,5 +22,20 @@ class ProjectCategory extends Model
     protected function sluggable(): string
     {
         return 'name';
+    }
+
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    public function scopeForClient(Builder $query, int $clientId): Builder
+    {
+        return $query->where('client_id', $clientId);
     }
 }

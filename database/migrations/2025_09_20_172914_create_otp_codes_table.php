@@ -6,29 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('otp_codes', function (Blueprint $table) {
+        Schema::create('otp_codes', function (Blueprint $table): void {
             $table->id();
-        
-            // Polymorphic relation (userable_id, userable_type)
             $table->morphs('userable');
-        
-            $table->string('phone')->nullable();
-            $table->string('otp');
-            $table->timestamp('expires_at')->nullable();
+            $table->string('phone', 30)->nullable();
+            $table->string('otp', 20);
+            $table->timestamp('expires_at');
             $table->boolean('is_used')->default(false);
-        
             $table->timestamps();
+
+            $table->index(['phone', 'is_used', 'expires_at']);
+            $table->index(['userable_type', 'userable_id', 'is_used', 'expires_at'], 'otp_user_lookup');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('otp_codes');

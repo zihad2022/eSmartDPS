@@ -7,27 +7,18 @@ use App\Services\ActivityLogger;
 
 class PackageObserver
 {
-    public function creating(Package $package)
+    public function created(Package $package): void
     {
-        if (app()->runningInConsole()) {
-            return;
-        }
         ActivityLogger::log("Package '{$package->name}' was created.");
     }
 
-    public function updated(Package $package)
+    public function updated(Package $package): void
     {
-        if (app()->runningInConsole()) {
-            return;
-        }
         ActivityLogger::log("Package '{$package->name}' was updated.");
     }
 
-    public function deleted(Package $package)
+    public function deleted(Package $package): void
     {
-        if (app()->runningInConsole()) {
-            return;
-        }
         ActivityLogger::log("Package '{$package->name}' was deleted.");
     }
 }

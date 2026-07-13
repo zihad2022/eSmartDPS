@@ -2,40 +2,81 @@
 
 namespace App\Domain\Clients\Models;
 
-use App\Domain\Clients\Models\Client;
 use App\Domain\Packages\Models\Package;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ClientPackage extends Model
 {
-    protected $casts = [
-        'starts_at' => 'datetime',
-        'ends_at' => 'datetime',
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_EXPIRED = 'expired';
+    public const STATUS_CANCELLED = 'cancelled';
+
+    protected $fillable = [
+        'client_id',
+        'package_id',
+        'starts_at',
+        'ends_at',
+        'is_trial',
+        'is_active',
+        'status',
     ];
 
-    /**
-     * Check if the subscription is currently active by date and status.
-     */
-    public function isActive(): bool
+    protected function casts(): array
     {
-        return $this->is_active && $this->status === 'active' && ! $this->isExpired();
+        return [
+            'starts_at' => 'datetime',
+            'ends_at' => 'datetime',
+            'is_trial' => 'boolean',
+            'is_active' => 'boolean',
+        ];
     }
 
-    /**
-     * Check if the subscription has expired.
-     */
-    public function isExpired(): bool
-    {
-        return $this->ends_at->isPast();
-    }
-
-    public function client()
+    public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
     }
 
-    public function package()
+    public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class);
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query
+            ->where('is_active', true)
+            ->where('status', self::STATUS_ACTIVE)
+            ->where('starts_at', '<=', now())
+            ->where('ends_at', '>', now());
+    }
+
+    public function scopeExpired(Builder $query): Builder
+    {
+        return $query->where('ends_at', '<=', now());
+    }
+
+    public function scopeTrial(Builder $query): Builder
+    {
+        return $query->where('is_trial', true);
+    }
+
+    public function scopePaid(Builder $query): Builder
+    {
+        return $query->where('is_trial', false);
+    }
+
+    public function isActive(): bool
+    {
+        return $this->is_active
+            && $this->status === self::STATUS_ACTIVE
+            && ! $this->isExpired()
+            && ! $this->starts_at->isFuture();
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->ends_at->isPast();
     }
 }

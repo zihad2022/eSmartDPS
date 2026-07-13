@@ -4,7 +4,6 @@ namespace App\Domain\Clients\Actions;
 
 use App\Domain\Clients\DTOs\ClientData;
 use App\Domain\Clients\Models\Client;
-use Illuminate\Support\Facades\Hash;
 
 class CreateClientAction
 {
@@ -26,7 +25,8 @@ class CreateClientAction
             'nid_card_back' => $data->nid_card_back,
             'profile_photo' => $data->profile_photo,
             'password' => $data->password,
-            'role'=> 'super-admin',
+            'role' => 'super-admin',
+            'status' => $data->status,
         ]);
     }
 }

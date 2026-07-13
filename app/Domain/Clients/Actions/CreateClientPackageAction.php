@@ -15,6 +15,9 @@ class CreateClientPackageAction
             'ends_at' => $data->ends_at,
             'is_trial' => $data->is_trial,
             'is_active' => $data->is_active,
+            'status' => $data->is_active
+                ? ClientPackage::STATUS_ACTIVE
+                : ClientPackage::STATUS_CANCELLED,
         ]);
     }
 }

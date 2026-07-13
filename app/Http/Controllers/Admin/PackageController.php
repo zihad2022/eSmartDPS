@@ -2,153 +2,72 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\Package\BillingCycle;
+use App\Actions\Admin\Packages\CreatePackageAction;
+use App\Actions\Admin\Packages\DeletePackageAction;
+use App\Actions\Admin\Packages\GetPackageDetailsAction;
+use App\Actions\Admin\Packages\GetPackagesAction;
+use App\Actions\Admin\Packages\UpdatePackageAction;
+use App\Domain\Packages\Models\Package;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PackageRequest;
-use App\Domain\Packages\Models\Package;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class PackageController extends Controller
 {
-    /**
-     * Display a paginated list of packages.
-     * Supports filtering by search, active/inactive status, and billing cycle.
-     */
-    public function index(Request $request)
+    public function index(Request $request, GetPackagesAction $action): View
     {
-        // -----------------------------
-        // 1. Build query with filters
-        // -----------------------------
-        $packages = Package::query()
-            // Search by name or description
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $search = $request->search;
-                $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%");
-            })
-            // Filter active packages (?status=active)
-            ->when($request->status === 'active', fn ($q) => $q->active())
-            // Filter inactive packages (?status=inactive)
-            ->when($request->status === 'inactive', fn ($q) => $q->inactive())
-            ->latest('id') // Sort by newest first
-            ->paginate(10) // Paginate results
-            ->appends($request->query()); // Preserve query params
-
-        // -----------------------------
-        // 2. Calculate package stats
-        // -----------------------------
-        $activePackages   = Package::active()->count();
-        $inactivePackages = Package::inactive()->count();
-        $monthlyPackages  = Package::where('billing_cycle', BillingCycle::MONTHLY)->count();
-        $yearlyPackages   = Package::where('billing_cycle', BillingCycle::YEARLY)->count();
-
-        // -----------------------------
-        // 3. Return package list view
-        // -----------------------------
-        return view('admin.package.index', compact(
-            'packages',
-            'activePackages',
-            'inactivePackages',
-            'monthlyPackages',
-            'yearlyPackages'
+        return view('admin.package.index', $action->execute(
+            search: $request->string('search')->trim()->toString() ?: null,
+            status: $request->string('status')->toString() ?: null,
         ));
     }
 
-    /**
-     * Show the form to create a new package.
-     */
-    public function create()
+    public function create(): View
     {
-        // -----------------------------
-        // Pass null package to form
-        // -----------------------------
-        // In the Blade, this helps detect create vs edit mode.
         return view('admin.package.form', ['package' => null]);
     }
 
-    /**
-     * Store a newly created package in the database.
-     */
-    public function store(PackageRequest $request)
+    public function store(PackageRequest $request, CreatePackageAction $action): RedirectResponse
     {
-        // -----------------------------
-        // 1. Validate request
-        // -----------------------------
-        $data = $request->validated();
+        $action->execute($request->validated());
 
-        // -----------------------------
-        // 2. Save package
-        // -----------------------------
-        Package::create($data);
-
-        // -----------------------------
-        // 3. Redirect with success
-        // -----------------------------
-        return redirect()
-            ->route('admin.packages.index')
+        return redirect()->route('admin.packages.index')
             ->with('success', 'Package has been created successfully.');
     }
 
-    /**
-     * Display details of a specific package.
-     */
-    public function show(Package $package)
+    public function show(Package $package, GetPackageDetailsAction $action): View
     {
-        // -----------------------------
-        // Show single package details
-        // -----------------------------
-        return view('admin.package.show', compact('package'));
+        return view('admin.package.show', $action->execute($package));
     }
 
-    /**
-     * Show the form to edit an existing package.
-     */
-    public function edit(Package $package)
+    public function edit(Package $package): View
     {
-        // -----------------------------
-        // Pass existing package to form
-        // -----------------------------
         return view('admin.package.form', compact('package'));
     }
 
-    /**
-     * Update an existing package.
-     */
-    public function update(PackageRequest $request, Package $package)
-    {
-        // -----------------------------
-        // 1. Validate request
-        // -----------------------------
-        $data = $request->validated();
+    public function update(
+        PackageRequest $request,
+        Package $package,
+        UpdatePackageAction $action
+    ): RedirectResponse {
+        $action->execute($package, $request->validated());
 
-        // -----------------------------
-        // 2. Update package
-        // -----------------------------
-        $package->update($data);
-
-        // -----------------------------
-        // 3. Redirect with success
-        // -----------------------------
-        return redirect()
-            ->route('admin.packages.index')
+        return redirect()->route('admin.packages.index')
             ->with('success', 'Package has been updated successfully.');
     }
 
-    /**
-     * Delete a specific package.
-     */
-    public function destroy(Package $package)
+    public function destroy(Package $package, DeletePackageAction $action): RedirectResponse
     {
-        // -----------------------------
-        // 1. Delete package
-        // -----------------------------
-        $package->delete();
+        try {
+            $action->execute($package);
+        } catch (ValidationException $exception) {
+            return back()->with('error', collect($exception->errors())->flatten()->first());
+        }
 
-        // -----------------------------
-        // 2. Redirect with success
-        // -----------------------------
-        return redirect()
-            ->route('admin.packages.index')
+        return redirect()->route('admin.packages.index')
             ->with('success', 'Package has been deleted.');
     }
 }

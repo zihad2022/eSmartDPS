@@ -1,23 +1,15 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
-use App\Exports\Admin\TicketExport;
+use App\Actions\Admin\Exports\ExportTicketsAction;
 use App\Http\Controllers\Controller;
-use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class TicketExportController extends Controller
 {
-    /**
-     * Handle the incoming request.
-     */
-    public function __invoke(Request $request)
+    public function __invoke(Request $request, ExportTicketsAction $action): BinaryFileResponse
     {
-        $status = $request->input('status');
-        ActivityLogger::log("Tickets Exported with status: {$status}");
-
-        return Excel::download(new TicketExport($status), 'tickets.xlsx');
+        return $action->execute($request->string('status')->toString() ?: null);
     }
 }

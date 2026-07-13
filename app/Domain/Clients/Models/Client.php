@@ -2,24 +2,28 @@
 
 namespace App\Domain\Clients\Models;
 
-use App\Models\Member;
-use App\Models\Project;
-use App\Models\Payment;
 use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Clients\Models\ClientPackage;
 use App\Models\ClientSetting;
+use App\Models\Ledger;
+use App\Models\Member;
+use App\Models\Payment;
+use App\Models\Project;
+use App\Models\Ticket;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 
 class Client extends Authenticatable
 {
     use HasFactory;
+    use Notifiable;
 
     protected $fillable = [
         'parent_id',
@@ -39,6 +43,7 @@ class Client extends Authenticatable
         'postal_code',
         'role',
         'status',
+        'email_verified_at',
     ];
 
     protected $hidden = [
@@ -46,33 +51,29 @@ class Client extends Authenticatable
         'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'created_at'        => 'datetime',
-        'password'          => 'hashed',
-    ];
-
-    public function hasRole($roles)
+    protected function casts(): array
     {
-        if ($this->role === 'super-admin') {
-            return true;
-        }
-
-        return in_array($this->role, (array) $roles);
+        return [
+            'status' => 'boolean',
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
 
-
-    /*--------------------------------
-    | RELATIONSHIPS
-    --------------------------------*/
-    public function parent()
+    public function hasRole(string|array $roles): bool
     {
-        return $this->belongsTo(Client::class, 'parent_id');
+        return $this->role === 'super-admin'
+            || in_array($this->role, (array) $roles, true);
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
     }
 
     public function children(): HasMany
     {
-        return $this->hasMany(Client::class, 'parent_id');
+        return $this->hasMany(self::class, 'parent_id');
     }
 
     public function members(): HasMany
@@ -85,9 +86,19 @@ class Client extends Authenticatable
         return $this->hasMany(Project::class);
     }
 
-    public function payments(): HasManyThrough
+    public function ledgers(): HasMany
     {
-        return $this->hasManyThrough(Payment::class, Member::class);
+        return $this->hasMany(Ledger::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
     }
 
     public function invoices(): HasMany
@@ -100,42 +111,35 @@ class Client extends Authenticatable
         return $this->hasMany(ClientPackage::class);
     }
 
-    public function latestClientPackage(): HasOne
+    public function subscriptions(): HasMany
     {
-        return $this->hasOne(ClientPackage::class)->latestOfMany();
+        return $this->clientPackages();
     }
 
-    public function currentSubscription(): ?ClientPackage
+    public function latestClientPackage(): HasOne
     {
-        return $this->clientPackages()
-            ->where('is_active', true)
-            ->where('status', 'active')
-            ->where('ends_at', '>', now())
-            ->latest()
-            ->first();
+        return $this->hasOne(ClientPackage::class)->latestOfMany('ends_at');
     }
 
     public function activeClientPackage(): HasOne
     {
         return $this->hasOne(ClientPackage::class)
-            ->where(function ($query) {
-                $query->where('is_active', true)
-                    ->where('status', 'active')
-                    ->where('ends_at', '>', now());
-            });
+            ->ofMany('ends_at', 'max', fn(Builder $query) => $query->active());
     }
 
     public function activePaidClientPackage(): HasOne
     {
-        return $this->activeClientPackage()->where('is_trial', false);
+        return $this->hasOne(ClientPackage::class)
+            ->ofMany('ends_at', 'max', fn(Builder $query) => $query->active()->paid());
     }
 
     public function expiredTrialPackages(): HasMany
     {
         return $this->hasMany(ClientPackage::class)
-            ->where('is_trial', true)
+            ->trial()
+            ->expired()
             ->where('is_active', true)
-            ->where('ends_at', '<=', now());
+            ->where('status', ClientPackage::STATUS_ACTIVE);
     }
 
     public function settings(): HasOne
@@ -143,39 +147,41 @@ class Client extends Authenticatable
         return $this->hasOne(ClientSetting::class);
     }
 
-    /*--------------------------------
-    | BUSINESS LOGIC
-    --------------------------------*/
-    private function getLastPackage(): ?ClientPackage
+    public function currentSubscription(): ?ClientPackage
     {
-        return $this->latestClientPackage()->with('package')->first();
+        return $this->activeClientPackage()->with('package')->first();
+    }
+
+    private function subscriptionOwner(): self
+    {
+        return $this->parent_id ? ($this->parent ?? $this) : $this;
     }
 
     private function hasCapacity(string $relation, string $limitField): bool
     {
-        $lastPackage = $this->getLastPackage();
+        $owner = $this->subscriptionOwner();
+        $subscription = $owner->currentSubscription();
 
-        // If no package or no package found → do not allow
-        if (!$lastPackage || !$lastPackage->package) {
+        if (! $subscription?->package) {
             return false;
         }
 
-        // Actual limit value from package
-        $limit = $lastPackage->package->{$limitField};
+        $limit = $subscription->package->{$limitField};
 
-        // If limit is NULL or 0 → unlimited
-        if (is_null($limit) || $limit == 0) {
+        if ($limit === null || (int) $limit === 0) {
             return true;
         }
 
-        // Check count
-        return $this->{$relation}()->count() < $limit;
-    }
+        $currentCount = $relation === 'accountUsers'
+            ? $owner->accountUserCount()
+            : $owner->{$relation}()->count();
 
+        return $currentCount < (int) $limit;
+    }
 
     public function canAddUser(): bool
     {
-        return $this->hasCapacity('users', 'user_limit');
+        return $this->hasCapacity('accountUsers', 'user_limit');
     }
 
     public function canAddMember(): bool
@@ -188,87 +194,99 @@ class Client extends Authenticatable
         return $this->hasCapacity('projects', 'project_limit');
     }
 
-    public function users()
+    public function accountUserCount(): int
     {
-        if (is_null($this->parent_id)) return collect([$this])->merge($this->children);
-        $parent = $this->parent;
-        $siblings = $parent ? $parent->children : collect();
-        return collect([$parent])->merge($siblings);
+        $owner = $this->subscriptionOwner();
+
+        return 1 + $owner->children()->count();
     }
 
-    /*--------------------------------
-    | SCOPES
-    --------------------------------*/
-    public function scopeActive($query)
+    public function users(): Collection
+    {
+        $owner = $this->subscriptionOwner();
+
+        return new Collection([$owner, ...$owner->children()->get()->all()]);
+    }
+
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', true);
     }
 
-    public function scopeInactive($query)
+    public function scopeInactive(Builder $query): Builder
     {
         return $query->where('status', false);
     }
 
-    public function scopeParents($query)
+    public function scopeParents(Builder $query): Builder
     {
         return $query->whereNull('parent_id');
     }
 
-    public function scopeChildren($query)
+    public function scopeChildren(Builder $query): Builder
     {
         return $query->whereNotNull('parent_id');
     }
 
-    public function scopeActiveParents($query)
+    public function scopeActiveParents(Builder $query): Builder
     {
         return $query->active()->parents();
     }
 
-    public function scopeInactiveParents($query)
+    public function scopeInactiveParents(Builder $query): Builder
     {
         return $query->inactive()->parents();
     }
 
-    public function scopeActiveChildren($query)
+    public function scopeActiveChildren(Builder $query): Builder
     {
         return $query->active()->children();
     }
 
-    public function scopeInactiveChildren($query)
+    public function scopeInactiveChildren(Builder $query): Builder
     {
         return $query->inactive()->children();
     }
 
     public function scopeFilterBySearch(Builder $query, ?string $search): Builder
     {
-        if (!$search) return $query;
-        return $query->where(function ($q) use ($search) {
-            $fields = ['first_name', 'last_name', 'user_id', 'email', 'phone', 'nid_number', 'division', 'district', 'address', 'postal_code'];
-            foreach ($fields as $field) $q->orWhere($field, 'like', "%{$search}%");
+        if (blank($search)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $query) use ($search): void {
+            foreach (['first_name', 'last_name', 'user_id', 'email', 'phone', 'nid_number', 'division', 'district', 'address', 'postal_code'] as $field) {
+                $query->orWhere($field, 'like', "%{$search}%");
+            }
         });
     }
 
     public function scopeFilterByStatus(Builder $query, ?string $status): Builder
     {
-        if (!$status) return $query;
-        return $query->where('status', $status === 'active');
+        return match ($status) {
+            'active' => $query->active(),
+            'inactive' => $query->inactive(),
+            default => $query,
+        };
     }
 
-    /*--------------------------------
-    | ACCESSORS
-    --------------------------------*/
+    protected function fullName(): Attribute
+    {
+        return Attribute::get(fn(): string => trim("{$this->first_name} {$this->last_name}"));
+    }
+
     protected function profilePhotoUrl(): Attribute
     {
-        return Attribute::get(fn() => $this->profile_photo ? Storage::url($this->profile_photo) : null);
+        return Attribute::get(fn(): ?string => $this->profile_photo ? Storage::url($this->profile_photo) : null);
     }
 
     protected function nidCardFrontUrl(): Attribute
     {
-        return Attribute::get(fn() => $this->nid_card_front ? Storage::url($this->nid_card_front) : null);
+        return Attribute::get(fn(): ?string => $this->nid_card_front ? Storage::url($this->nid_card_front) : null);
     }
 
     protected function nidCardBackUrl(): Attribute
     {
-        return Attribute::get(fn() => $this->nid_card_back ? Storage::url($this->nid_card_back) : null);
+        return Attribute::get(fn(): ?string => $this->nid_card_back ? Storage::url($this->nid_card_back) : null);
     }
 }

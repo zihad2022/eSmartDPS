@@ -1,14 +1,7 @@
 <x-admin.layout.app>
     @php
         $client = $invoice->client;
-        $settings = \App\Models\AdminSetting::select(
-            'site_name',
-            'office_address',
-            'email_address',
-            'helpline_number',
-            'currency'
-        )->first();
-        $currency = $settings->currency ?? '$';
+        $currency = $settings->currency ?: '$';
     @endphp
 
     <x-slot:title>Invoice #{{ $invoice->invoice_number }}</x-slot:title>
@@ -40,7 +33,7 @@
                 <h2 class="text-3xl font-bold text-accent-900 mb-1">Invoice</h2>
                 <p class="text-gray-600 text-sm">Invoice #: <span class="font-mono">{{ $invoice->invoice_number }}</span></p>
                 <p class="text-gray-500 text-sm">Issued: {{ $invoice->created_at->format('M d, Y') }}</p>
-                <p class="text-gray-500 text-sm">Due: {{ $invoice->due_date->format('M d, Y') }}</p>
+                <p class="text-gray-500 text-sm">Due: {{ $invoice->due_date?->format('M d, Y') ?? '—' }}</p>
             </div>
 
             {{-- Status Seal --}}
@@ -69,10 +62,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 bg-accent-50 p-4 rounded-lg shadow-sm">
             <div>
                 <h3 class="text-lg font-semibold text-accent-900 mb-2">From</h3>
-                <p class="text-gray-700 font-medium">{{ $settings->site_name }}</p>
-                <p class="text-gray-600 text-sm">{{ $settings->office_address }}</p>
-                <p class="text-gray-600 text-sm">{{ $settings->email_address }}</p>
-                <p class="text-gray-600 text-sm">{{ $settings->helpline_number }}</p>
+                <p class="text-gray-700 font-medium">{{ $settings->site_name ?: config('app.name') }}</p>
+                <p class="text-gray-600 text-sm">{{ $settings->office_address ?: '—' }}</p>
+                <p class="text-gray-600 text-sm">{{ $settings->email_address ?: '—' }}</p>
+                <p class="text-gray-600 text-sm">{{ $settings->helpline_number ?: '—' }}</p>
             </div>
             <div>
                 <h3 class="text-lg font-semibold text-accent-900 mb-2">Bill To</h3>
@@ -118,13 +111,15 @@
                 class="bg-accent-500 hover:bg-accent-600 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition">
                 <i class="fas fa-print mr-2"></i> Print
             </button>
-            <form action="{{ route('admin.invoices.send', $invoice->id) }}" method="POST">
-                @csrf
-                <button type="submit"
-                    class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition">
-                    <i class="fas fa-paper-plane mr-2"></i> Send to Client
-                </button>
-            </form>
+            @adminCan('edit invoices')
+                <form action="{{ route('admin.invoices.send', $invoice) }}" method="POST">
+                    @csrf
+                    <button type="submit"
+                        class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition">
+                        <i class="fas fa-paper-plane mr-2"></i> Send to Client
+                    </button>
+                </form>
+            @endadminCan
         </div>
     </div>
 </x-admin.layout.app>

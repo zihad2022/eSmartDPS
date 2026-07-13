@@ -1,21 +1,15 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
-use App\Exports\PackageExport;
+use App\Actions\Admin\Exports\ExportPackagesAction;
 use App\Http\Controllers\Controller;
-use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PackageExportController extends Controller
 {
-    public function __invoke(Request $request)
+    public function __invoke(Request $request, ExportPackagesAction $action): BinaryFileResponse
     {
-        $status = $request->query('status');
-
-        ActivityLogger::log("Package Exported with status: {$status}");
-
-        return Excel::download(new PackageExport($status), 'packages.xlsx');
+        return $action->execute($request->string('status')->toString() ?: null);
     }
 }

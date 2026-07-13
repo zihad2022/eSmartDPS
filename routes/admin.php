@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminBackupController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\ClientExportController;
-use App\Http\Controllers\Admin\ClientImpersonateController;
 use App\Http\Controllers\Admin\ClientImpersonateStartController;
 use App\Http\Controllers\Admin\ClientImpersonateStopController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -36,12 +36,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Authentication Routes
     Route::controller(LoginController::class)->group(function () {
         Route::get('login', 'login')->name('login');
-        Route::post('login', 'authenticate')->name('authenticate');
+        Route::post('login', 'authenticate')->middleware('throttle:5,1')->name('authenticate');
         Route::post('logout', 'logout')->name('logout');
     });
 
     // Protected admin routes
-    Route::middleware(['admin.auth'])->group(function () {
+    Route::middleware(['admin.auth', 'admin.session'])->group(function () {
 
         // Dashboard
         Route::get('/', DashboardController::class)
@@ -71,8 +71,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         });
 
         // Client Impersonation
-        Route::get('/clients/{client}/impersonate', ClientImpersonateStartController::class)->name('client.impersonate');
-        Route::get('/impersonate/stop', ClientImpersonateStopController::class)->name('client.impersonate.stop');
+        Route::post('/clients/{client}/impersonate', ClientImpersonateStartController::class)
+            ->name('client.impersonate')
+            ->middleware('permission:edit clients,admin');
+        Route::post('/impersonate/stop', ClientImpersonateStopController::class)
+            ->name('client.impersonate.stop');
 
         // Packages
         Route::prefix('packages')->name('packages.')->group(function () {
@@ -94,7 +97,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit')->middleware('permission:edit invoices,admin');
             Route::match(['put', 'patch'], '/{invoice}', [InvoiceController::class, 'update'])->name('update')->middleware('permission:edit invoices,admin');
             Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy')->middleware('permission:delete invoices,admin');
-            Route::post('/{invoice}/send', InvoiceSendToClientController::class)->name('send');
+            Route::post('/{invoice}/send', InvoiceSendToClientController::class)
+                ->name('send')
+                ->middleware('permission:edit invoices,admin');
         });
 
         // Tickets
@@ -147,6 +152,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::put($uri, [$controller, 'update'])->name("$uri.update")->middleware('permission:edit settings,admin');
             }
         });
+
+
+
+        Route::prefix('settings/backups')->name('settings.backups.')
+            ->middleware('permission:edit settings,admin')
+            ->group(function () {
+                Route::post('/', [AdminBackupController::class, 'store'])->name('store');
+                Route::get('/{backup}/download', [AdminBackupController::class, 'download'])->name('download');
+                Route::delete('/{backup}', [AdminBackupController::class, 'destroy'])->name('destroy');
+            });
 
         // Exports
         Route::get('clients-export', ClientExportController::class)->name('clients.export')->middleware('permission:export clients,admin');

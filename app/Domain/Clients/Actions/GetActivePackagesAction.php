@@ -3,14 +3,25 @@
 namespace App\Domain\Clients\Actions;
 
 use App\Domain\Packages\Models\Package;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class GetActivePackagesAction
 {
-    public function execute()
+    public function execute(?int $includePackageId = null): Collection
     {
-        return Cache::remember('packages.active.simple', 300, function () {
-            return Package::select('id', 'name')->active()->get();
-        });
+        $packages = Cache::remember('packages.active.simple', 300, fn () =>
+            Package::query()->select('id', 'name')->active()->orderBy('name')->get()
+        );
+
+        if ($includePackageId && ! $packages->contains('id', $includePackageId)) {
+            $current = Package::query()->select('id', 'name')->find($includePackageId);
+
+            if ($current) {
+                $packages = $packages->push($current)->sortBy('name')->values();
+            }
+        }
+
+        return $packages;
     }
 }

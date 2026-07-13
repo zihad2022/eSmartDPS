@@ -6,29 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('activities', function (Blueprint $table) {
+        Schema::create('activities', function (Blueprint $table): void {
             $table->id();
-
-            $table->morphs('causer'); // creates causer_id & causer_type
-
+            $table->nullableMorphs('causer');
             $table->string('activity');
-            $table->string('ip_address')->nullable();
-            $table->string('browser')->nullable();
-            $table->string('version')->nullable();
-            $table->string('system')->nullable();
+            $table->string('ip_address', 45)->nullable();
+            $table->string('browser', 100)->nullable();
+            $table->string('version', 50)->nullable();
+            $table->string('system', 100)->nullable();
             $table->timestamp('activity_date')->nullable();
             $table->timestamps();
+
+            $table->index(['activity_date', 'activity']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('activities');

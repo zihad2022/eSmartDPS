@@ -2,8 +2,9 @@
 
 namespace App\Livewire\Admin\Ticket;
 
+use App\Actions\Admin\Tickets\CreateTicketReplyAction;
 use App\Models\Ticket;
-use App\Services\ImageService;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -11,89 +12,71 @@ class Chat extends Component
 {
     use WithFileUploads;
 
-    public Ticket $ticket; // Current ticket
-    public string $message = ''; // New message input
-    public int $messageKey = 0; // Used to refresh message input
-    public $attachment; // Optional file attachment
+    public Ticket $ticket;
+    public string $message = '';
+    public int $messageKey = 0;
+    public $attachment = null;
 
-    /**
-     * Mount the component with ticket data.
-     */
     public function mount(Ticket $ticket): void
     {
-        // -----------------------------
-        // 1. Load ticket with replies and client
-        // -----------------------------
-        $this->ticket = Ticket::with([
-            'replies' => fn($q) => $q->oldest(),
+        $this->authorizeAccess();
+        $this->ticket = $ticket->load([
+            'replies' => fn ($query) => $query->oldest(),
+            'replies.admin',
+            'replies.client',
             'client',
-        ])->findOrFail($ticket->id);
-
-        // -----------------------------
-        // 2. Initialize message key
-        // -----------------------------
+        ]);
         $this->refreshMessageKey();
     }
 
-    /**
-     * Send a new message for the ticket.
-     */
-    public function sendMessage(): void
+    public function sendMessage(CreateTicketReplyAction $action): void
     {
-        // -----------------------------
-        // 1. Validate message and attachment
-        // -----------------------------
+        $this->authorizeAccess();
+        abort_unless(auth('admin')->user()->can('send ticket messages'), 403);
+
         $this->validate([
-            'message'    => 'required|string|max:2000',
-            'attachment' => 'nullable|file|max:5120', // max 5MB
+            'message' => ['nullable', 'string', 'max:2000'],
+            'attachment' => ['nullable', 'file', 'max:5120', 'mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,txt,zip'],
         ]);
 
-        // -----------------------------
-        // 2. Upload attachment if provided
-        // -----------------------------
-        $path = $this->attachment
-            ? app(ImageService::class)->uploadImage($this->attachment, 'uploads/tickets')
-            : null;
+        if (blank($this->message) && ! $this->attachment) {
+            throw ValidationException::withMessages([
+                'message' => ['Enter a message or attach a file.'],
+            ]);
+        }
 
-        // -----------------------------
-        // 3. Save message to ticket replies
-        // -----------------------------
-        $this->ticket->replies()->create([
-            'admin_id'   => auth('admin')->id(),
-            'message'    => $this->message,
-            'attachment' => $path,
+        $action->execute(
+            ticket: $this->ticket,
+            admin: auth('admin')->user(),
+            message: $this->message,
+            attachment: $this->attachment,
+        );
+
+        $this->ticket->load([
+            'replies' => fn ($query) => $query->oldest(),
+            'replies.admin',
+            'replies.client',
         ]);
-
-        // -----------------------------
-        // 4. Reload replies to update UI
-        // -----------------------------
-        $this->ticket->load(['replies' => fn($q) => $q->oldest()]);
-
-        // -----------------------------
-        // 5. Reset input fields
-        // -----------------------------
         $this->reset(['message', 'attachment']);
         $this->refreshMessageKey();
-
-        // -----------------------------
-        // 6. Notify admin of success
-        // -----------------------------
         $this->dispatch('notify', 'Message sent successfully.');
     }
 
-    /**
-     * Refresh message key to reset input component.
-     */
+    public function render()
+    {
+        $this->authorizeAccess();
+
+        return view('livewire.admin.ticket.chat');
+    }
+
+    private function authorizeAccess(): void
+    {
+        $admin = auth('admin')->user();
+        abort_unless($admin && $admin->can('view ticket chats'), 403);
+    }
+
     private function refreshMessageKey(): void
     {
         $this->messageKey++;
-    }
-
-    /**
-     * Render the Livewire view.
-     */
-    public function render()
-    {
-        return view('livewire.admin.ticket.chat');
     }
 }

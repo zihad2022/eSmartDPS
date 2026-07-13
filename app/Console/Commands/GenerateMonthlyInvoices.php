@@ -2,128 +2,121 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\InvoiceStatus;
 use App\Domain\Clients\Models\Client;
+use App\Domain\Clients\Models\ClientPackage;
+use App\Domain\Invoices\Actions\CreateInvoiceAction;
 use App\Domain\Invoices\Models\Invoice;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 
 class GenerateMonthlyInvoices extends Command
 {
     protected $signature = 'invoices:generate';
-    protected $description = 'Generate invoices for clients with active paid packages or expired trials.';
 
-    public function handle(): int
+    protected $description = 'Generate missing invoices for active paid subscriptions and newly expired trials.';
+
+    public function handle(CreateInvoiceAction $createInvoice): int
     {
-        Log::info('🔄 [InvoiceGen] Starting invoice generation...');
-
         $lock = Cache::lock('invoices:generate:lock', 600);
-        if (!$lock->get()) {
-            $this->warn('Invoice generation already running in another process.');
-            Log::warning('[InvoiceGen] Skipped - lock active.');
+
+        if (! $lock->get()) {
+            $this->warn('Invoice generation is already running.');
+
             return Command::SUCCESS;
         }
 
         try {
-            $now = now();
-            $year = $now->year;
-            $month = $now->month;
-            $hasPackageIdColumn = Schema::hasColumn('invoices', 'package_id');
-
-            // Fetch root-level active clients
-            $clients = Client::parents()->active()->with([
-                'activePaidClientPackage.package',
-                'expiredTrialPackages.package'
-            ])->get();
-
-            if ($clients->isEmpty()) {
-                $this->info('No active clients found.');
-                return Command::SUCCESS;
-            }
+            $clients = Client::query()
+                ->parents()
+                ->active()
+                ->with([
+                    'activePaidClientPackage.package',
+                    'expiredTrialPackages.package',
+                ])
+                ->get();
 
             foreach ($clients as $client) {
-
-                // ---------------------------
-                // Handle Expired Trials
-                // ---------------------------
                 foreach ($client->expiredTrialPackages as $trial) {
                     $package = $trial->package;
-                    if (!$package) continue;
 
-                    DB::transaction(function () use ($client, $trial, $package) {
-                        Invoice::create([
-                            'client_id'           => $client->id,
-                            'package_id'          => $package->id,
-                            'package_name'        => $package->name,
-                            'package_description' => $package->description,
-                            'invoice_number'      => generate_invoice_number(),
-                            'invoice_amount'      => $package->price,
-                            'status'              => InvoiceStatus::UNPAID->value,
-                            'due_date'            => now()->addDays(7),
+                    if (! $package) {
+                        continue;
+                    }
+
+                    $billingStart = $trial->ends_at->copy()->startOfDay();
+                    $billingEnd = $package->billingEndDate($billingStart);
+
+                    DB::transaction(function () use ($client, $trial, $package, $billingStart, $billingEnd, $createInvoice): void {
+                        $exists = Invoice::query()
+                            ->where('client_id', $client->id)
+                            ->where('package_id', $package->id)
+                            ->whereDate('billing_start', $billingStart)
+                            ->whereDate('billing_end', $billingEnd)
+                            ->exists();
+
+                        if (! $exists) {
+                            $createInvoice->execute(
+                                client: $client,
+                                package: $package,
+                                billingStart: $billingStart,
+                                billingEnd: $billingEnd,
+                                dueDate: $billingStart->copy()->addDays(7),
+                            );
+                        }
+
+                        $trial->update([
+                            'is_active' => false,
+                            'status' => ClientPackage::STATUS_EXPIRED,
                         ]);
-
-                        $trial->update(['is_active' => false]);
-
-                        Log::info("[InvoiceGen] Expired trial → Invoice created & trial deactivated for Client {$client->id}");
                     });
                 }
 
-                // ---------------------------
-                // Handle Paid Packages
-                // ---------------------------
-                $activePackage = $client->activePaidClientPackage;
-                if (!$activePackage || !$activePackage->package) continue;
+                $subscription = $client->activePaidClientPackage;
+                $package = $subscription?->package;
 
-                $package = $activePackage->package;
+                if (! $subscription || ! $package) {
+                    continue;
+                }
 
-                DB::transaction(function () use ($client, $year, $month, $package, $hasPackageIdColumn) {
-                    $invoiceQuery = $client->invoices()
-                        ->whereYear('created_at', $year)
-                        ->whereMonth('created_at', $month);
+                $billingStart = $subscription->starts_at->copy()->startOfDay();
+                $billingEnd = $subscription->ends_at->copy()->startOfDay();
 
-                    $exists = $hasPackageIdColumn
-                        ? $invoiceQuery->where('package_id', $package->id)->exists()
-                        : $invoiceQuery->where('package_name', $package->name)->exists();
+                $exists = Invoice::query()
+                    ->where('client_id', $client->id)
+                    ->where('package_id', $package->id)
+                    ->whereDate('billing_start', $billingStart)
+                    ->whereDate('billing_end', $billingEnd)
+                    ->exists();
 
-                    if ($exists) {
-                        Log::info("[InvoiceGen] Invoice already exists for Client {$client->id}, skipping.");
-                        return;
-                    }
+                if ($exists) {
+                    continue;
+                }
 
-                    Invoice::create([
-                        'client_id'           => $client->id,
-                        'package_id'          => $package->id,
-                        'package_name'        => $package->name,
-                        'package_description' => $package->description,
-                        'invoice_number'      => generate_invoice_number(),
-                        'invoice_amount'      => $package->price,
-                        'status'              => InvoiceStatus::UNPAID->value,
-                        'due_date'            => now()->addDays(7),
-                    ]);
-
-                    Log::info("[InvoiceGen] Monthly invoice generated for Client {$client->id}, Package {$package->name}");
-                });
+                $createInvoice->execute(
+                    client: $client,
+                    package: $package,
+                    billingStart: $billingStart,
+                    billingEnd: $billingEnd,
+                    dueDate: $billingStart->copy()->addDays(7),
+                );
             }
 
-            $this->info('✅ Invoice generation completed successfully.');
-            Log::info('[InvoiceGen] Invoice generation completed.');
-            return Command::SUCCESS;
+            $this->info('Invoice generation completed successfully.');
 
-        } catch (\Throwable $e) {
-            Log::error('❌ [InvoiceGen] Failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+            return Command::SUCCESS;
+        } catch (\Throwable $exception) {
+            Log::error('[InvoiceGen] Failed.', [
+                'error' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
             ]);
 
-            $this->error("Error: {$e->getMessage()}");
-            return Command::FAILURE;
+            $this->error($exception->getMessage());
 
+            return Command::FAILURE;
         } finally {
             $lock->release();
-            Log::info('[InvoiceGen] Lock released.');
         }
     }
 }

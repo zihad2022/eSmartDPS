@@ -26,8 +26,6 @@
             ['label' => $pageTitle, 'url' => route('admin.invoices.index', $status ? ['status' => $status] : [])],
         ];
 
-        // 5. Fetch currency setting once to avoid repeated DB calls
-        $settings = \App\Models\AdminSetting::select('currency')->first();
     @endphp
 
     {{-- ===========================
@@ -123,17 +121,19 @@
                     </button>
                 </form>
 
-                {{-- Add Invoice --}}
-                <a href="{{ route('admin.invoices.create') }}"
-                    class="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
-                    Add Invoice
-                </a>
+                @adminCan('create invoices')
+                    <a href="{{ route('admin.invoices.create') }}"
+                        class="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                        Add Invoice
+                    </a>
+                @endadminCan
 
-                {{-- Export Invoice --}}
-                <a href="{{ route('admin.invoices.export', ['status' => $status]) }}"
-                    class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition">
-                    <i class="fas fa-download mr-2"></i>Export
-                </a>
+                @adminCan('export invoices')
+                    <a href="{{ route('admin.invoices.export', ['status' => $status]) }}"
+                        class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </a>
+                @endadminCan
             </x-slot:actions>
         </x-data-table>
     </div>

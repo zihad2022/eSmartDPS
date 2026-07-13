@@ -8,6 +8,8 @@ use App\Models\ClientSetting;
 use App\Models\Member;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class PaymentController extends Controller
 {
@@ -23,12 +25,12 @@ class PaymentController extends Controller
         // 1. Build base payments query
         // -----------------------------
         $paymentsQuery = Payment::with('member')
-            ->whereHas('member', fn($q) => $q->where('client_id', $clientId))
+            ->where('client_id', $clientId)
             ->when($search, function ($q, $search) {
                 $q->where(function ($query) use ($search) {
                     $query->where('payment_id', 'like', "%{$search}%")
                         ->orWhere('transaction_id', 'like', "%{$search}%")
-                        ->orWhere('reference', 'like', "%{$search}%")
+                        ->orWhere('reference_number', 'like', "%{$search}%")
                         ->orWhereHas('member', fn($mq) => $mq->where('name', 'like', "%{$search}%")
                             ->orWhere('member_id', 'like', "%{$search}%"));
                 });
@@ -50,11 +52,11 @@ class PaymentController extends Controller
         // 4. Prepare summary stats
         // -----------------------------
         $summary = Payment::selectRaw('status, COUNT(*) as count, SUM(amount) as total')
-            ->whereHas('member', fn($q) => $q->where('client_id', $clientId))
+            ->where('client_id', $clientId)
             ->groupBy('status')
             ->pluck('count', 'status');
 
-        $totalAmount = Payment::whereHas('member', fn($q) => $q->where('client_id', $clientId))
+        $totalAmount = Payment::where('client_id', $clientId)
             ->sum('amount');
 
         // -----------------------------
@@ -91,7 +93,7 @@ class PaymentController extends Controller
         // -----------------------------
         $payment = Payment::with('member')
             ->where('id', $id)
-            ->whereHas('member', fn($q) => $q->where('client_id', $clientId))
+            ->where('client_id', $clientId)
             ->firstOrFail();
 
         // -----------------------------
@@ -117,7 +119,7 @@ class PaymentController extends Controller
         // -----------------------------
         $payment = Payment::with('member')
             ->where('id', $id)
-            ->whereHas('member', fn($q) => $q->where('client_id', $clientId))
+            ->where('client_id', $clientId)
             ->firstOrFail();
 
         // -----------------------------
@@ -143,33 +145,39 @@ class PaymentController extends Controller
         // -----------------------------
         // 1. Validate input
         // -----------------------------
-        $request->validate([
-            'status' => ['required', 'string', 'in:' . implode(',', array_column(PaymentStatus::cases(), 'value'))],
+        $validated = $request->validate([
+            'status' => ['required', Rule::enum(PaymentStatus::class)],
         ]);
 
         // -----------------------------
         // 2. Fetch payment ensuring ownership
         // -----------------------------
-        $payment = Payment::where('id', $id)
-            ->whereHas('member', fn($q) => $q->where('client_id', $clientId))
-            ->firstOrFail();
+        DB::transaction(function () use ($id, $clientId, $validated): void {
+            $payment = Payment::query()
+                ->where('id', $id)
+                ->where('client_id', $clientId)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        // -----------------------------
-        // 3. Update status
-        // -----------------------------
-        $payment->update(['status' => $request->status]);
+            $member = $payment->member()->lockForUpdate()->firstOrFail();
+            $previousStatus = $payment->status;
+            $newStatus = PaymentStatus::from($validated['status']);
 
-        // -----------------------------
-        // 4. If paid, record timestamp & update member balance
-        // -----------------------------
-        if ($request->status === PaymentStatus::PAID->value) {
-            $payment->paid_at = now();
-            $payment->save();
+            if ($previousStatus !== PaymentStatus::PAID && $newStatus === PaymentStatus::PAID) {
+                $member->increment('total_balance', $payment->amount);
+            } elseif ($previousStatus === PaymentStatus::PAID && $newStatus !== PaymentStatus::PAID) {
+                $member->update([
+                    'total_balance' => max(0, $member->total_balance - $payment->amount),
+                ]);
+            }
 
-            $payment->member->update([
-                'total_balance' => $payment->member->total_balance + $payment->amount,
+            $payment->update([
+                'status' => $newStatus,
+                'paid_at' => $newStatus === PaymentStatus::PAID
+                    ? ($payment->paid_at ?? now())
+                    : null,
             ]);
-        }
+        });
 
         // -----------------------------
         // 5. Redirect with success
@@ -189,7 +197,7 @@ class PaymentController extends Controller
         // 1. Fetch payment ensuring ownership
         // -----------------------------
         $payment = Payment::where('id', $id)
-            ->whereHas('member', fn($q) => $q->where('client_id', $clientId))
+            ->where('client_id', $clientId)
             ->firstOrFail();
 
         // -----------------------------

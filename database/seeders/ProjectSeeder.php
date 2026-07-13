@@ -81,10 +81,8 @@ class ProjectSeeder extends Seeder
                     continue;
                 }
 
-                // Calculate duration in months
                 $startDate = Carbon::parse($data['start_date']);
                 $endDate = Carbon::parse($data['end_date']);
-                $duration = $startDate->diffInMonths($endDate);
 
                 Project::create([
                     'client_id' => $client->id,
@@ -94,7 +92,7 @@ class ProjectSeeder extends Seeder
                     'expected_return' => $data['expected_return'],
                     'start_date' => $startDate,
                     'end_date' => $endDate,
-                    'duration' => $duration,
+                    'expected_return_type' => 'percent',
                     'description' => $data['description'],
                     'status' => $data['status'],
                 ]);

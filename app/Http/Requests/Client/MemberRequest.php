@@ -11,66 +11,52 @@ class MemberRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // -----------------------------
-        // 1. Only logged-in clients can manage members
-        // -----------------------------
         return auth('client')->check();
     }
 
     public function rules(): array
     {
-        // -----------------------------
-        // 2. Get current member ID for unique validation (on update)
-        // -----------------------------
-        $memberId = $this->route('member')?->id;
+        $member = $this->route('member');
+        $memberId = is_object($member) ? $member->id : $member;
+        $clientId = owner_client_id();
+        $settings = Client::findOrFail($clientId)->settings;
 
-        // -----------------------------
-        // 3. Always use the main owner's settings
-        // -----------------------------
-        $client   = Client::findOrFail(owner_client_id());
-        $settings = $client?->settings;
-
-        // -----------------------------
-        // 4. Handle missing settings gracefully
-        // -----------------------------
         if (! $settings) {
             throw ValidationException::withMessages([
                 'share_quantity' => 'Your account settings are not properly configured. Please contact support.',
             ]);
         }
 
-        $minShare = $settings->minimum_shares ?? 1;   // Default fallback
-        $maxShare = $settings->maximum_shares ?? 999; // Default fallback
+        $minShare = $settings->minimum_shares ?? 1;
+        $maxShare = $settings->maximum_shares ?? 999;
 
-        // -----------------------------
-        // 5. Define validation rules
-        // -----------------------------
-        $rules = [
-            'name'           => ['required', 'string', 'max:255'], 
-            'email'          => ['nullable', 'email', Rule::unique('members', 'email')->ignore($memberId)],
-            'phone'          => ['nullable', 'string', 'max:20'],
-            'status'         => ['required', 'boolean'],
-            'share_quantity' => ['required', 'integer', "min:$minShare", "max:$maxShare"],
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+                Rule::unique('members', 'email')
+                    ->where(fn ($query) => $query->where('client_id', $clientId))
+                    ->ignore($memberId),
+            ],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'status' => ['required', 'boolean'],
+            'share_quantity' => ['required', 'integer', "min:{$minShare}", "max:{$maxShare}"],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'password' => [
+                $this->isMethod('post') ? 'required' : 'nullable',
+                'string',
+                'min:6',
+            ],
         ];
-
-        // -----------------------------
-        // 6. Password: required on create, optional on update
-        // -----------------------------
-        $rules['password'] = $this->isMethod('post') 
-            ? ['required', 'string', 'min:6'] 
-            : ['nullable', 'string', 'min:6'];
-
-        return $rules;
     }
 
     public function messages(): array
     {
-        // -----------------------------
-        // 7. Custom error messages
-        // -----------------------------
         return [
-            'share_quantity.min' => "Share quantity must be at least :min (according to your settings).",
-            'share_quantity.max' => "Share quantity cannot exceed :max (according to your settings).",
+            'share_quantity.min' => 'Share quantity must be at least :min (according to your settings).',
+            'share_quantity.max' => 'Share quantity cannot exceed :max (according to your settings).',
         ];
     }
 }

@@ -2,98 +2,93 @@
 
 namespace App\Models;
 
+use App\Domain\Clients\Models\Client;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
-    /*--------------------------------
-    | MASS ASSIGNABLE
-    --------------------------------*/
     protected $fillable = [
-        'payment_id',      // Unique payment code
-        'client_id',       // Linked client
-        'member_id',       // Linked member/customer
-        'amount',          // Payment amount
-        'payment_method',  // e.g., cash, card, bank
-        'transaction_id',  // Gateway transaction ID
-        'reference',       // Invoice/order reference
-        'status',          // Payment status
-        'paid_at',         // When paid
-        'due_date',        // When due
-        'meta',            // Extra data/notes
+        'payment_id',
+        'client_id',
+        'member_id',
+        'amount',
+        'payment_method',
+        'transaction_id',
+        'reference_number',
+        'reference', // backward-compatible alias for reference_number
+        'status',
+        'paid_at',
+        'due_date',
+        'meta',
     ];
 
-    /*--------------------------------
-    | CASTS
-    --------------------------------*/
-    protected $casts = [
-        'amount' => 'integer',
-        'payment_method' => PaymentMethod::class,
-        'status' => PaymentStatus::class,
-        'paid_at' => 'datetime',
-        'due_date' => 'datetime',
-        'meta' => 'array', // JSON data
-    ];
+    protected function casts(): array
+    {
+        return [
+            'amount' => 'integer',
+            'payment_method' => PaymentMethod::class,
+            'status' => PaymentStatus::class,
+            'paid_at' => 'datetime',
+            'due_date' => 'date',
+            'meta' => 'array',
+        ];
+    }
 
-    /*--------------------------------
-    | RELATIONSHIPS
-    --------------------------------*/
-    
-    // Payment belongs to a client
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
     }
 
-    // Payment belongs to a member/customer
     public function member(): BelongsTo
     {
         return $this->belongsTo(Member::class);
     }
 
-    /*--------------------------------
-    | SCOPES
-    --------------------------------*/
+    public function scopeForClient(Builder $query, int $clientId): Builder
+    {
+        return $query->where('client_id', $clientId);
+    }
 
-    // Only pending payments
-    public function scopePending($query)
+    public function scopePending(Builder $query): Builder
     {
         return $query->where('status', PaymentStatus::PENDING);
     }
 
-    // Only due payments
-    public function scopeDue($query)
+    public function scopeDue(Builder $query): Builder
     {
         return $query->where('status', PaymentStatus::DUE);
     }
 
-    // Only paid payments
-    public function scopePaid($query)
+    public function scopePaid(Builder $query): Builder
     {
         return $query->where('status', PaymentStatus::PAID);
     }
 
-        public function scopeCancelled($query)
+    public function scopeCancelled(Builder $query): Builder
     {
         return $query->where('status', PaymentStatus::CANCELLED);
     }
 
-    /*--------------------------------
-    | HELPERS
-    --------------------------------*/
-
-    // Check if payment is paid
     public function isPaid(): bool
     {
         return $this->status === PaymentStatus::PAID;
     }
 
-    // Check if payment is due
     public function isDue(): bool
     {
         return $this->status === PaymentStatus::DUE;
+    }
+
+    protected function reference(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?string => $this->reference_number,
+            set: fn (?string $value): array => ['reference_number' => $value],
+        );
     }
 }

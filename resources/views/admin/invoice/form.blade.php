@@ -65,7 +65,7 @@
                         placeholder="Auto-generated or custom number" readonly />
 
                     {{-- 3. Invoice Amount --}}
-                    <x-form.input name="invoice_amount" label="Invoice Amount" type="text" step="0.01"
+                    <x-form.input name="invoice_amount" label="Invoice Amount" type="number" step="1" min="0"
                         :value="old('invoice_amount', $editing ? $invoice->invoice_amount : '')" required placeholder="Enter invoice amount" />
                 </div>
 
@@ -78,6 +78,24 @@
                     ],
                 )" :selected="old('client_id', $editing ? $invoice->client_id : null)"
                     optionLabel="Select Client" required />
+
+                <x-form.select name="package_id" label="Package" :options="$packages->mapWithKeys(
+                    fn($package) => [
+                        $package->id => $package->name . ' — ' . number_format($package->price),
+                    ],
+                )" :selected="old('package_id', $editing ? $invoice->package_id : null)"
+                    optionLabel="Select Package" required />
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <x-form.input name="billing_start" label="Billing Start" type="date"
+                        :value="old('billing_start', $editing ? $invoice->billing_start?->format('Y-m-d') : now()->format('Y-m-d'))" required />
+
+                    <x-form.input name="billing_end" label="Billing End" type="date"
+                        :value="old('billing_end', $editing ? $invoice->billing_end?->format('Y-m-d') : now()->addMonthNoOverflow()->format('Y-m-d'))" required />
+
+                    <x-form.input name="due_date" label="Due Date" type="date"
+                        :value="old('due_date', $editing ? $invoice->due_date?->format('Y-m-d') : now()->addDays(7)->format('Y-m-d'))" />
+                </div>
 
                 {{-- ================================
                      Payment Reference Section
@@ -103,12 +121,12 @@
                     {{-- Payment Method --}}
                     <x-form.select name="payment_method" label="Payment Method" :options="collect(\App\Enums\PaymentMethod::cases())
                         ->mapWithKeys(fn($type) => [$type->value => $type->label()])
-                        ->toArray()" :selected="old('payment_method', $invoice->payment_method?->value ?? '')" />
+                        ->toArray()" :selected="old('payment_method', $editing ? $invoice->payment_method?->value : '')" />
 
                     {{-- Invoice Status --}}
                     <x-form.select name="status" label="Status" :options="collect(\App\Enums\InvoiceStatus::cases())
                         ->mapWithKeys(fn($type) => [$type->value => $type->label()])
-                        ->toArray()" :selected="old('status', $invoice->status?->value ?? '')" />
+                        ->toArray()" :selected="old('status', $editing ? $invoice->status?->value : \App\Enums\InvoiceStatus::UNPAID->value)" />
                 </div>
 
                 {{-- ================================

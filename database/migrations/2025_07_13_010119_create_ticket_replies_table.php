@@ -6,41 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('ticket_replies', function (Blueprint $table) {
+        Schema::create('ticket_replies', function (Blueprint $table): void {
             $table->id();
-
-            // 🔗 Ticket relation
-            $table->foreignId('ticket_id')->constrained('tickets')->onDelete('cascade');
-
-            // 👤 Reply sender (client or admin)
-            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('cascade');
-            $table->foreignId('admin_id')->nullable()->constrained('admins')->onDelete('cascade');
-
-            // 📝 Message content
-            $table->text('message');
-
-            // 📎 Optional file
+            $table->foreignId('ticket_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('client_id')->nullable()->constrained('clients')->nullOnDelete();
+            $table->foreignId('admin_id')->nullable()->constrained('admins')->nullOnDelete();
+            $table->text('message')->nullable();
             $table->string('attachment')->nullable();
-
-            // 📅 Timestamps
             $table->timestamps();
 
-            // ✅ Optional index for faster querying by ticket
-            $table->index('ticket_id');
+            $table->index(['ticket_id', 'created_at']);
+            $table->index(['client_id', 'created_at']);
+            $table->index(['admin_id', 'created_at']);
         });
-
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('ticket_reaplies');
+        Schema::dropIfExists('ticket_replies');
     }
 };

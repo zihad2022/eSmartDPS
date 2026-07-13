@@ -3,9 +3,7 @@
         // -----------------------------
         // 1. Page Setup
         // -----------------------------
-        // Fetch settings (currency, etc.), current status filter,
-        // and map titles/breadcrumbs accordingly.
-        $settings = \App\Models\AdminSetting::first();
+        // Resolve current status and page metadata.
         $status = request()->status;
         $titleMap = [
             'active' => 'Active Packages',
@@ -84,17 +82,19 @@
                     </button>
                 </form>
 
-                {{-- Add Package --}}
-                <a href="{{ route('admin.packages.create') }}"
-                    class="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
-                    Add Package
-                </a>
+                @adminCan('create packages')
+                    <a href="{{ route('admin.packages.create') }}"
+                        class="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
+                        Add Package
+                    </a>
+                @endadminCan
 
-                {{-- Export Packages --}}
-                <a href="{{ route('admin.packages.export', ['status' => $status]) }}"
-                    class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
-                    <i class="fas fa-download mr-2"></i>Export
-                </a>
+                @adminCan('export packages')
+                    <a href="{{ route('admin.packages.export', ['status' => $status]) }}"
+                        class="bg-gray-100 hover:bg-gray-200 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </a>
+                @endadminCan
             </x-slot:actions>
         </x-data-table>
     </div>

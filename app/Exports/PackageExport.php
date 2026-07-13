@@ -3,114 +3,53 @@
 namespace App\Exports;
 
 use App\Domain\Packages\Models\Package;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Illuminate\Database\Eloquent\Builder;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class PackageExport implements FromCollection, WithHeadings, WithMapping
+class PackageExport implements FromQuery, WithHeadings, WithMapping
 {
-    /**
-     * Serial counter for each row in the Excel export.
-     */
     private int $sl = 1;
 
-    /**
-     * The status filter for the packages (active, inactive, or all).
-     */
-    private ?string $status = null;
-
-    /**
-     * Constructor to initialize the status filter.
-     *
-     * @param string|null $status
-     */
-    public function __construct(?string $status)
+    public function __construct(private readonly ?string $status = null)
     {
-        $this->status = $status;
     }
 
-    /**
-     * Fetch the collection of packages based on the given status.
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function collection()
+    public function query(): Builder
     {
-        if ($this->status === 'active') {
-            // Return only active packages
-            return Package::active()->get();
-        }
-
-        if ($this->status === 'inactive') {
-            // Return only inactive packages
-            return Package::inactive()->get();
-        }
-
-        // If no filter is applied, return all packages
-        return Package::all();
+        return Package::query()
+            ->when($this->status === 'active', fn (Builder $query) => $query->active())
+            ->when($this->status === 'inactive', fn (Builder $query) => $query->inactive())
+            ->orderBy('id');
     }
 
-    /**
-     * Define the headings (column titles) for the Excel export.
-     *
-     * @return array
-     */
     public function headings(): array
     {
         return [
-            'Sl',
-            'Name',
-            'Description',
-            'Price',
-            'Discount Value',
-            'Discount Type',
-            'Billing Cycle',
-            'Member Limit',
-            'User Limit',
-            'Project Limit',
-            'Is Active',
-            'Has Trial',
-            'Trial Days',
-            'Created At',
+            'SL', 'Name', 'Description', 'Price', 'Discount Value', 'Discount Type',
+            'Billing Cycle', 'Member Limit', 'User Limit', 'Project Limit', 'Status',
+            'Has Trial', 'Trial Days', 'Created At',
         ];
     }
 
-    /**
-     * Map the data of each package into a row for the Excel sheet.
-     *
-     * @param \App\Models\Package $package
-     * @return array
-     */
     public function map($package): array
     {
         return [
-            // Auto increment serial number
             $this->sl++,
-
-            // Basic package details
             $package->name,
             $package->description,
             $package->price,
-
-            // Discount details
             $package->discount_value,
-            $package->discount_type->label(),
-
-            // Billing cycle (Monthly, Yearly, etc.)
-            $package->billing_cycle->label(),
-
-            // Limits
+            $package->discount_type?->label() ?? 'N/A',
+            $package->billing_cycle?->label() ?? 'N/A',
             $package->member_limit,
-            $package->user_limit,
+            $package->user_limit === null ? 'Unlimited' : $package->user_limit,
             $package->project_limit,
-
-            // Status information
             $package->is_active ? 'Active' : 'Inactive',
             $package->has_trial ? 'Yes' : 'No',
             $package->trial_days,
-
-            // Created at timestamp
-            $package->created_at,
+            $package->created_at?->format('Y-m-d'),
         ];
     }
 }

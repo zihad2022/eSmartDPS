@@ -1,24 +1,15 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
-use App\Exports\Admin\UserExport;
+use App\Actions\Admin\Exports\ExportUsersAction;
 use App\Http\Controllers\Controller;
-use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class UserExportController extends Controller
 {
-    /**
-     * Handle the incoming request.
-     */
-    public function __invoke(Request $request)
+    public function __invoke(Request $request, ExportUsersAction $action): BinaryFileResponse
     {
-        $status = $request->query('status');
-
-        ActivityLogger::log("Users Exported with status: {$status}");
-
-        return Excel::download(new UserExport($status), 'users.xlsx');
+        return $action->execute($request->string('status')->toString() ?: null);
     }
 }

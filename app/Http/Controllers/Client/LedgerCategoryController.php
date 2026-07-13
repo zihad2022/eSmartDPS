@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\LedgerCategory;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 /**
  * LedgerCategoryController
@@ -40,7 +41,7 @@ class LedgerCategoryController extends Controller
         $data = $this->validateRequest($request);
 
         // Automatically assign client_id so clients only manage their own categories
-        LedgerCategory::create($data + ['client_id' => auth('client')->id()]);
+        LedgerCategory::create($data + ['client_id' => owner_client_id()]);
 
         return redirect()
             ->route('client.ledger-categories.index')
@@ -67,7 +68,7 @@ class LedgerCategoryController extends Controller
     {
         $this->authorizeOwner($ledgerCategory);
 
-        $ledgerCategory->update($this->validateRequest($request));
+        $ledgerCategory->update($this->validateRequest($request, $ledgerCategory));
 
         return redirect()
             ->route('client.ledger-categories.index')
@@ -80,6 +81,10 @@ class LedgerCategoryController extends Controller
     public function destroy(LedgerCategory $ledgerCategory)
     {
         $this->authorizeOwner($ledgerCategory);
+
+        if ($ledgerCategory->ledgers()->exists()) {
+            return back()->with('error', 'This category is used by ledger entries and cannot be deleted.');
+        }
 
         $ledgerCategory->delete();
 
@@ -95,11 +100,18 @@ class LedgerCategoryController extends Controller
     /**
      * Validate request for creating/updating a ledger category.
      */
-    protected function validateRequest(Request $request): array
+    protected function validateRequest(Request $request, ?LedgerCategory $category = null): array
     {
         return $request->validate([
-            'name' => 'required|string|max:255', // Category name is required
-            'description' => 'nullable|string',         // Optional description
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('ledger_categories', 'name')
+                    ->ignore($category?->id)
+                    ->where(fn ($query) => $query->where('client_id', owner_client_id())),
+            ],
+            'description' => ['nullable', 'string'],
         ]);
     }
 
@@ -109,7 +121,7 @@ class LedgerCategoryController extends Controller
      */
     protected function authorizeOwner(LedgerCategory $category): void
     {
-        if ($category->client_id !== auth('client')->id()) {
+        if ($category->client_id !== owner_client_id()) {
             abort(403, 'Unauthorized action.');
         }
     }
@@ -120,7 +132,7 @@ class LedgerCategoryController extends Controller
      */
     protected function getClientCategories()
     {
-        return LedgerCategory::where('client_id', auth('client')->id())
+        return LedgerCategory::where('client_id', owner_client_id())
             ->latest()
             ->paginate(10);
     }

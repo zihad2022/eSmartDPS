@@ -1,12 +1,9 @@
-@php
-    $settings = \App\Models\AdminSetting::first();
-@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to {{ config('app.name') }}</title>
+    <title>Welcome to {{ $siteName }}</title>
     <style>
         body { margin: 0; padding: 0; background-color: #f8fafc; font-family: Arial, sans-serif; }
         @media only screen and (max-width: 600px) {
@@ -27,7 +24,7 @@
                     <!-- Header -->
                     <tr>
                         <td style="background:linear-gradient(90deg,#14b8a6,#6366f1); padding:20px; text-align:center; color:#fff; font-size:22px; font-weight:bold;">
-                            {{ $settings->site_name }}
+                            {{ $siteName }}
                         </td>
                     </tr>
 
@@ -54,7 +51,7 @@
                     <tr>
                         <td style="background:#f1f5f9; padding:20px; text-align:center; font-size:13px; color:#64748b;">
                             Thanks,<br>
-                            The {{ $settings->site_name }} Team <br><br>
+                            The {{ $siteName }} Team <br><br>
                             <small>If you did not create this account, please ignore this email.</small>
                         </td>
                     </tr>

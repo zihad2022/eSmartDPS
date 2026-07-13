@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use App\Concerns\HasSlug;
+use App\Domain\Clients\Models\Client;
 use App\Enums\ProjectStatus;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Project extends Model
 {
@@ -13,83 +16,142 @@ class Project extends Model
 
     protected $fillable = [
         'client_id',
+        'project_category_id',
         'name',
         'slug',
-        'type',
         'investment_amount',
         'expected_return',
+        'expected_return_type',
         'start_date',
         'end_date',
         'description',
+        'status',
     ];
 
-    public function sluggable(): string
+    protected $appends = [
+        'progress_percent',
+        'duration',
+        'duration_human',
+        'duration_months',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'investment_amount' => 'integer',
+            'expected_return' => 'integer',
+            'status' => ProjectStatus::class,
+            'start_date' => 'date',
+            'end_date' => 'date',
+        ];
+    }
+
+    protected function sluggable(): string
     {
         return 'name';
     }
 
-    public function client()
+    public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
     }
 
-    public function projectCategory()
+    public function projectCategory(): BelongsTo
     {
-        return $this->belongsTo(ProjectCategory::class, 'project_category_id');
+        return $this->belongsTo(ProjectCategory::class);
     }
 
-    public function casts(): array
+    public function scopeForClient(Builder $query, int $clientId): Builder
     {
-        return [
-            'status' => ProjectStatus::class,
-            'start_date' => 'datetime',
-            'end_date' => 'datetime',
-        ];
+        return $query->where('client_id', $clientId);
     }
 
-    protected $appends = ['progress_percent', 'duration_human'];
-
-    /**
-     * Get the progress percent attribute.
-     *
-     * @return float|int
-     */
-    public function getProgressPercentAttribute(): int
+    public function scopeActive(Builder $query): Builder
     {
-        if (! $this->start_date || ! $this->end_date) {
-            return 0;
-        }
-
-        $now = Carbon::now();
-        $start = Carbon::parse($this->start_date);
-        $end = Carbon::parse($this->end_date);
-
-        if ($now->lt($start)) {
-            return 0;
-        }
-
-        if ($now->gt($end)) {
-            return 100;
-        }
-
-        $totalDuration = $end->diffInSeconds($start);
-        $elapsed = $now->diffInSeconds($start);
-
-        return (int) round(($elapsed / $totalDuration) * 100);
+        return $query->where('status', ProjectStatus::ACTIVE);
     }
 
-    public function scopeActive($query)
+    public function scopeCompleted(Builder $query): Builder
     {
-        return $query->where('status', ProjectStatus::ACTIVE->value);
+        return $query->where('status', ProjectStatus::COMPLETED);
     }
 
-    public function scopeInactive($query)
+    /** @deprecated Use completed() instead. */
+    public function scopeInactive(Builder $query): Builder
     {
-        return $query->where('status', ProjectStatus::COMPLETED->value);
+        return $query->completed();
     }
 
-    public function scopeCancelled($query)
+    public function scopeCancelled(Builder $query): Builder
     {
-        return $query->where('status', ProjectStatus::CANCELLED->value);
+        return $query->where('status', ProjectStatus::CANCELLED);
+    }
+
+    protected function progressPercent(): Attribute
+    {
+        return Attribute::get(function (): int {
+            if (! $this->start_date || ! $this->end_date) {
+                return 0;
+            }
+
+            if ($this->end_date->lessThanOrEqualTo($this->start_date)) {
+                return now()->greaterThanOrEqualTo($this->end_date) ? 100 : 0;
+            }
+
+            if (now()->lessThanOrEqualTo($this->start_date)) {
+                return 0;
+            }
+
+            if (now()->greaterThanOrEqualTo($this->end_date)) {
+                return 100;
+            }
+
+            $totalSeconds = $this->start_date->diffInSeconds($this->end_date);
+            $elapsedSeconds = $this->start_date->diffInSeconds(now());
+
+            return (int) round(min(100, max(0, ($elapsedSeconds / $totalSeconds) * 100)));
+        });
+    }
+
+    protected function duration(): Attribute
+    {
+        return Attribute::get(fn (): ?string => $this->duration_human);
+    }
+
+    protected function durationMonths(): Attribute
+    {
+        return Attribute::get(function (): ?int {
+            if (! $this->start_date || ! $this->end_date) {
+                return null;
+            }
+
+            return (int) $this->start_date->diffInMonths($this->end_date);
+        });
+    }
+
+    protected function durationHuman(): Attribute
+    {
+        return Attribute::get(function (): ?string {
+            if (! $this->start_date || ! $this->end_date) {
+                return null;
+            }
+
+            $interval = $this->start_date->diff($this->end_date);
+            $parts = [];
+
+            if ($interval->y > 0) {
+                $parts[] = $interval->y.' '.str('year')->plural($interval->y);
+            }
+
+            if ($interval->m > 0) {
+                $parts[] = $interval->m.' '.str('month')->plural($interval->m);
+            }
+
+            if ($interval->d > 0 && $interval->y === 0) {
+                $parts[] = $interval->d.' '.str('day')->plural($interval->d);
+            }
+
+            return $parts ? implode(' ', $parts) : 'Same day';
+        });
     }
 }

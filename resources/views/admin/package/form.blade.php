@@ -78,11 +78,11 @@
                      ----------------------------- --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {{-- Price --}}
-                    <x-form.input name="price" label="Price" type="number" step="0.01" min="0" required
+                    <x-form.input name="price" label="Price" type="number" step="1" min="0" required
                         :value="old('price', $package->price ?? '')" placeholder="Enter price" />
 
                     {{-- Discount Value --}}
-                    <x-form.input name="discount_value" label="Discount Value" type="number" step="0.01"
+                    <x-form.input name="discount_value" label="Discount Value" type="number" step="1"
                         min="0" :value="old('discount_value', $package->discount_value ?? '')"
                         placeholder="Enter discount value (leave blank for no discount)" />
 

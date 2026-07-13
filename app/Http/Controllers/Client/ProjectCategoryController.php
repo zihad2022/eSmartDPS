@@ -123,7 +123,7 @@ class ProjectCategoryController extends Controller
     {
         $this->authorizeCategory($projectCategory);
 
-        $clientId = auth('client')->id();
+        $clientId = owner_client_id();
 
         // -----------------------------
         // 1. Validate uniqueness per client
@@ -158,9 +158,10 @@ class ProjectCategoryController extends Controller
     {
         $this->authorizeCategory($projectCategory);
 
-        // -----------------------------
-        // 1. Delete category
-        // -----------------------------
+        if ($projectCategory->projects()->exists()) {
+            return back()->with('error', 'This category is used by projects and cannot be deleted.');
+        }
+
         $projectCategory->delete();
 
         // -----------------------------
@@ -175,6 +176,6 @@ class ProjectCategoryController extends Controller
      */
     protected function authorizeCategory(ProjectCategory $category)
     {
-        abort_unless($category->client_id === auth('client')->id(), 403);
+        abort_unless($category->client_id === owner_client_id(), 403);
     }
 }

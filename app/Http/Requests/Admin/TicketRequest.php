@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
+use App\Models\Ticket;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -11,21 +12,28 @@ class TicketRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // Allow all requests for now
+        return auth('admin')->check();
     }
 
     public function rules(): array
     {
-        $ticketId = $this->route('ticket'); // Get current ticket ID for unique check
+        /** @var Ticket|null $ticket */
+        $ticket = $this->route('ticket');
 
         return [
-            'client_id'     => ['required', 'exists:clients,id'], // Must belong to a valid client
-            'ticket_number' => ['required', Rule::unique('tickets', 'ticket_number')->ignore($ticketId)], // Unique ticket number
-            'subject'       => ['required', 'string', 'max:255'], // Ticket title
-            'message'       => ['required', 'string'], // Ticket description
-            'status'        => ['required', Rule::in(array_column(TicketStatus::cases(), 'value'))], // Must match allowed status
-            'priority'      => ['required', Rule::in(array_column(TicketPriority::cases(), 'value'))], // Must match allowed priority
-            'admin_notes'   => ['nullable', 'string'], // Optional admin notes
+            'client_id' => [
+                'required', 'integer',
+                Rule::exists('clients', 'id')->whereNull('parent_id'),
+            ],
+            'ticket_number' => [
+                'required', 'string', 'max:50',
+                Rule::unique('tickets', 'ticket_number')->ignore($ticket?->id),
+            ],
+            'subject' => ['required', 'string', 'max:255'],
+            'message' => ['required', 'string', 'max:10000'],
+            'status' => ['required', Rule::enum(TicketStatus::class)],
+            'priority' => ['required', Rule::enum(TicketPriority::class)],
+            'admin_notes' => ['nullable', 'string', 'max:10000'],
         ];
     }
 }

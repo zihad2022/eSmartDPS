@@ -2,8 +2,9 @@
 
 namespace App\Domain\Clients\Actions;
 
-use App\Domain\Billing\Actions\CreateInvoiceAction;
+use App\Domain\Invoices\Actions\CreateInvoiceAction;
 use App\Domain\Clients\Models\Client;
+use App\Domain\Clients\Models\ClientPackage;
 use App\Domain\Packages\Models\Package;
 use Illuminate\Support\Facades\Log;
 
@@ -20,7 +21,10 @@ class AssignTrialAction
             return 'You have already used the trial for this package.';
         }
 
-        $client->clientPackages()->update(['is_active' => false]);
+        $client->clientPackages()->where('is_active', true)->update([
+            'is_active' => false,
+            'status' => ClientPackage::STATUS_CANCELLED,
+        ]);
 
         $client->clientPackages()->create([
             'package_id' => $package->id,
@@ -30,7 +34,11 @@ class AssignTrialAction
             'is_active'  => true,
         ]);
 
-        Log::info('store exect trial days');
+        Log::info('Trial package assigned.', [
+            'client_id' => $client->id,
+            'package_id' => $package->id,
+            'trial_days' => $package->trial_days,
+        ]);
         // app(CreateInvoiceAction::class)->execute($client, $package);
 
         return true;

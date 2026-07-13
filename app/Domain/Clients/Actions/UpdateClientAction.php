@@ -24,6 +24,7 @@ class UpdateClientAction
             'nid_card_front' => $data->nid_card_front,
             'nid_card_back' => $data->nid_card_back,
             'profile_photo' => $data->profile_photo,
+            'status' => $data->status,
         ];
 
         // Only update password if it's provided

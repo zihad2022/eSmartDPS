@@ -19,7 +19,8 @@ class ClientData
         public ?string $nid_card_back = null,
         public ?string $profile_photo = null,
         public ?string $password = null,
-        public ?string $package_id = null,
+        public ?int $package_id = null,
         public ?int $parent_id = null,
+        public bool $status = true,
     ) {}
 }

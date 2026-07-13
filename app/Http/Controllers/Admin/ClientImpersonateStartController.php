@@ -2,26 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Admin\Clients\StartClientImpersonationAction;
 use App\Domain\Clients\Models\Client;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Http\RedirectResponse;
 
 class ClientImpersonateStartController extends Controller
 {
-    /**
-     * Handle the incoming request.
-     */
-    public function __invoke(Client $client)
+    public function __invoke(Client $client, StartClientImpersonationAction $action): RedirectResponse
     {
-        // Store admin ID so you can return back later
-        Session::put('impersonate_admin_id', Auth::guard('admin')->id());
-
-        // Login as client
-        Auth::guard('client')->login($client);
+        $action->execute($client);
 
         return redirect()->route('client.dashboard')
-            ->with('success', 'You are now logged in as client: ' . $client->first_name);
+            ->with('success', 'You are now logged in as client: '.$client->full_name);
     }
 }

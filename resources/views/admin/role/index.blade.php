@@ -23,7 +23,15 @@
         {{-- ROLE FORM (Create / Edit)     --}}
         {{-- This form is included from 'admin.role.form' --}}
         {{-- ============================= --}}
-        @include('admin.role.form')
+        @if (isset($editRole))
+            @adminCan('edit roles')
+                @include('admin.role.form')
+            @endadminCan
+        @else
+            @adminCan('create roles')
+                @include('admin.role.form')
+            @endadminCan
+        @endif
 
         {{-- ============================= --}}
         {{-- ROLES TABLE LISTING           --}}
@@ -93,26 +101,31 @@
                                 {{-- Actions: Edit / Delete --}}
                                 <td class="px-6 py-4 text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        {{-- write if condition if role is super-admin than hide the content --}}
-                                        @if ($role->name !== 'super-admin')
-                                            {{-- Edit Role --}}
-                                            <a href="{{ route('admin.roles.index', ['edit' => $role->id]) }}"
-                                                class="text-secondary-600 hover:text-secondary-900" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
+                                        <a href="{{ route('admin.roles.show', $role) }}"
+                                            class="text-accent-600 hover:text-accent-900" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        @if (in_array($role->id, $manageableRoleIds, true))
+                                            @adminCan('edit roles')
+                                                <a href="{{ route('admin.roles.edit', $role) }}"
+                                                    class="text-secondary-600 hover:text-secondary-900" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            @endadminCan
 
-                                            {{-- Delete Role --}}
-                                            <form method="POST" action="{{ route('admin.roles.destroy', $role) }}"
-                                                onsubmit="return confirm('Are you sure you want to delete this role?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900"
-                                                    title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            @adminCan('delete roles')
+                                                <form method="POST" action="{{ route('admin.roles.destroy', $role) }}"
+                                                    class="delete-form">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="button" class="text-red-600 hover:text-red-900 delete-btn"
+                                                        title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            @endadminCan
                                         @else
-                                            <span class="text-gray-500">Super Admin</span>
+                                            <span class="text-gray-500">Protected</span>
                                         @endif
                                     </div>
                                 </td>
@@ -137,4 +150,4 @@
             </div>
         </div>
     </div>
-    </x-client.layout.app>
+    </x-admin.layout.app>

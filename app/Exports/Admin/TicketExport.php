@@ -2,64 +2,53 @@
 
 namespace App\Exports\Admin;
 
+use App\Enums\TicketStatus;
 use App\Models\Ticket;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Illuminate\Database\Eloquent\Builder;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class TicketExport implements FromCollection, WithHeadings, WithMapping
+class TicketExport implements FromQuery, WithHeadings, WithMapping
 {
-    private ?string $status;
     private int $sl = 1;
 
-    public function __construct(?string $status = null)
+    public function __construct(private readonly ?string $status = null)
     {
-        $this->status = $status;
     }
 
-    /**
-     * Return tickets filtered by status if provided.
-     */
-    public function collection()
+    public function query(): Builder
     {
-        return match ($this->status) {
-            'open'        => Ticket::open()->get(),
-            'in_progress' => Ticket::inProgress()->get(),
-            'resolved'    => Ticket::resolved()->get(),
-            'closed'      => Ticket::closed()->get(),
-            default       => Ticket::all(),
-        };
+        $statusMap = [
+            'open' => TicketStatus::OPEN,
+            'in_progress' => TicketStatus::IN_PROGRESS,
+            'resolved' => TicketStatus::RESOLVED,
+            'closed' => TicketStatus::CLOSED,
+        ];
+
+        return Ticket::query()
+            ->with('client:id,first_name,last_name')
+            ->when(isset($statusMap[$this->status]), fn (Builder $query) => $query->where('status', $statusMap[$this->status]))
+            ->orderBy('id');
     }
 
     public function headings(): array
     {
-        return [
-            'SL',
-            'Ticket No',
-            'Subject',
-            'Message',
-            'Client',
-            'Status',
-            'Priority',
-            'Admin Notes',
-            'Created At',
-        ];
+        return ['SL', 'Ticket No', 'Subject', 'Message', 'Client', 'Status', 'Priority', 'Admin Notes', 'Created At'];
     }
 
     public function map($ticket): array
     {
-        $ticket->loadMissing('client');
-
         return [
-            '#' . $this->sl++,
+            '#'.$this->sl++,
             $ticket->ticket_number,
             $ticket->subject,
             $ticket->message,
-            $ticket->client?->first_name . ' ' . $ticket->client?->last_name ?? 'N/A',
-            $ticket->status->label(),
-            $ticket->priority->label(),
+            trim(($ticket->client?->first_name ?? '').' '.($ticket->client?->last_name ?? '')) ?: 'N/A',
+            $ticket->status?->label() ?? 'N/A',
+            $ticket->priority?->label() ?? 'N/A',
             $ticket->admin_notes,
-            $ticket->created_at->format('Y-m-d'),
+            $ticket->created_at?->format('Y-m-d'),
         ];
     }
 }

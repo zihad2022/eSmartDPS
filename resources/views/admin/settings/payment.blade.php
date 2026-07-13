@@ -75,16 +75,16 @@
                         placeholder="Enter bKash App Key" />
 
                     {{-- App Secret --}}
-                    <x-form.input name="bkash_app_secret" label="App Secret" :value="old('bkash_app_secret', $settings->bkash_app_secret ?? '')"
-                        placeholder="Enter bKash App Secret" />
+                    <x-form.input name="bkash_app_secret" label="App Secret" :value="old('bkash_app_secret', '')"
+                        placeholder="Leave blank to keep the current App Secret" />
 
                     {{-- Username --}}
                     <x-form.input name="bkash_username" label="Username" :value="old('bkash_username', $settings->bkash_username ?? '')"
                         placeholder="Enter bKash Username" />
 
                     {{-- Password --}}
-                    <x-form.password-input label="bKash Password" name="bkash_password" :value="$settings->bkash_password ?? ''"
-                        placeholder="Enter bKash Password" required />
+                    <x-form.password-input label="bKash Password" name="bkash_password" :value="''"
+                        placeholder="Leave blank to keep the current password" />
 
                     {{-- Charge (optional) --}}
                     <x-form.input name="bkash_charge" label="Extra Charge (%)" type="number" step="0.01"
@@ -122,7 +122,7 @@
                     <x-form.input name="sslcommerz_store_id" label="Store ID" :value="old('sslcommerz_store_id', $settings->sslcommerz_store_id ?? '')"
                         placeholder="Enter Store ID" />
                     <x-form.input name="sslcommerz_store_password" label="Store Password" type="password"
-                        :value="old('sslcommerz_store_password', $settings->sslcommerz_store_password ?? '')" placeholder="Enter Store Password" />
+                        :value="old('sslcommerz_store_password', '')" placeholder="Leave blank to keep the current password" />
                     <x-form.select name="sslcommerz_mode" label="Mode" :options="['live' => 'Live', 'sandbox' => 'Sandbox']" :selected="old('sslcommerz_mode', $settings->sslcommerz_mode ?? 'sandbox')"
                         required />
                 </div>

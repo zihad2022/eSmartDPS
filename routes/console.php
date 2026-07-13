@@ -10,3 +10,5 @@ Artisan::command('inspire', function () {
 
 Schedule::command('invoices:generate')->everyTenSeconds();
 Schedule::command('payments:generate')->everyTenSeconds();
+
+Schedule::command('admin:backup')->hourly()->withoutOverlapping();

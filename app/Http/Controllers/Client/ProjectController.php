@@ -9,7 +9,6 @@ use App\Domain\Clients\Models\Client;
 use App\Models\ClientSetting;
 use App\Models\Project;
 use App\Models\ProjectCategory;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -42,7 +41,6 @@ class ProjectController extends Controller
                 'expected_return_type',
                 'start_date',
                 'end_date',
-                'duration',
                 'status',
                 'created_at',
             ])
@@ -119,7 +117,6 @@ class ProjectController extends Controller
         }
 
         $validated = $request->validated();
-        $validated['duration']  = $this->calculateDuration($validated['start_date'], $validated['end_date']);
         $validated['client_id'] = owner_client_id();
 
         Project::create($validated);
@@ -159,7 +156,6 @@ class ProjectController extends Controller
         $this->authorizeProject($project);
 
         $validated = $request->validated();
-        $validated['duration'] = $this->calculateDuration($validated['start_date'], $validated['end_date']);
 
         $project->update($validated);
 
@@ -197,23 +193,4 @@ class ProjectController extends Controller
             ->get();
     }
 
-    /**
-     * Calculate the duration between two dates in years, months, and days.
-     */
-    protected function calculateDuration(?string $start, ?string $end): ?string
-    {
-        if (! $start || ! $end) {
-            return null;
-        }
-
-        $diff = Carbon::parse($start)->diff(Carbon::parse($end));
-
-        $duration = trim(
-            ($diff->y ? "{$diff->y} years " : '') .
-            ($diff->m ? "{$diff->m} months " : '') .
-            ($diff->d ? "{$diff->d} days" : '')
-        );
-
-        return $duration ?: '0 days';
-    }
 }

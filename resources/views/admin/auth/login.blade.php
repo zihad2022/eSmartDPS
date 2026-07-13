@@ -77,7 +77,7 @@
                         <i class="fas fa-envelope mr-2"></i>Email
                     </label>
                     <input type="email" id="email" name="email" required placeholder="Enter your admin email"
-                        value="{{ old('email', 'superadmin@mail.com') }}"
+                        value="{{ old('email') }}"
                         class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-primary-300 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition duration-300"
                         aria-describedby="email-error">
                     @error('email')
@@ -92,7 +92,6 @@
                     </label>
                     <div class="relative">
                         <input type="password" id="password" name="password" required placeholder="Enter your password"
-                            value="superadmin123"
                             class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-primary-300 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition duration-300">
                         <button type="button" id="togglePassword"
                             class="absolute right-3 top-3 text-primary-300 hover:text-white">
@@ -107,7 +106,7 @@
                 <!-- Remember Me -->
                 <div class="flex items-center justify-between">
                     <label class="flex items-center">
-                        <input type="checkbox" name="remember"
+                        <input type="checkbox" name="remember" value="1"
                             class="w-4 h-4 text-accent-500 bg-white/10 border-white/20 rounded focus:ring-accent-500">
                         <span class="ml-2 text-sm text-primary-200">Remember me</span>
                     </label>

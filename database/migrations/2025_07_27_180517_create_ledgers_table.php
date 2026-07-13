@@ -6,33 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('ledgers', function (Blueprint $table) {
+        Schema::create('ledgers', function (Blueprint $table): void {
             $table->id();
+            $table->foreignId('client_id')->constrained('clients')->cascadeOnDelete();
             $table->foreignId('ledger_category_id')
                 ->constrained('ledger_categories')
-                ->cascadeOnDelete();
-            $table->foreignId('client_id')
-                ->nullable()
-                ->constrained('clients')
-                ->cascadeOnDelete();
-            $table->unsignedBigInteger('type')->index();
-            $table->string('description', 255);
-            $table->integer('amount')->index();
-            $table->date('entry_date')->index();
+                ->restrictOnDelete();
+            $table->unsignedTinyInteger('type');
+            $table->string('description');
+            $table->unsignedBigInteger('amount');
+            $table->date('entry_date');
             $table->text('notes')->nullable();
             $table->timestamps();
+
             $table->index(['client_id', 'entry_date']);
+            $table->index(['client_id', 'type', 'entry_date']);
+            $table->index(['ledger_category_id', 'entry_date']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('ledgers');

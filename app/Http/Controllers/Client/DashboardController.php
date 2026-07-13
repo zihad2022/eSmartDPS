@@ -29,7 +29,7 @@ class DashboardController extends Controller
 
         // Recent activities (last 7 days)
         $recentActivities = Activity::with('causer')
-            ->where('causer_type', Client::class)
+            ->forClientAccount($clientId)
             ->where('created_at', '>=', now()->subDays(7))
             ->latest()
             ->take(3)

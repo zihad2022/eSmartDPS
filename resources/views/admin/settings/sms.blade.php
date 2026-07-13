@@ -44,7 +44,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {{-- SMS API Key --}}
-                <x-form.input name="sms_api_key" label="SMS API Key" :value="old('sms_api_key', $settings->sms_api_key ?? '')" placeholder="Enter SMS API Key" />
+                <x-form.input name="sms_api_key" label="SMS API Key" :value="old('sms_api_key', '')" placeholder="Leave blank to keep the current API key" />
 
                 {{-- SMS Client ID --}}
                 <x-form.input name="sms_client_id" label="SMS Client ID" :value="old('sms_client_id', $settings->sms_client_id ?? '')"

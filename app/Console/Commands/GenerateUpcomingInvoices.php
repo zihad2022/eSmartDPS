@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Actions\Client\Auth\CreateClientInvoiceAction;
 use App\Domain\Clients\Models\ClientPackage;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -35,8 +34,8 @@ class GenerateUpcomingInvoices extends Command
             $client = $cp->client;
             $package = $cp->package;
 
-            $billingStart = Carbon::parse($cp->ends_at)->startOfDay();
-            $billingEnd   = $billingStart->copy()->addDays($package->duration_days ?? 30);
+            $billingStart = $cp->ends_at->copy()->startOfDay();
+            $billingEnd = $package->billingEndDate($billingStart);
 
             // Avoid duplicate invoice creation
             $alreadyExists = $client->invoices()

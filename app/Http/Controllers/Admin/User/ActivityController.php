@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers\Admin\User;
 
+use App\Actions\Admin\Activities\GetAdminActivitiesAction;
 use App\Http\Controllers\Controller;
-use App\Models\Activity;
-use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ActivityController extends Controller
 {
-    /**
-     * Handle the incoming request.
-     */
-    public function __invoke(Request $request)
+    public function __invoke(GetAdminActivitiesAction $action): View
     {
-        $activities = Activity::with('causer')->where('causer_type', 'App\Models\Admin')->orderBy('id', 'desc')->paginate(10);
-
-        return view('admin.user.activities', compact('activities'));
+        return view('admin.user.activities', [
+            'activities' => $action->execute(),
+        ]);
     }
 }

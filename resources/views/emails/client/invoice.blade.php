@@ -3,31 +3,33 @@
 
 Hello **{{ $invoice->client->first_name }}**,
 
-Your invoice **#{{ $invoice->invoice_number }}** has been generated.  
+Your invoice **#{{ $invoice->invoice_number }}** has been generated.
 
 ---
 
 ## 📦 Package Information
-**Name:** {{ $invoice->package_name }}  
-**Description:** {{ $invoice->package_description }}  
+**Name:** {{ $invoice->package_name }}
+**Description:** {{ $invoice->package_description }}
 
 ---
 
 ## 💰 Payment Details
-**Amount:** {{ $currency  }} {{ number_format($invoice->invoice_amount, 2) }}  
-**Status:** 
+**Amount:** {{ $currency  }} {{ number_format($invoice->invoice_amount, 2) }}
+**Status:**
 @if($invoice->status == \App\Enums\InvoiceStatus::PAID)
 ✅ Paid
 @elseif($invoice->status == \App\Enums\InvoiceStatus::UNPAID)
 ⏳ Unpaid
 @elseif($invoice->status == \App\Enums\InvoiceStatus::CANCELLED)
 ❌ Cancelled
+@elseif($invoice->status == \App\Enums\InvoiceStatus::REFUND_REQUESTED)
+↩️ Refund Requested
 @elseif($invoice->status == \App\Enums\InvoiceStatus::REFUNDED)
 🔄 Refunded
-@endif  
+@endif
 
-**Issued Date:** {{ $invoice->created_at->format('M d, Y') }}  
-**Due Date:** {{ $invoice->due_date->format('M d, Y') }}  
+**Issued Date:** {{ $invoice->created_at->format('M d, Y') }}
+**Due Date:** {{ $invoice->due_date?->format('M d, Y') ?? 'Not specified' }}
 
 ---
 
@@ -41,6 +43,6 @@ Your invoice **#{{ $invoice->invoice_number }}** has been generated.
 {{ $invoice->notes }}
 @endif --}}
 
-Thanks for your business,  
-**{{ config('app.name') }}**
+Thanks for your business,
+**{{ $siteName }}**
 </x-mail::message>

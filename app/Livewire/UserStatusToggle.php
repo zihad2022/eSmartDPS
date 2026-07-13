@@ -2,26 +2,33 @@
 
 namespace App\Livewire;
 
+use App\Actions\Admin\Users\ToggleAdminStatusAction;
 use App\Models\Admin;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class UserStatusToggle extends Component
 {
-    public $admin;
+    public Admin $admin;
 
-    public function mount(Admin $admin)
+    public function mount(Admin $admin): void
     {
         $this->admin = $admin;
     }
 
-    public function toggleStatus()
+    public function toggleStatus(ToggleAdminStatusAction $action): void
     {
-        $this->admin->status = !$this->admin->status;
-        $this->admin->save();
+        $actor = auth('admin')->user();
+        abort_unless($actor && $actor->can('edit users'), 403);
 
-        // Optional: emit event for toast notification
-        // $this->emit('statusUpdated', $this->admin->id, $this->admin->status);
+        try {
+            $this->admin = $action->execute($actor, $this->admin);
+            $this->dispatch('notify', 'User status updated successfully.');
+        } catch (ValidationException $exception) {
+            $message = collect($exception->errors())->flatten()->first();
+            $this->addError('status', $message);
+            $this->dispatch('notify', $message, 'error');
+        }
     }
 
     public function render()

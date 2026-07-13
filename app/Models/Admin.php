@@ -2,33 +2,51 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
 
 class Admin extends Authenticatable
 {
     use HasRoles;
+    use Notifiable;
 
-    protected $guard_name = 'admin';
+    protected string $guard_name = 'admin';
 
     protected $fillable = [
-        'name', 'email', 'username', 'password',
+        'name',
+        'username',
+        'email',
+        'phone',
+        'password',
+        'profile_photo',
+        'status',
+        'last_login',
     ];
 
-    protected $casts = [
-        'password' => 'hashed',
-        'status' => 'boolean',
-        'last_login' => 'datetime',
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
-    public function scopeActive($query)
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+            'status' => 'boolean',
+            'last_login' => 'datetime',
+        ];
+    }
+
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', true);
     }
 
-    public function scopeInactive($query)
+    public function scopeInactive(Builder $query): Builder
     {
         return $query->where('status', false);
     }
@@ -36,7 +54,7 @@ class Admin extends Authenticatable
     protected function profilePhotoUrl(): Attribute
     {
         return Attribute::get(
-            fn () => $this->profile_photo ? Storage::url($this->profile_photo) : null,
+            fn (): ?string => $this->profile_photo ? Storage::url($this->profile_photo) : null,
         );
     }
 }

@@ -2,66 +2,28 @@
 
 namespace App\Http\Controllers\Admin\Settings;
 
+use App\Actions\Admin\Settings\GetAdminSettingsAction;
+use App\Actions\Admin\Settings\UpdateContactInfoSettingsAction;
 use App\Http\Controllers\Controller;
-use App\Models\AdminSetting;
-use App\Services\ActivityLogger;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\Settings\ContactInfoSettingsRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class ContactInfoController extends Controller
 {
-    /**
-     * Show the contact information settings edit form.
-     *
-     * Fetches the first AdminSetting record (assuming a single row)
-     * and passes it to the view for editing contact info settings.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function edit()
+    public function edit(GetAdminSettingsAction $settings): View
     {
-        // Retrieve the existing settings record from the database.
-        $settings = AdminSetting::first();
-
-        // Return the edit view with the current settings data.
-        return view('admin.settings.contact-info', compact('settings'));
+        return view('admin.settings.contact-info', ['settings' => $settings->execute()]);
     }
 
-    /**
-     * Handle the update request for contact information settings.
-     *
-     * Validates the incoming request data, updates the settings record,
-     * and redirects back with a success message.
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function update(Request $request)
-    {
-        // Validate the incoming request data.
-        // All fields are required for contact information settings.
-        $request->validate([
-            'helpline_number' => 'required|string|max:255',
-            'email_address' => 'required|email|max:255',
-            'office_address' => 'required|string|max:1000',
-            'google_map' => 'required|string',
-        ]);
+    public function update(
+        ContactInfoSettingsRequest $request,
+        GetAdminSettingsAction $settings,
+        UpdateContactInfoSettingsAction $action
+    ): RedirectResponse {
+        $action->execute($settings->execute(), $request->validated());
 
-        // Fetch the existing settings record to update.
-        $settings = AdminSetting::first();
-
-        // Update the contact information fields with validated data.
-        $settings->update([
-            'helpline_number' => $request->helpline_number,
-            'email_address' => $request->email_address,
-            'office_address' => $request->office_address,
-            'google_map' => $request->google_map,
-        ]);
-
-        // Log activity
-        ActivityLogger::log('Contact Info Settings Updated');
-
-        // Redirect back to the edit page with a success flash message.
-        return redirect()
-            ->route('admin.settings.contact_info.edit')
+        return redirect()->route('admin.settings.contact-info.edit')
             ->with('success', 'Contact info updated successfully.');
     }
 }
