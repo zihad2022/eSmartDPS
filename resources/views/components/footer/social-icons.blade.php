@@ -1,13 +1,13 @@
 @php
     $settings = \App\Models\AdminSetting::select(
-        'facebook_page_url',
-        'facebook_group_url',
-        'whatsapp_channel_url',
-        'telegram_channel_url',
-        'linkedin_url',
-        'twitter_x_url',
-        'youtube_url',
-        'tiktok_url'
+        'facebook_page',
+        'facebook_group',
+        'whatsapp_channel',
+        'telegram_channel',
+        'linkedin',
+        'twitter_x',
+        'youtube',
+        'tiktok',
     )->first();
 
     // Map all links with label + Font Awesome classes
@@ -58,10 +58,9 @@
 <div class="flex space-x-4 mt-4">
     @foreach ($socialLinks as $item)
         @if ($item['url'])
-            <a href="{{ $item['url'] }}"
-               target="_blank"
-               class="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center hover:bg-accent-600 transition duration-300"
-               aria-label="{{ $item['label'] }}">
+            <a href="{{ $item['url'] }}" target="_blank"
+                class="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center hover:bg-accent-600 transition duration-300"
+                aria-label="{{ $item['label'] }}">
                 <i class="{{ $item['icon'] }} text-white"></i>
             </a>
         @endif
