@@ -13,42 +13,42 @@
     // Map all links with label + Font Awesome classes
     $socialLinks = [
         [
-            'url' => $settings?->facebook_page_url,
+            'url' => $settings?->facebook_page,
             'label' => 'Facebook',
             'icon' => 'fab fa-facebook-f',
         ],
         [
-            'url' => $settings?->facebook_group_url,
+            'url' => $settings?->facebook_group,
             'label' => 'Facebook Group',
             'icon' => 'fab fa-facebook',
         ],
         [
-            'url' => $settings?->whatsapp_channel_url,
+            'url' => $settings?->whatsapp_channel,
             'label' => 'WhatsApp',
             'icon' => 'fab fa-whatsapp',
         ],
         [
-            'url' => $settings?->telegram_channel_url,
+            'url' => $settings?->telegram_channel,
             'label' => 'Telegram',
             'icon' => 'fab fa-telegram-plane',
         ],
         [
-            'url' => $settings?->linkedin_url,
+            'url' => $settings?->linkedin,
             'label' => 'LinkedIn',
             'icon' => 'fab fa-linkedin-in',
         ],
         [
-            'url' => $settings?->twitter_x_url,
+            'url' => $settings?->twitter_x,
             'label' => 'Twitter / X',
             'icon' => 'fab fa-x-twitter',
         ],
         [
-            'url' => $settings?->youtube_url,
+            'url' => $settings?->youtube,
             'label' => 'YouTube',
             'icon' => 'fab fa-youtube',
         ],
         [
-            'url' => $settings?->tiktok_url,
+            'url' => $settings?->tiktok,
             'label' => 'TikTok',
             'icon' => 'fab fa-tiktok',
         ],
