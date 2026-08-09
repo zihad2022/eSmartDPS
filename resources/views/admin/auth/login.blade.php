@@ -77,7 +77,7 @@
                         <i class="fas fa-envelope mr-2"></i>Email
                     </label>
                     <input type="email" id="email" name="email" required placeholder="Enter your admin email"
-                        value="{{ old('email') }}"
+                        value="{{ old('email', app()->isLocal() ? 'superadmin@mail.com' : '') }}"
                         class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-primary-300 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition duration-300"
                         aria-describedby="email-error">
                     @error('email')
@@ -92,6 +92,7 @@
                     </label>
                     <div class="relative">
                         <input type="password" id="password" name="password" required placeholder="Enter your password"
+                            value="{{ app()->isLocal() ? 'password' : '' }}"
                             class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-primary-300 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition duration-300">
                         <button type="button" id="togglePassword"
                             class="absolute right-3 top-3 text-primary-300 hover:text-white">
