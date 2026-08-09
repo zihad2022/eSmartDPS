@@ -124,13 +124,13 @@ class Client extends Authenticatable
     public function activeClientPackage(): HasOne
     {
         return $this->hasOne(ClientPackage::class)
-            ->ofMany('ends_at', 'max', fn(Builder $query) => $query->active());
+            ->ofMany(['ends_at' => 'max'], fn(Builder $query) => $query->active());
     }
 
     public function activePaidClientPackage(): HasOne
     {
         return $this->hasOne(ClientPackage::class)
-            ->ofMany('ends_at', 'max', fn(Builder $query) => $query->active()->paid());
+            ->ofMany(['ends_at' => 'max'], fn(Builder $query) => $query->active()->paid());
     }
 
     public function expiredTrialPackages(): HasMany
