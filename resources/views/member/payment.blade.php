@@ -1,7 +1,7 @@
 <x-member.layout.app>
     <!-- Main Content -->
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form action="" method="POST" enctype="multipart/form-data"
+        <form action="{{ route('member.payment.store') }}" method="POST" enctype="multipart/form-data"
             class="space-y-10 bg-white rounded-xl shadow-sm border border-gray-100 p-8">
             @csrf
 
