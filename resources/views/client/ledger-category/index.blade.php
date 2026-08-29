@@ -79,10 +79,10 @@
                                         </a>
                                         <form action="{{ route('client.ledger-categories.destroy', $category->id) }}"
                                             method="POST"
-                                            onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                            class="delete-form inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900"
+                                            <button type="button" class="text-red-600 hover:text-red-900 delete-btn"
                                                 title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
