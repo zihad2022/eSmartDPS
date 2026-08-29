@@ -35,20 +35,43 @@ test('client can start a trial subscription', function () {
     ]);
 });
 
-test('client can start a paid subscription', function () {
+test('client can activate a free subscription immediately', function () {
     $client = Client::factory()->create();
-    $package = Package::factory()->create(['is_active' => true]);
+    $package = Package::factory()->create([
+        'price' => 0,
+        'is_active' => true,
+    ]);
 
     $response = $this->actingAs($client, 'client')
         ->get(route('client.subscription.start.paid', $package));
 
-    $response->assertRedirect();
+    $response->assertRedirect(route('client.dashboard'));
     $this->assertDatabaseHas('client_packages', [
         'client_id' => $client->id,
         'package_id' => $package->id,
         'is_trial' => false,
         'status' => ClientPackage::STATUS_ACTIVE,
     ]);
+});
+
+test('client selecting paid subscription creates invoice and redirects to payment', function () {
+    $client = Client::factory()->create();
+    $package = Package::factory()->create([
+        'price' => 500,
+        'is_active' => true,
+    ]);
+
+    $response = $this->actingAs($client, 'client')
+        ->get(route('client.subscription.start.paid', $package));
+
+    $this->assertDatabaseHas('invoices', [
+        'client_id' => $client->id,
+        'package_id' => $package->id,
+        'invoice_amount' => 500,
+    ]);
+
+    $invoice = Invoice::where('client_id', $client->id)->first();
+    $response->assertRedirect(route('client.payments.select', $invoice->id));
 });
 
 test('client can view expired subscription page with invoice', function () {
@@ -59,5 +82,6 @@ test('client can view expired subscription page with invoice', function () {
         ->get(route('client.subscription.expired'));
 
     $response->assertOk()
-        ->assertViewIs('client.subscription.expired');
+        ->assertViewIs('client.subscription.expired')
+        ->assertSee($invoice->invoice_number);
 });
