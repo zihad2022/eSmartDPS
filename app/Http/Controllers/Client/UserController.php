@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\UserRequest;
 use App\Models\Client;
 use App\Services\ImageService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 class UserController extends Controller
 {
@@ -15,7 +18,7 @@ class UserController extends Controller
     /**
      * Display a listing of users under the authenticated parent client.
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $parent = $this->getOwner();
         $query = $parent->children()->newQuery();
@@ -45,14 +48,14 @@ class UserController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(): View
     {
         return view('client.user.form', [
             'user_id' => generate_client_user_id(),
         ]);
     }
 
-    public function store(UserRequest $request)
+    public function store(UserRequest $request): RedirectResponse
     {
         $client = $this->getOwner();
 
@@ -68,21 +71,21 @@ class UserController extends Controller
             ->with('success', 'User has been added successfully.');
     }
 
-    public function edit(Client $user)
+    public function edit(Client $user): View
     {
         $this->authorizeOwner($user);
 
         return view('client.user.form', compact('user'));
     }
 
-    public function show(Client $user)
+    public function show(Client $user): View
     {
         $this->authorizeOwner($user);
 
         return view('client.user.show', compact('user'));
     }
 
-    public function update(UserRequest $request, Client $user)
+    public function update(UserRequest $request, Client $user): RedirectResponse
     {
         $this->authorizeOwner($user);
 
@@ -94,7 +97,7 @@ class UserController extends Controller
             ->with('success', 'User has been updated successfully.');
     }
 
-    public function destroy(Client $user)
+    public function destroy(Client $user): RedirectResponse
     {
         $this->authorizeOwner($user);
 
@@ -198,7 +201,7 @@ class UserController extends Controller
 
             $match = collect($fields)
                 ->filter()
-                ->contains(fn ($v) => str_contains(strtolower($v), strtolower($search)));
+                ->contains(fn ($v) => str_contains(strtolower((string) $v), strtolower($search)));
 
             if (! $match) {
                 return false;
@@ -223,7 +226,7 @@ class UserController extends Controller
 
         // Password handling
         if (! empty($data['password'])) {
-            $data['password'] = bcrypt($data['password']);
+            $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
         }
