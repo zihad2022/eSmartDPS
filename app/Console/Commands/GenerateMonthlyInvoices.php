@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\Invoices\CreateInvoiceAction;
+use App\Actions\Invoices\GenerateInvoiceAction;
 use App\Models\Client;
 use App\Models\ClientPackage;
 use App\Models\Invoice;
@@ -17,7 +17,7 @@ class GenerateMonthlyInvoices extends Command
 
     protected $description = 'Generate missing invoices for active paid subscriptions and newly expired trials.';
 
-    public function handle(CreateInvoiceAction $createInvoice): int
+    public function handle(GenerateInvoiceAction $createInvoice): int
     {
         $lock = Cache::lock('invoices:generate:lock', 600);
 
