@@ -5,22 +5,22 @@ namespace App\Http\Controllers\Member;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Member\MemberPaymentRequest;
 use App\Models\ClientSetting;
+use App\Models\Member;
 use App\Models\Payment;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class PaymentController extends Controller
 {
-    public function create()
+    public function create(): View|RedirectResponse
     {
+        /** @var Member $member */
         $member = Auth::guard('member')->user();
-        if (! $member) {
-            return redirect()->back()->withErrors(['general' => 'You must be logged in as a member to submit payments.']);
-        }
 
         $settings = Cache::remember("client_settings:{$member->client_id}", now()->addMinutes(5), function () use ($member) {
             return ClientSetting::where('client_id', $member->client_id)->first();
@@ -36,30 +36,14 @@ class PaymentController extends Controller
         return view('member.payment', compact('methods'));
     }
 
-    public function store(Request $request)
+    public function store(MemberPaymentRequest $request): RedirectResponse
     {
+        /** @var Member $member */
         $member = Auth::guard('member')->user();
-        if (! $member) {
-            return redirect()->back()->withErrors(['general' => 'You must be logged in as a member to submit payments.']);
-        }
+        $validated = $request->validated();
 
-        $methodValues = array_map(fn ($m) => $m->value, PaymentMethod::cases());
-
-        $validated = $request->validate([
-            'payment_amount' => ['required', 'numeric', 'min:1'],
-            'payment_date' => ['required', 'date'],
-            'payment_method' => ['required', Rule::in($methodValues)],
-            'reference_number' => ['nullable', 'string', 'max:64'],
-            'payment_notes' => ['nullable', 'string', 'max:1000'],
-            'receipt_file' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
-        ]);
-
-        // Persist proof and record atomically
-        return DB::transaction(function () use ($validated, $member, $request) {
-            // Save receipt file
+        return DB::transaction(function () use ($validated, $member, $request): RedirectResponse {
             $path = $request->file('receipt_file')->store('receipts', 'public');
-
-            // Monetary values are stored as whole currency units across the schema.
             $amount = (int) round((float) $validated['payment_amount']);
 
             Payment::create([
