@@ -4,11 +4,13 @@ namespace App\Domain\Clients\Models;
 
 use App\Domain\Packages\Models\Package;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ClientPackage extends Model
 {
+    use HasFactory;
     public const STATUS_ACTIVE = 'active';
     public const STATUS_EXPIRED = 'expired';
     public const STATUS_CANCELLED = 'cancelled';

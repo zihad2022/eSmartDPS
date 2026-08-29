@@ -5,12 +5,14 @@ namespace App\Models;
 use App\Concerns\HasSlug;
 use App\Domain\Clients\Models\Client;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProjectCategory extends Model
 {
+    use HasFactory;
     use HasSlug;
 
     protected $fillable = [

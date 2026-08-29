@@ -7,11 +7,13 @@ use App\Domain\Packages\Models\Package;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Invoice extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'client_id',
         'package_id',

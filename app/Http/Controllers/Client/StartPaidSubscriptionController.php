@@ -20,10 +20,9 @@ class StartPaidSubscriptionController extends Controller
     /**
      * Handle starting a paid subscription for a client.
      */
-    public function __invoke(Request $request)
+    public function __invoke(Request $request, Package $package)
     {
         $client = Client::findOrFail(owner_client_id());
-        $package = Package::findOrFail($request->input('package_id'));
 
         $activePackage = $client->activeClientPackage?->package;
 

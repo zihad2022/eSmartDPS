@@ -8,13 +8,19 @@ use App\Domain\Packages\Models\Package;
 use App\Models\Activity;
 use App\Models\Admin;
 
+use Illuminate\Support\Facades\DB;
+
 class GetDashboardDataAction
 {
     public function execute(Admin $admin): array
     {
+        $monthSelect = DB::getDriverName() === 'sqlite'
+            ? "CAST(strftime('%m', paid_at) AS INTEGER) as month, SUM(invoice_amount) as total"
+            : 'MONTH(paid_at) as month, SUM(invoice_amount) as total';
+
         $monthlyIncome = Invoice::query()
             ->paid()
-            ->selectRaw('MONTH(paid_at) as month, SUM(invoice_amount) as total')
+            ->selectRaw($monthSelect)
             ->whereYear('paid_at', now()->year)
             ->groupBy('month')
             ->orderBy('month')

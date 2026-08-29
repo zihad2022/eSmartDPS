@@ -19,6 +19,7 @@ use App\Observers\Admin\UserObserver;
 use App\Observers\Client\LedgerObserver;
 use App\Observers\Client\MemberObserver;
 use App\Observers\Client\ProjectObserver;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
@@ -35,6 +36,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::shouldBeStrict(! app()->isProduction());
+
+        Factory::guessFactoryNamesUsing(fn (string $modelName) =>
+            'Database\\Factories\\' . class_basename($modelName) . 'Factory'
+        );
 
         Client::observe(ClientObserver::class);
         Package::observe(PackageObserver::class);

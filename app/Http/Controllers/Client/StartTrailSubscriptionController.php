@@ -17,10 +17,9 @@ class StartTrailSubscriptionController extends Controller
         $this->packageService = $packageService;
     }
 
-    public function __invoke(Request $request)
+    public function __invoke(Request $request, Package $package)
     {
         $client = Client::findOrFail(owner_client_id());
-        $package = Package::findOrFail($request['package_id']);
 
         $activePackage = $client->activeClientPackage?->package;
 

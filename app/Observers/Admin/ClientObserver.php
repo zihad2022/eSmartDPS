@@ -10,7 +10,7 @@ class ClientObserver
 {
     public function creating(Client $client): void
     {
-        if ($client->parent_id === null && blank($client->user_id)) {
+        if (blank($client->user_id)) {
             $client->user_id = generate_client_user_id();
         }
     }

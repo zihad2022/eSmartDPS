@@ -6,12 +6,14 @@ use App\Domain\Clients\Models\Client;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ticket extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'client_id',
         'ticket_number',

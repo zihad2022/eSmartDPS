@@ -12,15 +12,18 @@ class CreateClientInvoiceAction
     public function __construct(private readonly CreateInvoiceAction $createInvoiceAction) {}
 
     /**
-     * @param  array{billing_start:mixed,billing_end:mixed,due_date?:mixed,amount?:int}  $dates
+     * @param  array{billing_start?:mixed,billing_end?:mixed,due_date?:mixed,amount?:int}  $dates
      */
-    public function execute(Client $client, Package $package, array $dates): Invoice
+    public function execute(Client $client, Package $package, array $dates = []): Invoice
     {
+        $billingStart = $dates['billing_start'] ?? now();
+        $billingEnd = $dates['billing_end'] ?? $package->billingEndDate($billingStart);
+
         return $this->createInvoiceAction->execute(
             client: $client,
             package: $package,
-            billingStart: $dates['billing_start'],
-            billingEnd: $dates['billing_end'],
+            billingStart: $billingStart,
+            billingEnd: $billingEnd,
             dueDate: $dates['due_date'] ?? null,
             amount: $dates['amount'] ?? null,
         );

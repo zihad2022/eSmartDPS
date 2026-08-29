@@ -56,14 +56,18 @@ class LedgerController extends Controller
         // -----------------------------
         // 5. Prepare monthly chart data
         // -----------------------------
-        $monthlyIncome = Ledger::selectRaw('MONTH(entry_date) as month, SUM(amount) as total')
+        $monthSelect = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite'
+            ? "CAST(strftime('%m', entry_date) AS INTEGER) as month, SUM(amount) as total"
+            : 'MONTH(entry_date) as month, SUM(amount) as total';
+
+        $monthlyIncome = Ledger::selectRaw($monthSelect)
             ->where('client_id', $clientId)
             ->where('type', LedgerType::INCOME)
             ->whereYear('entry_date', now()->year)
             ->groupBy('month')
             ->pluck('total', 'month');
 
-        $monthlyExpense = Ledger::selectRaw('MONTH(entry_date) as month, SUM(amount) as total')
+        $monthlyExpense = Ledger::selectRaw($monthSelect)
             ->where('client_id', $clientId)
             ->where('type', LedgerType::EXPENSE)
             ->whereYear('entry_date', now()->year)
@@ -98,13 +102,17 @@ class LedgerController extends Controller
         // -----------------------------
         // 5. Prepare yearly chart data
         // -----------------------------
-        $yearlyIncome = Ledger::selectRaw('YEAR(entry_date) as year, SUM(amount) as total')
+        $yearSelect = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite'
+            ? "CAST(strftime('%Y', entry_date) AS INTEGER) as year, SUM(amount) as total"
+            : 'YEAR(entry_date) as year, SUM(amount) as total';
+
+        $yearlyIncome = Ledger::selectRaw($yearSelect)
             ->where('client_id', $clientId)
             ->where('type', LedgerType::INCOME)
             ->groupBy('year')
             ->pluck('total', 'year');
 
-        $yearlyExpense = Ledger::selectRaw('YEAR(entry_date) as year, SUM(amount) as total')
+        $yearlyExpense = Ledger::selectRaw($yearSelect)
             ->where('client_id', $clientId)
             ->where('type', LedgerType::EXPENSE)
             ->groupBy('year')

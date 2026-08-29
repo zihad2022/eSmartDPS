@@ -1,5 +1,13 @@
 <?php
 
+use App\Domain\Clients\Models\Client;
+use App\Domain\Clients\Models\ClientPackage;
+use App\Domain\Packages\Models\Package;
+use App\Models\Admin;
+use Database\Seeders\AdminRolePermissionSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -11,9 +19,9 @@
 |
 */
 
-pest()->extend(Tests\TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature');
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
+    ->in('Feature', 'Unit');
 
 /*
 |--------------------------------------------------------------------------
@@ -30,18 +38,28 @@ expect()->extend('toBeOne', function () {
     return $this->toBe(1);
 });
 
-/*
-|--------------------------------------------------------------------------
-| Functions
-|--------------------------------------------------------------------------
-|
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
-|
-*/
-
-function something()
+function createSuperAdmin(): Admin
 {
-    // ..
+    (new AdminRolePermissionSeeder)->run();
+    $admin = Admin::factory()->create();
+    $admin->assignRole('super-admin');
+
+    return $admin;
+}
+
+function createActiveClient(array $attributes = [], ?Package $package = null): Client
+{
+    $client = Client::factory()->create($attributes);
+    $package ??= Package::factory()->create();
+
+    ClientPackage::factory()->create([
+        'client_id' => $client->id,
+        'package_id' => $package->id,
+        'starts_at' => now()->subDay(),
+        'ends_at' => now()->addMonth(),
+        'is_active' => true,
+        'status' => ClientPackage::STATUS_ACTIVE,
+    ]);
+
+    return $client;
 }
