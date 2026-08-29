@@ -252,7 +252,6 @@
                                         @endif
                                     </div>
                                 </td>
-                                <x-confirm-modal />
                             </tr>
                         @empty
                             {{-- Empty State --}}
