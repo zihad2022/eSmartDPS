@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminSetting;
-use App\Domain\Clients\Models\Client;
-use App\Domain\Packages\Models\Package;
-use App\Domain\Clients\Services\PackageService;
+use App\Models\Client;
+use App\Models\Package;
 use App\Services\MailService;
-use Illuminate\Http\Request;
+use App\Services\PackageService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class RegisterController extends Controller
 {
     protected PackageService $packageService;
+
     protected MailService $mailService;
 
     /**
@@ -51,14 +52,14 @@ class RegisterController extends Controller
         // 1. Create client
         // -----------------------------
         $client = Client::create([
-            'user_id'    => generate_client_user_id(),
+            'user_id' => generate_client_user_id(),
             'first_name' => $request->first_name,
-            'last_name'  => $request->last_name,
-            'email'      => $request->email,
-            'phone'      => $request->phone,
-            'password'   => $request->password, // TODO: consider hashing
-            'status'     => true,
-            'role'       => 'super-admin',
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => $request->password, // TODO: consider hashing
+            'status' => true,
+            'role' => 'super-admin',
         ]);
 
         // -----------------------------
@@ -72,10 +73,10 @@ class RegisterController extends Controller
         // -----------------------------
         $client->settings()->update([
             'organization_name' => $request->organization_name,
-            'short_name'        => $request->short_name,
-            'contact_email'     => $request->contact_email,
-            'contact_phone'     => $request->contact_phone,
-            'currency'          => 'BDT',
+            'short_name' => $request->short_name,
+            'contact_email' => $request->contact_email,
+            'contact_phone' => $request->contact_phone,
+            'currency' => 'BDT',
         ]);
 
         // -----------------------------

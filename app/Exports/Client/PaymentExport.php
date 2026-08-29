@@ -3,6 +3,7 @@
 namespace App\Exports\Client;
 
 use App\Models\Payment;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -10,14 +11,16 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 class PaymentExport implements FromCollection, WithHeadings, WithMapping
 {
     private int $sl = 1;
+
     private ?string $status = null;
 
     public function __construct(?string $status = null)
     {
         $this->status = $status;
     }
+
     /**
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function collection()
     {
@@ -52,6 +55,7 @@ class PaymentExport implements FromCollection, WithHeadings, WithMapping
     public function map($payment): array
     {
         $payment->load('member');
+
         return [
             $this->sl++,
             $payment->payment_id,

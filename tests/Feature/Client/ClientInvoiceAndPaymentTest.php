@@ -1,9 +1,9 @@
 <?php
 
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
 use App\Models\AdminSetting;
+use App\Models\Invoice;
 use App\Models\Member;
+use App\Models\Package;
 use App\Models\Payment;
 
 beforeEach(function () {

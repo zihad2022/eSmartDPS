@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Domain\Packages\Models\Package;
 use App\Enums\Package\BillingCycle;
 use App\Enums\Package\DiscountType;
+use App\Models\Package;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\Packages\Models\Package>
+ * @extends Factory<Package>
  */
 class PackageFactory extends Factory
 {

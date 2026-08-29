@@ -1,8 +1,8 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Package;
 
 test('unauthenticated user is redirected from admin dashboard', function () {
     $response = $this->get(route('admin.dashboard'));

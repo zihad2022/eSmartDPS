@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Domain\Clients\Actions;
+namespace App\Actions\Client\Subscriptions;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Clients\Models\ClientPackage;
-use App\Domain\Packages\Models\Package;
 use App\Enums\Package\BillingCycle;
+use App\Models\Client;
+use App\Models\ClientPackage;
+use App\Models\Package;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 
 abstract class BaseSubscriptionAction
 {
@@ -18,7 +17,7 @@ abstract class BaseSubscriptionAction
     {
         return match ($billingCycle) {
             BillingCycle::MONTHLY => $startDate->copy()->addMonthNoOverflow(),
-            BillingCycle::YEARLY  => $startDate->copy()->addYearNoOverflow(),
+            BillingCycle::YEARLY => $startDate->copy()->addYearNoOverflow(),
             default => $startDate->copy()->addDays(7),
         };
     }
@@ -48,9 +47,9 @@ abstract class BaseSubscriptionAction
     ) {
         return $client->clientPackages()->create([
             'package_id' => $package->id,
-            'starts_at'  => $startsAt,
-            'ends_at'    => $endsAt,
-            'is_trial'   => $isTrial,
+            'starts_at' => $startsAt,
+            'ends_at' => $endsAt,
+            'is_trial' => $isTrial,
             'is_active' => true,
             'status' => ClientPackage::STATUS_ACTIVE,
         ]);

@@ -2,7 +2,7 @@
 
 namespace App\Actions\Admin\Clients;
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 
 final readonly class ClientCreationResult
 {

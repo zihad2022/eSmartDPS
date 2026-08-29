@@ -3,8 +3,8 @@
 namespace App\Actions\Admin\Packages;
 
 use App\Actions\Admin\Settings\GetAdminSettingsAction;
-use App\Domain\Packages\Models\Package;
 use App\Enums\Package\BillingCycle;
+use App\Models\Package;
 
 class GetPackagesAction
 {

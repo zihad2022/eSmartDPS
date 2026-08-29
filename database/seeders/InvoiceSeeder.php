@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Models\Invoice;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
+use App\Models\Client;
+use App\Models\Invoice;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 

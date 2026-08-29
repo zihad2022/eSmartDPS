@@ -3,19 +3,16 @@
 namespace App\Http\Controllers\Client\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Models\OtpCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Carbon\Carbon;
 
 class OtpVerifyController extends Controller
 {
     /**
      * Show the OTP verification form.
-     *
-     * @return View
      */
     public function create(): View
     {
@@ -24,9 +21,6 @@ class OtpVerifyController extends Controller
 
     /**
      * Handle OTP verification.
-     *
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function verify(Request $request): RedirectResponse
     {
@@ -42,7 +36,7 @@ class OtpVerifyController extends Controller
         // 2. Retrieve client by phone number
         // -----------------------------
         $client = Client::where('phone', $request->phone)->first();
-        if (!$client) {
+        if (! $client) {
             return back()->with('error', 'Client not found.');
         }
 
@@ -56,7 +50,7 @@ class OtpVerifyController extends Controller
             ->latest('expires_at') // ensure we pick the latest OTP if multiple exist
             ->first();
 
-        if (!$otpCode) {
+        if (! $otpCode) {
             return back()->with('error', 'Invalid OTP.');
         }
 

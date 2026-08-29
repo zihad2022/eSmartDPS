@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\UserRequest;
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 
@@ -18,7 +18,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $parent = $this->getOwner();
-        $query  = $parent->children()->newQuery();
+        $query = $parent->children()->newQuery();
 
         // Apply filters
         $this->applyFilters($query, $request);
@@ -35,13 +35,13 @@ class UserController extends Controller
         $allClients = collect([$parent])->merge($parent->children()->get());
 
         return view('client.user.index', [
-            'users'              => $users,
-            'totalUsers'         => $allClients->count(),
+            'users' => $users,
+            'totalUsers' => $allClients->count(),
             'administratorUsers' => $allClients->where('role', 'admin')->count(),
-            'managerUsers'       => $allClients->where('role', 'manager')->count(),
-            'editorUsers'        => $allClients->where('role', 'editor')->count(),
-            'activeUsers'        => $allClients->where('status', 1)->count(),
-            'inactiveUsers'      => $allClients->where('status', 0)->count(),
+            'managerUsers' => $allClients->where('role', 'manager')->count(),
+            'editorUsers' => $allClients->where('role', 'editor')->count(),
+            'activeUsers' => $allClients->where('status', 1)->count(),
+            'inactiveUsers' => $allClients->where('status', 0)->count(),
         ]);
     }
 
@@ -56,7 +56,7 @@ class UserController extends Controller
     {
         $client = $this->getOwner();
 
-        if (!$client->canAddUser()) {
+        if (! $client->canAddUser()) {
             return back()->with('error', 'You have reached the maximum user limit for your package.');
         }
 
@@ -121,7 +121,7 @@ class UserController extends Controller
     {
         $ownerId = owner_client_id();
 
-        if (!in_array($ownerId, [$user->id, $user->parent_id])) {
+        if (! in_array($ownerId, [$user->id, $user->parent_id])) {
             abort(403, 'Unauthorized access');
         }
     }
@@ -153,7 +153,7 @@ class UserController extends Controller
                     'division',
                     'district',
                     'address',
-                    'postal_code'
+                    'postal_code',
                 ];
 
                 foreach ($fields as $field) {
@@ -174,8 +174,12 @@ class UserController extends Controller
         }
 
         // Status Filter
-        if ($request->status === 'active' && !$parent->status) return false;
-        if ($request->status === 'inactive' && $parent->status) return false;
+        if ($request->status === 'active' && ! $parent->status) {
+            return false;
+        }
+        if ($request->status === 'inactive' && $parent->status) {
+            return false;
+        }
 
         // Search Filter
         if ($search = $request->search) {
@@ -189,14 +193,16 @@ class UserController extends Controller
                 $parent->division,
                 $parent->district,
                 $parent->address,
-                $parent->postal_code
+                $parent->postal_code,
             ];
 
             $match = collect($fields)
                 ->filter()
-                ->contains(fn($v) => str_contains(strtolower($v), strtolower($search)));
+                ->contains(fn ($v) => str_contains(strtolower($v), strtolower($search)));
 
-            if (!$match) return false;
+            if (! $match) {
+                return false;
+            }
         }
 
         return true;
@@ -205,7 +211,7 @@ class UserController extends Controller
     /**
      * Prepare validated + transformed data for create/update.
      */
-    private function prepareUserData(UserRequest $request, Client $user = null): array
+    private function prepareUserData(UserRequest $request, ?Client $user = null): array
     {
         $data = $request->validated();
 
@@ -216,7 +222,7 @@ class UserController extends Controller
         $data['parent_id'] = owner_client_id();
 
         // Password handling
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $data['password'] = bcrypt($data['password']);
         } else {
             unset($data['password']);

@@ -31,7 +31,7 @@ class PaymentController extends Controller
                     $query->where('payment_id', 'like', "%{$search}%")
                         ->orWhere('transaction_id', 'like', "%{$search}%")
                         ->orWhere('reference_number', 'like', "%{$search}%")
-                        ->orWhereHas('member', fn($mq) => $mq->where('name', 'like', "%{$search}%")
+                        ->orWhereHas('member', fn ($mq) => $mq->where('name', 'like', "%{$search}%")
                             ->orWhere('member_id', 'like', "%{$search}%"));
                 });
             });
@@ -79,7 +79,6 @@ class PaymentController extends Controller
             'search' => $search, // pass search to view
         ]);
     }
-
 
     /**
      * Show a specific payment details.

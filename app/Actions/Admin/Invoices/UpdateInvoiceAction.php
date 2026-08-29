@@ -2,10 +2,10 @@
 
 namespace App\Actions\Admin\Invoices;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
 use App\Enums\InvoiceStatus;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Package;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 

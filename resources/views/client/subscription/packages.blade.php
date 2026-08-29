@@ -5,7 +5,7 @@
             ['label' => 'Subscription Packages', 'url' => route('client.subscription.packages')],
         ];
 
-        $client = \App\Domain\Clients\Models\Client::with(['activeClientPackage.package', 'latestClientPackage.package'])
+        $client = \App\Models\Client::with(['activeClientPackage.package', 'latestClientPackage.package'])
             ->findOrFail(owner_client_id());
 
         $clientPackage = $client->activeClientPackage ?? $client->latestClientPackage;

@@ -2,7 +2,7 @@
 
 namespace App\Actions\Admin\Clients;
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 

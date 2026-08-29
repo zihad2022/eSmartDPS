@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
-use App\Domain\Clients\Services\PackageService;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Package;
+use App\Services\PackageService;
 
 class SubscriptionController extends Controller
 {
@@ -17,16 +18,14 @@ class SubscriptionController extends Controller
     public function expired()
     {
         $clientId = owner_client_id();
-    
+
         // Get the latest unpaid invoice for this client
         $invoice = Invoice::where('client_id', $clientId)
-            ->where('status', '!=', \App\Enums\InvoiceStatus::PAID)
+            ->where('status', '!=', InvoiceStatus::PAID)
             ->first();
-    
+
         return view('client.subscription.expired', compact('invoice'));
     }
-    
-    
 
     /**
      * Renew the client's subscription.
@@ -38,37 +37,37 @@ class SubscriptionController extends Controller
         // -----------------------------
         if ($invoiceId) {
             $invoice = Invoice::findOrFail($invoiceId);
-    
-            if ($invoice->status !== \App\Enums\InvoiceStatus::PAID) {
+
+            if ($invoice->status !== InvoiceStatus::PAID) {
                 $invoice->update([
-                    'status' => \App\Enums\InvoiceStatus::PAID,
+                    'status' => InvoiceStatus::PAID,
                     'paid_at' => now(),
                 ]);
             }
         }
-    
+
         // -----------------------------
         // 2. Get authenticated client with packages
         // -----------------------------
         $client = Client::with(['activeClientPackage.package', 'latestClientPackage.package'])
             ->findOrFail(owner_client_id());
-    
+
         // -----------------------------
         // 3. Determine the package to renew
         // -----------------------------
         $clientPackage = $client->activeClientPackage ?? $client->latestClientPackage;
-    
+
         if (! $clientPackage || ! $clientPackage->package) {
             return redirect()
                 ->route('client.subscription.packages')
                 ->with('error', 'No active or previous package found. Please choose a package to subscribe.');
         }
-    
+
         // -----------------------------
         // 4. Renew subscription via service
         // -----------------------------
         $packageService->renewSubscription($client, $clientPackage->package);
-    
+
         // -----------------------------
         // 5. Redirect with success message
         // -----------------------------
@@ -76,7 +75,6 @@ class SubscriptionController extends Controller
             ->route('client.dashboard')
             ->with('success', 'Your subscription has been successfully renewed.');
     }
-    
 
     /**
      * Display all available packages for the client.

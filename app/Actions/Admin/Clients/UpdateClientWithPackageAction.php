@@ -2,10 +2,7 @@
 
 namespace App\Actions\Admin\Clients;
 
-use App\Domain\Clients\Actions\HandleClientPackageAction;
-use App\Domain\Clients\Actions\UpdateClientAction;
-use App\Domain\Clients\DTOs\ClientData;
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Services\ImageService;
 use Illuminate\Support\Facades\DB;
 
@@ -17,7 +14,7 @@ class UpdateClientWithPackageAction
         private readonly ImageService $images,
     ) {}
 
-    public function execute(Client $client, ClientData $data): Client
+    public function execute(Client $client, array $data): Client
     {
         $originalFiles = [
             'profile_photo' => $client->profile_photo,
@@ -28,7 +25,7 @@ class UpdateClientWithPackageAction
         try {
             $updated = DB::transaction(function () use ($client, $data): Client {
                 $this->updateClient->execute($client, $data);
-                $this->handlePackage->execute($client, $data->package_id);
+                $this->handlePackage->execute($client, $data['package_id'] ?? null);
 
                 return $client->refresh();
             });
@@ -42,12 +39,12 @@ class UpdateClientWithPackageAction
         return $updated;
     }
 
-    private function deleteNewFiles(ClientData $data, array $originalFiles): void
+    private function deleteNewFiles(array $data, array $originalFiles): void
     {
         $newFiles = [
-            'profile_photo' => $data->profile_photo,
-            'nid_card_front' => $data->nid_card_front,
-            'nid_card_back' => $data->nid_card_back,
+            'profile_photo' => $data['profile_photo'] ?? null,
+            'nid_card_front' => $data['nid_card_front'] ?? null,
+            'nid_card_back' => $data['nid_card_back'] ?? null,
         ];
 
         foreach ($newFiles as $field => $path) {

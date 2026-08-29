@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Domain\Clients\Services;
+namespace App\Services;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Packages\Models\Package;
-
-use App\Domain\Clients\Actions\AssignTrialAction;
-use App\Domain\Clients\Actions\StartPaidSubscriptionAction;
-use App\Domain\Clients\Actions\RenewSubscriptionAction;
+use App\Actions\Client\Subscriptions\AssignTrialAction;
+use App\Actions\Client\Subscriptions\RenewSubscriptionAction;
+use App\Actions\Client\Subscriptions\StartPaidSubscriptionAction;
+use App\Models\Client;
+use App\Models\Package;
 
 class PackageService
 {
@@ -27,6 +26,7 @@ class PackageService
         }
 
         $this->startPaidSubscriptionAction->execute($client, $package);
+
         return true;
     }
 

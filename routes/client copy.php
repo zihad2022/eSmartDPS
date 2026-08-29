@@ -174,4 +174,4 @@ Route::prefix('client')->name('client.')->group(function () {
 });
 
 // Design route (testing / static page)
-Route::get('design', fn() => view('design'))->name('design');
+Route::get('design', fn () => view('design'))->name('design');

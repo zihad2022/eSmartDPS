@@ -2,14 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Domain\Clients\Models\Client;
 use App\Enums\Ledger\LedgerType;
+use App\Models\Client;
 use App\Models\Ledger;
 use App\Models\LedgerCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Ledger>
+ * @extends Factory<Ledger>
  */
 class LedgerFactory extends Factory
 {

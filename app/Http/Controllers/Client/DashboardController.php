@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Models\Member;
 use App\Models\Project;
 use Illuminate\Http\Request;
@@ -19,10 +19,10 @@ class DashboardController extends Controller
         $clientId = owner_client_id();
 
         // Basic stats
-        $totalMembers   = Member::where('client_id', $clientId)->count();
-        $totalBalance   = Member::where('client_id', $clientId)->sum('total_balance');
-        $totalUsers     = Client::where('parent_id', $clientId)->count() + 1;
-        $totalProjects  = Project::where('client_id', $clientId)->count();
+        $totalMembers = Member::where('client_id', $clientId)->count();
+        $totalBalance = Member::where('client_id', $clientId)->sum('total_balance');
+        $totalUsers = Client::where('parent_id', $clientId)->count() + 1;
+        $totalProjects = Project::where('client_id', $clientId)->count();
 
         // Client settings
         $settings = Client::find($clientId)?->settings;

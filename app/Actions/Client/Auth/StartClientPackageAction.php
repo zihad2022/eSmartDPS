@@ -2,9 +2,9 @@
 
 namespace App\Actions\Client\Auth;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Packages\Models\Package;
-use App\Domain\Clients\Services\PackageService;
+use App\Models\Client;
+use App\Models\Package;
+use App\Services\PackageService;
 
 class StartClientPackageAction
 {
@@ -21,10 +21,10 @@ class StartClientPackageAction
 
         $client->settings()->update([
             'organization_name' => request('organization_name'),
-            'short_name'        => request('short_name'),
-            'contact_email'     => request('contact_email'),
-            'contact_phone'     => request('contact_phone'),
-            'currency'          => 'BDT',
+            'short_name' => request('short_name'),
+            'contact_email' => request('contact_email'),
+            'contact_phone' => request('contact_phone'),
+            'currency' => 'BDT',
         ]);
     }
 }

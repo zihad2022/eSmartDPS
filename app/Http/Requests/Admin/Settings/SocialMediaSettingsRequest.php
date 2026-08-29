@@ -6,7 +6,10 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class SocialMediaSettingsRequest extends FormRequest
 {
-    public function authorize(): bool { return auth('admin')->check(); }
+    public function authorize(): bool
+    {
+        return auth('admin')->check();
+    }
 
     public function rules(): array
     {

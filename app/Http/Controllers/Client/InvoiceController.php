@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Client;
 
 use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Models\Invoice;
+use App\Models\Client;
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
@@ -31,12 +31,12 @@ class InvoiceController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhere('package_name', 'like', "%{$search}%")
-                  ->orWhere('package_description', 'like', "%{$search}%")
-                  ->orWhere('trx_id', 'like', "%{$search}%")
-                  ->orWhere('payment_id', 'like', "%{$search}%")
-                  ->orWhere('payment_method', 'like', "%{$search}%")
-                  ->orWhere('wallet_address', 'like', "%{$search}%");
+                    ->orWhere('package_name', 'like', "%{$search}%")
+                    ->orWhere('package_description', 'like', "%{$search}%")
+                    ->orWhere('trx_id', 'like', "%{$search}%")
+                    ->orWhere('payment_id', 'like', "%{$search}%")
+                    ->orWhere('payment_method', 'like', "%{$search}%")
+                    ->orWhere('wallet_address', 'like', "%{$search}%");
             });
         }
 

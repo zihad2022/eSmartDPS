@@ -3,6 +3,7 @@
 namespace App\Exports\Client;
 
 use App\Models\Project;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -19,7 +20,7 @@ class ProjectExport implements FromCollection, WithHeadings, WithMapping
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function collection()
     {
@@ -59,6 +60,7 @@ class ProjectExport implements FromCollection, WithHeadings, WithMapping
     public function map($project): array
     {
         $project->load('projectCategory');
+
         return [
             $this->sl++,
             $project->name,

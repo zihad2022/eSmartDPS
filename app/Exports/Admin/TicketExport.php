@@ -13,9 +13,7 @@ class TicketExport implements FromQuery, WithHeadings, WithMapping
 {
     private int $sl = 1;
 
-    public function __construct(private readonly ?string $status = null)
-    {
-    }
+    public function __construct(private readonly ?string $status = null) {}
 
     public function query(): Builder
     {

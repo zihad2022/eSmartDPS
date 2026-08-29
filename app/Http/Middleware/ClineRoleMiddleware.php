@@ -13,7 +13,7 @@ class ClineRoleMiddleware
     {
         $client = Auth::guard('client')->user();
 
-        if (!$client) {
+        if (! $client) {
             return redirect()->route('client.login');
         }
 
@@ -23,7 +23,7 @@ class ClineRoleMiddleware
         }
 
         // Check if user role is in allowed roles
-        if (!in_array($client->role, $roles)) {
+        if (! in_array($client->role, $roles)) {
             abort(403, 'You do not have permission to access this page.');
         }
 

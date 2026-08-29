@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Http\Controllers\Controller;
 use App\Exports\Client\UserExport;
+use App\Http\Controllers\Controller;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -17,7 +17,7 @@ class UserExportController extends Controller
     {
         $role = $request->query('role');
         $status = $request->query('status');
-    
+
         // Determine log message based on filters
         // if ($role && $status) {
         //     $logMessage = "Users Exported with role: {$role} and status: {$status}";
@@ -28,13 +28,12 @@ class UserExportController extends Controller
         // } else {
         //     $logMessage = "All Users Exported (no filters applied)";
         // }
-    
+
         ActivityLogger::log('Users Exported');
-    
+
         return Excel::download(
             new UserExport($role, $status),
             'users.xlsx'
         );
     }
-    
 }

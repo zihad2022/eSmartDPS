@@ -10,6 +10,7 @@ class HomeController extends Controller
     public function __invoke(Request $request)
     {
         SeoKit::title('Home');
+
         return view('home');
     }
 }

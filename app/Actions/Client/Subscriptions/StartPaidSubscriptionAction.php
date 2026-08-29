@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Domain\Clients\Actions;
+namespace App\Actions\Client\Subscriptions;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Packages\Models\Package;
-use Carbon\Carbon;
+use App\Models\Client;
+use App\Models\Package;
 
 class StartPaidSubscriptionAction extends BaseSubscriptionAction
 {
@@ -13,10 +12,7 @@ class StartPaidSubscriptionAction extends BaseSubscriptionAction
         $this->deactivateActiveSubscriptions($client);
 
         $startsAt = now();
-        $endsAt   = $this->calculateEndDate($package->billing_cycle, $startsAt);
-
-        // For testing only — remove later
-        // $endsAt = now()->addMinutes(1);
+        $endsAt = $this->calculateEndDate($package->billing_cycle, $startsAt);
 
         return $this->createSubscription($client, $package, $startsAt, $endsAt, false);
     }

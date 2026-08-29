@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Models\Project;
 use App\Models\ProjectCategory;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class ProjectSeeder extends Seeder
 {

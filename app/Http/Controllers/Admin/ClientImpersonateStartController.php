@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Admin\Clients\StartClientImpersonationAction;
-use App\Domain\Clients\Models\Client;
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use Illuminate\Http\RedirectResponse;
 
 class ClientImpersonateStartController extends Controller

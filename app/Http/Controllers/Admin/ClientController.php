@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Admin\Clients\CreateClientWithPackageAction;
+use App\Actions\Admin\Clients\DeleteClientAction;
 use App\Actions\Admin\Clients\GetClientDetailsAction;
+use App\Actions\Admin\Clients\GetClientsAction;
+use App\Actions\Admin\Clients\GuardRootClientAction;
+use App\Actions\Admin\Clients\PrepareClientDataAction;
 use App\Actions\Admin\Clients\UpdateClientWithPackageAction;
-use App\Domain\Clients\Actions\DeleteClientAction;
-use App\Domain\Clients\Actions\GetActivePackagesAction;
-use App\Domain\Clients\Actions\GetClientsAction;
-use App\Domain\Clients\Actions\GuardRootClientAction;
-use App\Domain\Clients\Actions\PrepareClientDataAction;
-use App\Domain\Clients\Models\Client;
+use App\Actions\Admin\Packages\GetActivePackagesAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ClientRequest;
+use App\Models\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;

@@ -6,7 +6,7 @@ use App\Models\AdminSetting;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\AdminSetting>
+ * @extends Factory<AdminSetting>
  */
 class AdminSettingFactory extends Factory
 {

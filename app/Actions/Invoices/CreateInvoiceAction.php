@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Domain\Invoices\Actions;
+namespace App\Actions\Invoices;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
 use App\Enums\InvoiceStatus;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Package;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 

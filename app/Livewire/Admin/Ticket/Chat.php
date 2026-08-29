@@ -13,8 +13,11 @@ class Chat extends Component
     use WithFileUploads;
 
     public Ticket $ticket;
+
     public string $message = '';
+
     public int $messageKey = 0;
+
     public $attachment = null;
 
     public function mount(Ticket $ticket): void

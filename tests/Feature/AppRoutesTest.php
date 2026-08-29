@@ -1,7 +1,7 @@
 <?php
 
-use App\Domain\Packages\Models\Package;
 use App\Enums\Package\BillingCycle;
+use App\Models\Package;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

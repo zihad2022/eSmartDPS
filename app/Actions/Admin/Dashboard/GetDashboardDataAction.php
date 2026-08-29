@@ -2,12 +2,11 @@
 
 namespace App\Actions\Admin\Dashboard;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
 use App\Models\Activity;
 use App\Models\Admin;
-
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Package;
 use Illuminate\Support\Facades\DB;
 
 class GetDashboardDataAction

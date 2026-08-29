@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class AdminSetting extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'site_name',
         'site_slogan',

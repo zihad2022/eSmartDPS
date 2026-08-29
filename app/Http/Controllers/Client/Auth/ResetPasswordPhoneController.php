@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Client\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -47,7 +47,7 @@ class ResetPasswordPhoneController extends Controller
         // -----------------------------
         $client = Client::where('phone', $request->phone)->first();
 
-        if (!$client) {
+        if (! $client) {
             return back()->with('error', 'Client not found');
         }
 

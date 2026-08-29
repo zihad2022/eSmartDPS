@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Admin;
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Models\Ticket;
 use App\Models\TicketReply;
 use Illuminate\Database\Seeder;

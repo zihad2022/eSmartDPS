@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Client;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Clients\Services\PackageService;
 use App\Models\AdminSetting;
+use App\Models\Invoice;
+use App\Services\PackageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -22,33 +22,35 @@ class BkashPaymentController extends Controller
     public function pay(Invoice $invoice)
     {
         if ($invoice->status === InvoiceStatus::PAID) {
-            Log::warning("[bKash] Attempted to pay already paid invoice", [
+            Log::warning('[bKash] Attempted to pay already paid invoice', [
                 'invoice_id' => $invoice->id,
                 'invoice_number' => $invoice->invoice_number,
             ]);
+
             return redirect()->route('client.invoices.index')
                 ->with('info', 'Invoice already paid.');
         }
 
-        Log::info("[bKash] Starting payment", [
+        Log::info('[bKash] Starting payment', [
             'invoice_id' => $invoice->id,
             'invoice_number' => $invoice->invoice_number,
             'amount' => $invoice->invoice_amount,
         ]);
 
         $token = $this->getAccessToken();
-        if (!$token) {
+        if (! $token) {
             return back()->with('error', 'Unable to connect to bKash.');
         }
 
         $paymentResponse = $this->createPayment($invoice, $token, $invoice->invoice_amount);
 
-        if (!isset($paymentResponse['paymentID']) || !isset($paymentResponse['bkashURL'])) {
-            Log::error("[bKash] CreatePayment failed", [
+        if (! isset($paymentResponse['paymentID']) || ! isset($paymentResponse['bkashURL'])) {
+            Log::error('[bKash] CreatePayment failed', [
                 'invoice_id' => $invoice->id,
-                'response'   => $paymentResponse,
+                'response' => $paymentResponse,
             ]);
-            return back()->with('error', 'Unable to initiate bKash payment: ' . ($paymentResponse['statusMessage'] ?? 'Unknown error'));
+
+            return back()->with('error', 'Unable to initiate bKash payment: '.($paymentResponse['statusMessage'] ?? 'Unknown error'));
         }
 
         // Store bKash payment reference
@@ -56,7 +58,7 @@ class BkashPaymentController extends Controller
             'payment_reference' => $paymentResponse['paymentID'],
         ]);
 
-        Log::info("[bKash] Payment initiated", [
+        Log::info('[bKash] Payment initiated', [
             'invoice_id' => $invoice->id,
             'payment_reference' => $paymentResponse['paymentID'],
             'bkash_url' => $paymentResponse['bkashURL'],
@@ -71,37 +73,41 @@ class BkashPaymentController extends Controller
      */
     public function callback(Request $request, PackageService $packageService)
     {
-        Log::info("[bKash Callback] Data received", $request->all());
+        Log::info('[bKash Callback] Data received', $request->all());
 
         if ($request->status === 'cancel' || $request->has('cancel')) {
-            Log::warning("[bKash Callback] Payment cancelled", $request->all());
+            Log::warning('[bKash Callback] Payment cancelled', $request->all());
+
             return redirect()->route('client.invoices.index')->with('info', 'Payment was cancelled.');
         }
 
         $paymentID = $request->paymentID ?? $request->trxID;
-        if (!$paymentID) {
-            Log::error("[bKash Callback] Missing paymentID/trxID", $request->all());
+        if (! $paymentID) {
+            Log::error('[bKash Callback] Missing paymentID/trxID', $request->all());
+
             return redirect()->route('client.invoices.index')->with('error', 'Missing payment reference.');
         }
 
         $invoice = Invoice::where('payment_reference', $paymentID)->first();
-        if (!$invoice) {
-            Log::error("[bKash Callback] No invoice found for payment_reference", [
+        if (! $invoice) {
+            Log::error('[bKash Callback] No invoice found for payment_reference', [
                 'payment_reference' => $paymentID,
             ]);
+
             return redirect()->route('client.invoices.index')->with('error', 'Invalid payment reference.');
         }
 
         $token = $this->getAccessToken();
-        if (!$token) {
-            Log::error("[bKash Callback] Token fetch failed for invoice", [
+        if (! $token) {
+            Log::error('[bKash Callback] Token fetch failed for invoice', [
                 'invoice_id' => $invoice->id,
             ]);
+
             return redirect()->route('client.invoices.index')->with('error', 'Payment verification failed.');
         }
 
         $verification = $this->executePayment($paymentID, $token);
-        Log::info("[bKash ExecutePayment] Response", [
+        Log::info('[bKash ExecutePayment] Response', [
             'invoice_id' => $invoice->id,
             'verification' => $verification,
         ]);
@@ -110,16 +116,16 @@ class BkashPaymentController extends Controller
             ($verification['transactionStatus'] ?? null) === 'Completed'
         ) {
 
-            Log::info("[bKash Callback] Payment verified as completed");
-            
+            Log::info('[bKash Callback] Payment verified as completed');
+
             $invoice->update([
-                'status'         => InvoiceStatus::PAID,
-                'paid_at'        => now(),
+                'status' => InvoiceStatus::PAID,
+                'paid_at' => now(),
                 'payment_method' => PaymentMethod::ONLINE,
-                'trx_id'         => $verification['trxID'] ?? $paymentID,
+                'trx_id' => $verification['trxID'] ?? $paymentID,
             ]);
 
-            Log::info("[bKash] Invoice marked as PAID", [
+            Log::info('[bKash] Invoice marked as PAID', [
                 'invoice_id' => $invoice->id,
                 'trx_id' => $invoice->trx_id,
             ]);
@@ -128,7 +134,7 @@ class BkashPaymentController extends Controller
             $clientPackage = $client->activeClientPackage ?? $client->latestClientPackage;
 
             if ($clientPackage && $clientPackage->package) {
-                Log::info("[bKash] Renewing subscription", [
+                Log::info('[bKash] Renewing subscription', [
                     'client_id' => $client->id,
                     'package_id' => $clientPackage->package->id,
                 ]);
@@ -138,12 +144,12 @@ class BkashPaymentController extends Controller
             return redirect()->route('client.dashboard')->with('success', 'Payment successful and subscription renewed!');
         }
 
-        Log::error("[bKash Callback] Payment failed", [
+        Log::error('[bKash Callback] Payment failed', [
             'invoice_id' => $invoice->id,
             'verification' => $verification,
         ]);
 
-        return redirect()->route('client.invoices.index')->with('error', 'Payment not successful: ' . ($verification['statusMessage'] ?? 'Unknown error'));
+        return redirect()->route('client.invoices.index')->with('error', 'Payment not successful: '.($verification['statusMessage'] ?? 'Unknown error'));
     }
 
     /**
@@ -175,9 +181,10 @@ class BkashPaymentController extends Controller
 
             return filled($data['id_token'] ?? null) ? (string) $data['id_token'] : null;
         } catch (\Exception $e) {
-            Log::error("[bKash] Token Error", [
+            Log::error('[bKash] Token Error', [
                 'message' => $e->getMessage(),
             ]);
+
             return null;
         }
     }
@@ -191,12 +198,12 @@ class BkashPaymentController extends Controller
 
         try {
             $body = [
-                'mode'                  => '0011',
-                'payerReference'        => 'invoice_' . $invoice->invoice_number,
-                'callbackURL'           => route('client.payments.bkash.callback'),
-                'amount'                => number_format($amount, 2, '.', ''),
-                'currency'              => 'BDT',
-                'intent'                => 'sale',
+                'mode' => '0011',
+                'payerReference' => 'invoice_'.$invoice->invoice_number,
+                'callbackURL' => route('client.payments.bkash.callback'),
+                'amount' => number_format($amount, 2, '.', ''),
+                'currency' => 'BDT',
+                'intent' => 'sale',
                 'merchantInvoiceNumber' => $invoice->invoice_number,
             ];
 
@@ -212,9 +219,10 @@ class BkashPaymentController extends Controller
 
             return $responseData;
         } catch (\Exception $e) {
-            Log::error("[bKash] CreatePayment Error", [
+            Log::error('[bKash] CreatePayment Error', [
                 'message' => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -241,13 +249,15 @@ class BkashPaymentController extends Controller
 
             return $data;
         } catch (\Exception $e) {
-            Log::error("[bKash] ExecutePayment Error", [
+            Log::error('[bKash] ExecutePayment Error', [
                 'message' => $e->getMessage(),
                 'paymentID' => $paymentID,
             ]);
+
             return [];
         }
     }
+
     /**
      * Resolve gateway credentials from database settings first, then environment config.
      * The result is cached for the lifetime of the request.
@@ -280,5 +290,4 @@ class BkashPaymentController extends Controller
 
         return true;
     }
-
 }

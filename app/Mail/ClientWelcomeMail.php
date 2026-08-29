@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -19,8 +19,7 @@ class ClientWelcomeMail extends Mailable
         public string $password,
         public string $siteName,
         public string $messageTemplate,
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {

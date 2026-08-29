@@ -1,8 +1,17 @@
 <?php
 
+use App\Http\Middleware\AdminAuthenticated;
+use App\Http\Middleware\AdminSessionTimeout;
+use App\Http\Middleware\ClientAuthenticated;
+use App\Http\Middleware\ClineRoleMiddleware;
+use App\Http\Middleware\MemberAuthenticated;
+use App\Http\Middleware\SubscriptionMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,20 +21,20 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'admin.auth' => App\Http\Middleware\AdminAuthenticated::class,
-            'admin.session' => App\Http\Middleware\AdminSessionTimeout::class,
-            'member' => App\Http\Middleware\MemberAuthenticated::class,
-            'client' => App\Http\Middleware\ClientAuthenticated::class,
-            'client.role' => App\Http\Middleware\ClineRoleMiddleware::class,
-            'subscription' => App\Http\Middleware\SubscriptionMiddleware::class,
+            'admin.auth' => AdminAuthenticated::class,
+            'admin.session' => AdminSessionTimeout::class,
+            'member' => MemberAuthenticated::class,
+            'client' => ClientAuthenticated::class,
+            'client.role' => ClineRoleMiddleware::class,
+            'subscription' => SubscriptionMiddleware::class,
 
             // Role and Permission
-            'role' => Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission' => Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role_or_permission' => Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
 
-         $middleware->validateCsrfTokens(except: [
+        $middleware->validateCsrfTokens(except: [
             'sslcommerz/*',
         ]);
     })

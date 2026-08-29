@@ -2,8 +2,8 @@
 
 namespace App\Actions\Client\Auth;
 
-use App\Domain\Packages\Models\Package;
 use App\Models\AdminSetting;
+use App\Models\Package;
 
 class GetRegistrationDataAction
 {

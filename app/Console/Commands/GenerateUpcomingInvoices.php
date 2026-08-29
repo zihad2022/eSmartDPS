@@ -3,13 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Actions\Client\Auth\CreateClientInvoiceAction;
-use App\Domain\Clients\Models\ClientPackage;
+use App\Models\ClientPackage;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
 class GenerateUpcomingInvoices extends Command
 {
     protected $signature = 'saas:generate-upcoming-invoices';
+
     protected $description = 'Generate invoices for upcoming trial-ending or paid package-ending clients';
 
     public function handle(CreateClientInvoiceAction $createInvoice)
@@ -27,7 +28,7 @@ class GenerateUpcomingInvoices extends Command
 
         foreach ($endingPackages as $cp) {
 
-            if (!$cp->client || !$cp->package) {
+            if (! $cp->client || ! $cp->package) {
                 continue;
             }
 
@@ -51,7 +52,7 @@ class GenerateUpcomingInvoices extends Command
             // Create invoice
             $invoice = $createInvoice->execute($client, $package, [
                 'billing_start' => $billingStart,
-                'billing_end'   => $billingEnd,
+                'billing_end' => $billingEnd,
             ]);
 
             $this->info("Invoice {$invoice->invoice_number} created for Client {$client->id}");

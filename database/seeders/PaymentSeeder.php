@@ -16,6 +16,7 @@ class PaymentSeeder extends Seeder
 
         if ($members->isEmpty()) {
             $this->command->error('No members found. Please seed members first.');
+
             return;
         }
 
@@ -31,17 +32,17 @@ class PaymentSeeder extends Seeder
                 $status = $statuses[array_rand($statuses)];
 
                 Payment::create([
-                    'payment_id'      => '#PAY' . str_pad($paymentCount++, 4, '0', STR_PAD_LEFT),
-                    'client_id'       => $member->client_id,
-                    'member_id'       => $member->id,
-                    'amount'          => rand(100, 1000),
-                    'payment_method'  => $methods[array_rand($methods)],
-                    'transaction_id'  => Str::upper(Str::random(10)),
-                    'reference'       => 'REF-' . rand(10000, 99999),
-                    'status'          => $status,
-                    'paid_at'         => $status === PaymentStatus::PAID->value ? now()->subDays(rand(0, 15)) : null,
-                    'due_date'        => now()->addDays(rand(3, 10)),
-                    'meta'            => [
+                    'payment_id' => '#PAY'.str_pad($paymentCount++, 4, '0', STR_PAD_LEFT),
+                    'client_id' => $member->client_id,
+                    'member_id' => $member->id,
+                    'amount' => rand(100, 1000),
+                    'payment_method' => $methods[array_rand($methods)],
+                    'transaction_id' => Str::upper(Str::random(10)),
+                    'reference' => 'REF-'.rand(10000, 99999),
+                    'status' => $status,
+                    'paid_at' => $status === PaymentStatus::PAID->value ? now()->subDays(rand(0, 15)) : null,
+                    'due_date' => now()->addDays(rand(3, 10)),
+                    'meta' => [
                         'notes' => fake()->sentence(),
                         'created_by' => 'Seeder',
                     ],

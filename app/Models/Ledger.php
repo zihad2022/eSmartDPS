@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Domain\Clients\Models\Client;
 use App\Enums\Ledger\LedgerType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Ledger extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'ledger_category_id',
         'client_id',

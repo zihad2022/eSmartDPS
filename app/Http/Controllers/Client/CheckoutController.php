@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Invoice;
 use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
@@ -14,6 +12,7 @@ class CheckoutController extends Controller
     {
         $client = Auth::guard('client')->user();
         $package = $client->clientPackages()->latest()->first()?->package;
+
         return view('client.checkout', [
             'package' => $package,
             'client' => $client,

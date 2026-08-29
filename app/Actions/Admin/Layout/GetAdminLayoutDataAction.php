@@ -14,8 +14,7 @@ class GetAdminLayoutDataAction
     public function __construct(
         private readonly GetAdminSettingsAction $getAdminSettings,
         private readonly GetRecentAdminActivitiesAction $getRecentActivities,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array{user: Admin, settings: AdminSetting, recentActivities: Collection}

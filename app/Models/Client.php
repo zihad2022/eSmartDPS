@@ -1,14 +1,7 @@
 <?php
 
-namespace App\Domain\Clients\Models;
+namespace App\Models;
 
-use App\Domain\Invoices\Models\Invoice;
-use App\Models\ClientSetting;
-use App\Models\Ledger;
-use App\Models\Member;
-use App\Models\Payment;
-use App\Models\Project;
-use App\Models\Ticket;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
@@ -124,13 +117,13 @@ class Client extends Authenticatable
     public function activeClientPackage(): HasOne
     {
         return $this->hasOne(ClientPackage::class)
-            ->ofMany(['ends_at' => 'max'], fn(Builder $query) => $query->active());
+            ->ofMany(['ends_at' => 'max'], fn (Builder $query) => $query->active());
     }
 
     public function activePaidClientPackage(): HasOne
     {
         return $this->hasOne(ClientPackage::class)
-            ->ofMany(['ends_at' => 'max'], fn(Builder $query) => $query->active()->paid());
+            ->ofMany(['ends_at' => 'max'], fn (Builder $query) => $query->active()->paid());
     }
 
     public function expiredTrialPackages(): HasMany
@@ -272,21 +265,21 @@ class Client extends Authenticatable
 
     protected function fullName(): Attribute
     {
-        return Attribute::get(fn(): string => trim("{$this->first_name} {$this->last_name}"));
+        return Attribute::get(fn (): string => trim("{$this->first_name} {$this->last_name}"));
     }
 
     protected function profilePhotoUrl(): Attribute
     {
-        return Attribute::get(fn(): ?string => $this->profile_photo ? Storage::url($this->profile_photo) : null);
+        return Attribute::get(fn (): ?string => $this->profile_photo ? Storage::url($this->profile_photo) : null);
     }
 
     protected function nidCardFrontUrl(): Attribute
     {
-        return Attribute::get(fn(): ?string => $this->nid_card_front ? Storage::url($this->nid_card_front) : null);
+        return Attribute::get(fn (): ?string => $this->nid_card_front ? Storage::url($this->nid_card_front) : null);
     }
 
     protected function nidCardBackUrl(): Attribute
     {
-        return Attribute::get(fn(): ?string => $this->nid_card_back ? Storage::url($this->nid_card_back) : null);
+        return Attribute::get(fn (): ?string => $this->nid_card_back ? Storage::url($this->nid_card_back) : null);
     }
 }

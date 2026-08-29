@@ -1,9 +1,9 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Clients\Models\ClientPackage;
-use App\Domain\Packages\Models\Package;
 use App\Models\Admin;
+use App\Models\Client;
+use App\Models\ClientPackage;
+use App\Models\Package;
 use Database\Seeders\AdminRolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

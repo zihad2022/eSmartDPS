@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Client\Settings;
 
 use App\Http\Controllers\Controller;
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use Illuminate\Http\Request;
 
 class ShareController extends Controller
@@ -13,7 +13,7 @@ class ShareController extends Controller
         // Get the currently authenticated client's record
         $client = Client::findOrFail(owner_client_id());
 
-        // Check if the client has settings 
+        // Check if the client has settings
         if (! $client->settings) {
             return redirect()->route('client.settings.share.create');
         }

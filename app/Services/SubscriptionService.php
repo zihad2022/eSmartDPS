@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Clients\Models\ClientPackage;
+use App\Models\Client;
+use App\Models\ClientPackage;
 
 class SubscriptionService
 {
     protected ?Client $client;
+
     protected ?ClientPackage $subscription;
 
     public function __construct(?Client $client = null)
@@ -21,7 +22,7 @@ class SubscriptionService
      */
     public function isActive(): bool
     {
-        return !is_null($this->subscription) && $this->subscription->isActive();
+        return ! is_null($this->subscription) && $this->subscription->isActive();
     }
 
     /**
@@ -29,7 +30,7 @@ class SubscriptionService
      */
     public function canAccessFeature(string $featureSlug): bool
     {
-        if (!$this->isActive()) {
+        if (! $this->isActive()) {
             return false;
         }
 
@@ -41,7 +42,7 @@ class SubscriptionService
      */
     public function isLimitReached(string $limitField, int $currentCount): bool
     {
-        if (!$this->isActive()) {
+        if (! $this->isActive()) {
             return true;
         }
 
@@ -60,7 +61,7 @@ class SubscriptionService
      */
     public function getRemainingDays(): int
     {
-        if (!$this->subscription) {
+        if (! $this->subscription) {
             return 0;
         }
 

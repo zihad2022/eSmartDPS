@@ -2,7 +2,7 @@
 
 namespace App\Events\Admin;
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use Illuminate\Foundation\Events\Dispatchable;
 
 class ClientCreated

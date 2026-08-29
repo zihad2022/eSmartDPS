@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 class TicketExport implements FromCollection, WithHeadings, WithMapping
 {
     private ?string $status;
+
     private int $sl = 1;
 
     public function __construct(?string $status = null)
@@ -23,11 +24,11 @@ class TicketExport implements FromCollection, WithHeadings, WithMapping
     public function collection()
     {
         return match ($this->status) {
-            'open'        => Ticket::open()->get(),
+            'open' => Ticket::open()->get(),
             'in_progress' => Ticket::inProgress()->get(),
-            'resolved'    => Ticket::resolved()->get(),
-            'closed'      => Ticket::closed()->get(),
-            default       => Ticket::all(),
+            'resolved' => Ticket::resolved()->get(),
+            'closed' => Ticket::closed()->get(),
+            default => Ticket::all(),
         };
     }
 
@@ -50,15 +51,14 @@ class TicketExport implements FromCollection, WithHeadings, WithMapping
         $ticket->loadMissing('client');
 
         return [
-            '#' . $this->sl++, // Serial number
+            '#'.$this->sl++, // Serial number
             $ticket->ticket_number,
             $ticket->subject,
             $ticket->message,
-            $ticket->status->label(),   
-            $ticket->priority->label(), 
+            $ticket->status->label(),
+            $ticket->priority->label(),
             $ticket->admin_notes,
-            $ticket->created_at->format('Y-m-d'), 
+            $ticket->created_at->format('Y-m-d'),
         ];
     }
 }
-

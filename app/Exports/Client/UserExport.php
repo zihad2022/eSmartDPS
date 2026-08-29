@@ -2,7 +2,7 @@
 
 namespace App\Exports\Client;
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -10,7 +10,9 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 class UserExport implements FromCollection, WithHeadings, WithMapping
 {
     private int $sl = 1;
+
     private ?string $role;
+
     private ?string $status;
 
     public function __construct(?string $role = null, ?string $status = null)
@@ -33,7 +35,7 @@ class UserExport implements FromCollection, WithHeadings, WithMapping
             $query->where('role', $this->role);
         }
 
-        if (!is_null($this->status)) {
+        if (! is_null($this->status)) {
             if ($this->status == 'active') {
                 $query->where('status', 1);
             } elseif ($this->status == 'inactive') {
@@ -50,7 +52,7 @@ class UserExport implements FromCollection, WithHeadings, WithMapping
             $includeParent = false;
         }
 
-        if (!is_null($this->status) && $parent->status != $this->status) {
+        if (! is_null($this->status) && $parent->status != $this->status) {
             $includeParent = false;
         }
 

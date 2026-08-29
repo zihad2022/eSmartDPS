@@ -2,11 +2,11 @@
 
 namespace App\View\Components\Client\Layout;
 
+use App\Models\ClientSetting;
 use Closure;
 use Illuminate\Contracts\View\View;
-use Illuminate\View\Component;
-use App\Models\ClientSetting;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\Component;
 
 class App extends Component
 {
@@ -27,6 +27,7 @@ class App extends Component
     {
         $user = Auth::guard('client')->user();
         $settings = ClientSetting::where('client_id', owner_client_id())->first();
-        return view('client.layout.app', compact('settings','user'));
+
+        return view('client.layout.app', compact('settings', 'user'));
     }
 }

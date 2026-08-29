@@ -12,8 +12,11 @@ class Chat extends Component
     use WithFileUploads;
 
     public Ticket $ticket; // Current ticket being viewed
+
     public string $message = ''; // Message input
+
     public int $messageKey = 0; // Key to reset input component
+
     public $attachment; // Optional file attachment
 
     /**
@@ -25,7 +28,7 @@ class Chat extends Component
         // 1. Load ticket with client and replies
         // -----------------------------
         $this->ticket = Ticket::with([
-            'replies' => fn($q) => $q->oldest(), // Oldest first
+            'replies' => fn ($q) => $q->oldest(), // Oldest first
             'client',
         ])->findOrFail($ticket->id);
 
@@ -41,7 +44,7 @@ class Chat extends Component
         // 1. Validate message and attachment
         // -----------------------------
         $this->validate([
-            'message'    => 'required|string|max:2000',
+            'message' => 'required|string|max:2000',
             'attachment' => 'nullable|file|max:5120', // Max 5MB
         ]);
 
@@ -56,15 +59,15 @@ class Chat extends Component
         // 3. Save reply to database
         // -----------------------------
         $this->ticket->replies()->create([
-            'client_id'  => owner_client_id(),
-            'message'    => $this->message,
+            'client_id' => owner_client_id(),
+            'message' => $this->message,
             'attachment' => $path,
         ]);
 
         // -----------------------------
         // 4. Reload ticket replies
         // -----------------------------
-        $this->ticket->load(['replies' => fn($q) => $q->oldest()]);
+        $this->ticket->load(['replies' => fn ($q) => $q->oldest()]);
 
         // -----------------------------
         // 5. Reset input fields

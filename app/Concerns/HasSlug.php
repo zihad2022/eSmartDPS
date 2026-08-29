@@ -4,6 +4,7 @@ namespace App\Concerns;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
 
 trait HasSlug
@@ -52,7 +53,7 @@ trait HasSlug
     /**
      * Find a model by its slug.
      *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @throws ModelNotFoundException
      */
     public static function findBySlugOrFail(string $slug, array $columns = ['*']): static
     {

@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Domain\Clients\Actions;
+namespace App\Actions\Admin\Clients;
 
-use App\Domain\Clients\DTOs\ClientData;
-use App\Domain\Clients\Models\Client;
 use App\Http\Requests\Admin\ClientRequest;
+use App\Models\Client;
 use App\Services\ImageService;
 use Illuminate\Http\UploadedFile;
 
@@ -12,7 +11,7 @@ class PrepareClientDataAction
 {
     public function __construct(private readonly ImageService $imageService) {}
 
-    public function execute(ClientRequest $request, ?Client $client = null): ClientData
+    public function execute(ClientRequest $request, ?Client $client = null): array
     {
         $validated = $request->validated();
         $userId = $client?->user_id ?? generate_client_user_id();
@@ -45,24 +44,25 @@ class PrepareClientDataAction
             throw $exception;
         }
 
-        return new ClientData(
-            user_id: $userId,
-            first_name: $validated['first_name'],
-            last_name: $validated['last_name'],
-            email: $validated['email'],
-            phone: $validated['phone'] ?? null,
-            division: $validated['division'] ?? null,
-            district: $validated['district'] ?? null,
-            address: $validated['address'] ?? null,
-            postal_code: $validated['postal_code'] ?? null,
-            nid_number: $validated['nid_number'] ?? null,
-            nid_card_front: $nidFront,
-            nid_card_back: $nidBack,
-            profile_photo: $profilePhoto,
-            password: $validated['password'] ?? null,
-            package_id: isset($validated['package_id']) ? (int) $validated['package_id'] : null,
-            status: (bool) ($validated['status'] ?? $client?->status ?? true),
-        );
+        return [
+            'user_id' => $userId,
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'] ?? null,
+            'division' => $validated['division'] ?? null,
+            'district' => $validated['district'] ?? null,
+            'address' => $validated['address'] ?? null,
+            'postal_code' => $validated['postal_code'] ?? null,
+            'nid_number' => $validated['nid_number'] ?? null,
+            'nid_card_front' => $nidFront,
+            'nid_card_back' => $nidBack,
+            'profile_photo' => $profilePhoto,
+            'password' => $validated['password'] ?? null,
+            'package_id' => isset($validated['package_id']) ? (int) $validated['package_id'] : null,
+            'parent_id' => $validated['parent_id'] ?? null,
+            'status' => (bool) ($validated['status'] ?? $client?->status ?? true),
+        ];
     }
 
     private function storeReplacement(

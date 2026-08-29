@@ -3,8 +3,8 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\InvoiceStatus;
-use App\Domain\Invoices\Models\Invoice;
 use App\Enums\PaymentMethod;
+use App\Models\Invoice;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

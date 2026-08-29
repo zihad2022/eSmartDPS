@@ -1,8 +1,8 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Clients\Models\ClientPackage;
-use App\Domain\Packages\Models\Package;
+use App\Models\Client;
+use App\Models\ClientPackage;
+use App\Models\Package;
 use App\Services\SubscriptionService;
 
 test('detects active subscription correctly', function () {

@@ -18,6 +18,7 @@ class UserActivityController extends Controller
             ->forClientAccount(owner_client_id())
             ->latest('id')
             ->paginate(10);
+
         return view('client.user.activities', compact('activities'));
     }
 }

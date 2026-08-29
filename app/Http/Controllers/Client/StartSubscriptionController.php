@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
-use App\Domain\Clients\Models\Client;
-use App\Domain\Packages\Models\Package;
-use App\Domain\Clients\Services\PackageService;
+use App\Models\Client;
+use App\Models\Package;
+use App\Services\PackageService;
 use Illuminate\Http\Request;
 
 class StartSubscriptionController extends Controller
@@ -16,6 +16,7 @@ class StartSubscriptionController extends Controller
     {
         $this->packageService = $packageService;
     }
+
     /**
      * Handle the incoming request.
      */
@@ -23,34 +24,33 @@ class StartSubscriptionController extends Controller
     {
         $client = Client::findOrFail(owner_client_id());
         $package = Package::findOrFail($request['package_id']);
-    
+
         $activePackage = $client->activeClientPackage?->package;
-    
+
         // If the client already has a package, check upgrade/downgrade constraints
         if ($activePackage) {
             // Collect client usage stats
             $currentMembers = $client->members()->count();
-            $currentUsers   = $client->users()->count();
+            $currentUsers = $client->users()->count();
             $currentProjects = $client->projects()->count();
-    
+
             // Check if trying to downgrade (limits lower than current usage)
             if ($currentMembers > $package->member_limit) {
                 return back()->with('error', 'You cannot downgrade: new package allows fewer members than you currently have.');
             }
-    
+
             if ($currentUsers > $package->user_limit) {
                 return back()->with('error', 'You cannot downgrade: new package allows fewer users than you currently have.');
             }
-    
+
             if ($currentProjects > $package->project_limit) {
                 return back()->with('error', 'You cannot downgrade: new package allows fewer projects than you currently have.');
             }
         }
-    
+
         // Start the new package
         $this->packageService->startPackage($client, $package);
-    
+
         return back()->with('success', 'Subscription started successfully.');
     }
-    
 }

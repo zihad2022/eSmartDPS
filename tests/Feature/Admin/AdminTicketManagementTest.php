@@ -1,8 +1,8 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
+use App\Models\Client;
 use App\Models\Ticket;
 
 test('admin can view tickets list', function () {

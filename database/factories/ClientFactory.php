@@ -2,12 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\Clients\Models\Client>
+ * @extends Factory<Client>
  */
 class ClientFactory extends Factory
 {
@@ -19,7 +19,7 @@ class ClientFactory extends Factory
     {
         return [
             'parent_id' => null,
-            'user_id' => fn () => 'UID' . fake()->unique()->numerify('######'),
+            'user_id' => fn () => 'UID'.fake()->unique()->numerify('######'),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),

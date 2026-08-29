@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domain\Clients\Actions;
+namespace App\Actions\Client\Subscriptions;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Packages\Models\Package;
+use App\Models\Client;
+use App\Models\Package;
 use Carbon\Carbon;
 
 class RenewSubscriptionAction extends BaseSubscriptionAction
@@ -17,9 +17,6 @@ class RenewSubscriptionAction extends BaseSubscriptionAction
         $this->deactivateActiveSubscriptions($client);
 
         $endsAt = $this->calculateEndDate($package->billing_cycle, $startsAt);
-
-        // For testing — remove later
-        // $endsAt = now()->addMinutes(10);
 
         return $this->createSubscription($client, $package, $startsAt, $endsAt, false);
     }

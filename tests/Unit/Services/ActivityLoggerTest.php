@@ -1,8 +1,8 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
 use App\Models\Activity;
 use App\Models\Admin;
+use App\Models\Client;
 use App\Services\ActivityLogger;
 use Illuminate\Support\Facades\Auth;
 

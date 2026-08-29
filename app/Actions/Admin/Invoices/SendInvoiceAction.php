@@ -4,8 +4,8 @@ namespace App\Actions\Admin\Invoices;
 
 use App\Actions\Admin\Settings\ConfigureAdminMailAction;
 use App\Actions\Admin\Settings\GetAdminSettingsAction;
-use App\Domain\Invoices\Models\Invoice;
 use App\Mail\InvoiceMail;
+use App\Models\Invoice;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
@@ -16,8 +16,7 @@ class SendInvoiceAction
     public function __construct(
         private readonly ConfigureAdminMailAction $configureMail,
         private readonly GetAdminSettingsAction $getSettings,
-    ) {
-    }
+    ) {}
 
     public function execute(Invoice $invoice): void
     {

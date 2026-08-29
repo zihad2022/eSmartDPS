@@ -2,12 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Models\LedgerCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\LedgerCategory>
+ * @extends Factory<LedgerCategory>
  */
 class LedgerCategoryFactory extends Factory
 {

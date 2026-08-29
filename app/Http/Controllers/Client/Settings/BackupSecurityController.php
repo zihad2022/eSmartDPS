@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Client\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use Illuminate\Http\Request;
-use App\Domain\Clients\Models\Client;
 
 class BackupSecurityController extends Controller
 {
@@ -13,7 +13,7 @@ class BackupSecurityController extends Controller
         // Get the currently authenticated client's record
         $client = Client::findOrFail(owner_client_id());
 
-        // Check if the client has settings 
+        // Check if the client has settings
         if (! $client->settings) {
             return redirect()->route('client.settings.backup-security.edit');
         }

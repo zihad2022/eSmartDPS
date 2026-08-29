@@ -2,8 +2,8 @@
 
 namespace App\Actions\Admin\Invoices;
 
-use App\Domain\Invoices\Models\Invoice;
 use App\Enums\InvoiceStatus;
+use App\Models\Invoice;
 use Illuminate\Validation\ValidationException;
 
 class DeleteInvoiceAction

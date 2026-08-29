@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Domain\Clients\Actions;
+namespace App\Actions\Client\Subscriptions;
 
-use App\Domain\Invoices\Actions\CreateInvoiceAction;
-use App\Domain\Clients\Models\Client;
-use App\Domain\Clients\Models\ClientPackage;
-use App\Domain\Packages\Models\Package;
+use App\Models\Client;
+use App\Models\ClientPackage;
+use App\Models\Package;
 use Illuminate\Support\Facades\Log;
 
 class AssignTrialAction
@@ -28,10 +27,11 @@ class AssignTrialAction
 
         $client->clientPackages()->create([
             'package_id' => $package->id,
-            'starts_at'  => now(),
-            'ends_at'    => now()->addDays($package->trial_days),
-            'is_trial'   => true,
-            'is_active'  => true,
+            'starts_at' => now(),
+            'ends_at' => now()->addDays($package->trial_days),
+            'is_trial' => true,
+            'is_active' => true,
+            'status' => ClientPackage::STATUS_ACTIVE,
         ]);
 
         Log::info('Trial package assigned.', [
@@ -39,7 +39,6 @@ class AssignTrialAction
             'package_id' => $package->id,
             'trial_days' => $package->trial_days,
         ]);
-        // app(CreateInvoiceAction::class)->execute($client, $package);
 
         return true;
     }

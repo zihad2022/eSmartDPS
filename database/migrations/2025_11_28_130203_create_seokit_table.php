@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('twitter_image')->nullable();
 
             // Structured Data (JSON-LD schema)
-            $table->json('structured_data')->nullable(); 
+            $table->json('structured_data')->nullable();
 
             // Internal Content Strategy
             $table->boolean('is_cornerstone')->default(false);

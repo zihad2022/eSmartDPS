@@ -10,6 +10,7 @@ class ToggleAdminStatusAction
     public function __construct(
         private readonly GuardAdminAccountManagementAction $guardManagement,
     ) {}
+
     public function execute(Admin $actor, Admin $admin): Admin
     {
         $this->guardManagement->execute($actor, $admin);

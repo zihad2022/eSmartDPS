@@ -2,26 +2,29 @@
 
 namespace App\Services\Payments;
 
-use App\Domain\Invoices\Models\Invoice;
 use App\Models\AdminSetting;
-use Illuminate\Support\Facades\Http;
+use App\Models\Invoice;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class SslcommerzService
 {
     protected string $storeId;
+
     protected string $storePassword;
+
     protected bool $sandbox;
+
     protected int $timeout;
 
     public function __construct()
     {
         // Defaults from config/env
-        $storeId       = config('payments.sslcommerz.store_id');
+        $storeId = config('payments.sslcommerz.store_id');
         $storePassword = config('payments.sslcommerz.store_password');
-        $sandbox       = (bool) config('payments.sslcommerz.sandbox', true);
-        $timeout       = (int) (config('payments.sslcommerz.http.timeout', 10));
+        $sandbox = (bool) config('payments.sslcommerz.sandbox', true);
+        $timeout = (int) (config('payments.sslcommerz.http.timeout', 10));
 
         // Override from AdminSetting if present (cached to avoid DB hit every request)
         $settings = Cache::remember('admin_settings_first', 60, function () {
@@ -40,10 +43,10 @@ class SslcommerzService
             }
         }
 
-        $this->storeId       = $storeId;
+        $this->storeId = $storeId;
         $this->storePassword = $storePassword;
-        $this->sandbox       = $sandbox;
-        $this->timeout       = $timeout;
+        $this->sandbox = $sandbox;
+        $this->timeout = $timeout;
     }
 
     /**
@@ -58,31 +61,31 @@ class SslcommerzService
             : 'https://securepay.sslcommerz.com/gwprocess/v3/api.php';
 
         $postData = [
-            'store_id'      => $this->storeId,
-            'store_passwd'  => $this->storePassword,
-            'total_amount'  => $invoice->amount ?? $invoice->invoice_amount ?? 0,
-            'currency'      => $invoice->currency ?? 'BDT',
-            'tran_id'       => uniqid('ssl_'),
-            'success_url'   => route('client.payments.sslcommerz.success', $invoice->id),
-            'fail_url'      => route('client.payments.sslcommerz.fail', $invoice->id),
-            'cancel_url'    => route('client.payments.sslcommerz.cancel', $invoice->id),
+            'store_id' => $this->storeId,
+            'store_passwd' => $this->storePassword,
+            'total_amount' => $invoice->amount ?? $invoice->invoice_amount ?? 0,
+            'currency' => $invoice->currency ?? 'BDT',
+            'tran_id' => uniqid('ssl_'),
+            'success_url' => route('client.payments.sslcommerz.success', $invoice->id),
+            'fail_url' => route('client.payments.sslcommerz.fail', $invoice->id),
+            'cancel_url' => route('client.payments.sslcommerz.cancel', $invoice->id),
 
-            'cus_name'      => $invoice->client->full_name ?? 'Customer',
-            'cus_email'     => $invoice->client->email ?? 'customer@example.com',
-            'cus_phone'     => $invoice->client->phone ?? '01700000000',
-            'cus_add1'      => $invoice->client->address ?? 'Dhaka',
-            'cus_city'      => 'Dhaka',
-            'cus_country'   => 'Bangladesh',
+            'cus_name' => $invoice->client->full_name ?? 'Customer',
+            'cus_email' => $invoice->client->email ?? 'customer@example.com',
+            'cus_phone' => $invoice->client->phone ?? '01700000000',
+            'cus_add1' => $invoice->client->address ?? 'Dhaka',
+            'cus_city' => 'Dhaka',
+            'cus_country' => 'Bangladesh',
 
-            'ship_name'     => $invoice->client->full_name ?? 'Customer',
-            'ship_add1'     => $invoice->client->address ?? 'Dhaka',
-            'ship_city'     => 'Dhaka',
+            'ship_name' => $invoice->client->full_name ?? 'Customer',
+            'ship_add1' => $invoice->client->address ?? 'Dhaka',
+            'ship_city' => 'Dhaka',
             'ship_postcode' => '1200',
-            'ship_country'  => 'Bangladesh',
+            'ship_country' => 'Bangladesh',
 
-            'product_name'     => $invoice->package->name ?? 'Subscription',
+            'product_name' => $invoice->package->name ?? 'Subscription',
             'product_category' => 'Subscription',
-            'product_profile'  => 'general',
+            'product_profile' => 'general',
         ];
 
         $response = Http::asForm()
@@ -93,7 +96,7 @@ class SslcommerzService
         if (! $response || empty($response['GatewayPageURL'])) {
             Log::error('SSLCommerz initialization failed', [
                 'response' => $response,
-                'request'  => $postData,
+                'request' => $postData,
             ]);
 
             return [
@@ -105,7 +108,7 @@ class SslcommerzService
         }
 
         return [
-            'ok'  => true,
+            'ok' => true,
             'url' => $response['GatewayPageURL'],
             'request' => $postData,
             'response' => $response,
@@ -122,11 +125,11 @@ class SslcommerzService
             : 'https://securepay.sslcommerz.com/validator/api/validationserverAPI.php';
 
         $response = Http::timeout($this->timeout)->get($url, [
-            'val_id'       => $params['val_id'] ?? null,
-            'store_id'     => $this->storeId,
+            'val_id' => $params['val_id'] ?? null,
+            'store_id' => $this->storeId,
             'store_passwd' => $this->storePassword,
-            'v'            => 1,
-            'format'       => 'json',
+            'v' => 1,
+            'format' => 'json',
         ])->json();
 
         Log::info('SSLCommerz validation response', $response ?? []);

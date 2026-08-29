@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domain\Clients\Actions;
+namespace App\Actions\Client\Subscriptions;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Packages\Models\Package;
+use App\Models\Client;
+use App\Models\Package;
 
 class StartPackageAction
 {
@@ -14,6 +14,7 @@ class StartPackageAction
         }
 
         app(StartPaidSubscriptionAction::class)->execute($client, $package);
+
         return true;
     }
 }

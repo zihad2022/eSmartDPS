@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
+use App\Models\Package;
+use App\Services\PackageService;
 use Illuminate\Http\Request;
-use App\Domain\Clients\Models\Client;
-use App\Domain\Packages\Models\Package;
-use App\Domain\Clients\Services\PackageService;
 
 class StartTrailSubscriptionController extends Controller
 {
@@ -26,7 +26,7 @@ class StartTrailSubscriptionController extends Controller
         // If the client already has a package, check upgrade/downgrade constraints
         if ($activePackage) {
             $currentMembers = $client->members()->count();
-            $currentUsers   = $client->users()->count();
+            $currentUsers = $client->users()->count();
             $currentProjects = $client->projects()->count();
 
             // Prevent downgrading to a package with lower limits than current usage
@@ -48,7 +48,7 @@ class StartTrailSubscriptionController extends Controller
 
         if ($result !== true) {
             // return back()->with('error', $result);
-            return back()->with('error', "You have already used the trial for this package.");
+            return back()->with('error', 'You have already used the trial for this package.');
         }
 
         return back()->with('success', "You have successfully started the trial for the '{$package->name}' package. Enjoy your trial period!");

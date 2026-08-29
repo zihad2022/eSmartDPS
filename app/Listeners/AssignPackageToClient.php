@@ -3,9 +3,8 @@
 namespace App\Listeners;
 
 use App\Events\Admin\ClientCreated;
-use App\Domain\Clients\Services\PackageService;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\Package;
+use App\Services\PackageService;
 
 class AssignPackageToClient
 {
@@ -14,7 +13,7 @@ class AssignPackageToClient
     public function handle(ClientCreated $event): void
     {
         if ($event->packageId) {
-            $package = \App\Models\Package::find($event->packageId);
+            $package = Package::find($event->packageId);
             $package && $this->packageService->startPackage($event->client, $package);
         }
     }

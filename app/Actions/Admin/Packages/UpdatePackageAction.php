@@ -2,7 +2,7 @@
 
 namespace App\Actions\Admin\Packages;
 
-use App\Domain\Packages\Models\Package;
+use App\Models\Package;
 use Illuminate\Support\Facades\Cache;
 
 class UpdatePackageAction

@@ -1,5 +1,5 @@
  @php
-     $client = \App\Domain\Clients\Models\Client::find(owner_client_id());
+     $client = \App\Models\Client::find(owner_client_id());
      $activeClientPackage = $client?->activeClientPackage;
      $activePackage = $activeClientPackage?->package;
  @endphp

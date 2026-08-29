@@ -1,6 +1,6 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 
 test('client can list sub-users', function () {
     $client = createActiveClient();

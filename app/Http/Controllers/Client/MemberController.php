@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\MemberRequest;
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Models\ClientSetting;
 use App\Models\Member;
 use App\Services\ImageService;
@@ -26,12 +26,12 @@ class MemberController extends Controller
     public function index(Request $request)
     {
         $ownerId = owner_client_id();
-    
+
         // -----------------------------
         // 1. Capture search query
         // -----------------------------
         $search = $request->get('search');
-    
+
         // -----------------------------
         // 2. Fetch members for the current client with search & status filters
         // -----------------------------
@@ -40,9 +40,9 @@ class MemberController extends Controller
             ->when($search, function ($q, $search) {
                 $q->where(function ($query) use ($search) {
                     $query->where('name', 'like', "%{$search}%")
-                          ->orWhere('member_id', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%")
-                          ->orWhere('phone', 'like', "%{$search}%");
+                        ->orWhere('member_id', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%");
                 });
             })
             ->when($request->status === 'active', fn ($q) => $q->where('status', true))
@@ -51,7 +51,7 @@ class MemberController extends Controller
             ->latest()
             ->paginate(10)
             ->appends($request->query());
-    
+
         // -----------------------------
         // 3. Calculate summary stats
         // -----------------------------
@@ -59,9 +59,9 @@ class MemberController extends Controller
             ->when($search, function ($q, $search) {
                 $q->where(function ($query) use ($search) {
                     $query->where('name', 'like', "%{$search}%")
-                          ->orWhere('member_id', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%")
-                          ->orWhere('phone', 'like', "%{$search}%");
+                        ->orWhere('member_id', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%");
                 });
             })
             ->selectRaw('COUNT(*) as total, 
@@ -69,12 +69,12 @@ class MemberController extends Controller
                          SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as inactive, 
                          SUM(share_quantity) as total_shares')
             ->first();
-    
+
         // -----------------------------
         // 4. Fetch client settings
         // -----------------------------
         $settings = ClientSetting::where('client_id', $ownerId)->first();
-    
+
         // -----------------------------
         // 5. Return view
         // -----------------------------
@@ -88,7 +88,6 @@ class MemberController extends Controller
             'search' => $search, // Keep search input populated
         ]);
     }
-    
 
     /**
      * Show the form for creating a new member.

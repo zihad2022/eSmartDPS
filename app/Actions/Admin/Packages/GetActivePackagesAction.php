@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domain\Clients\Actions;
+namespace App\Actions\Admin\Packages;
 
-use App\Domain\Packages\Models\Package;
+use App\Models\Package;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
@@ -10,8 +10,7 @@ class GetActivePackagesAction
 {
     public function execute(?int $includePackageId = null): Collection
     {
-        $packages = Cache::remember('packages.active.simple', 300, fn () =>
-            Package::query()->select('id', 'name')->active()->orderBy('name')->get()
+        $packages = Cache::remember('packages.active.simple', 300, fn () => Package::query()->select('id', 'name')->active()->orderBy('name')->get()
         );
 
         if ($includePackageId && ! $packages->contains('id', $includePackageId)) {

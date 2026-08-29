@@ -1,11 +1,8 @@
 <?php
 
-namespace App\Domain\Packages\Models;
+namespace App\Models;
 
 use App\Concerns\HasSlug;
-use App\Domain\Clients\Models\Client;
-use App\Domain\Clients\Models\ClientPackage;
-use App\Domain\Invoices\Models\Invoice;
 use App\Enums\Package\BillingCycle;
 use App\Enums\Package\DiscountType;
 use Carbon\Carbon;

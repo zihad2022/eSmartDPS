@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Actions\Admin\Settings\ConfigureAdminMailAction;
 use App\Actions\Admin\Settings\GetAdminSettingsAction;
-use App\Domain\Clients\Models\Client;
 use App\Mail\ClientWelcomeMail;
+use App\Models\Client;
 use Illuminate\Support\Facades\Mail;
 
 class MailService
@@ -13,8 +13,7 @@ class MailService
     public function __construct(
         private readonly ConfigureAdminMailAction $configureMail,
         private readonly GetAdminSettingsAction $getSettings,
-    ) {
-    }
+    ) {}
 
     public function sendMail(Client $client, string $password): void
     {

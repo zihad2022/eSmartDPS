@@ -57,7 +57,6 @@ class ProjectCategoryController extends Controller
         return view('client.project-category.index', compact('categories', 'search'));
     }
 
-
     /**
      * Show the form to create a new category.
      */
@@ -84,7 +83,7 @@ class ProjectCategoryController extends Controller
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('project_categories')->where(fn($q) => $q->where('client_id', $clientId)),
+                Rule::unique('project_categories')->where(fn ($q) => $q->where('client_id', $clientId)),
             ],
         ]);
 
@@ -135,7 +134,7 @@ class ProjectCategoryController extends Controller
                 'max:255',
                 Rule::unique('project_categories')
                     ->ignore($projectCategory->id)
-                    ->where(fn($q) => $q->where('client_id', $clientId)),
+                    ->where(fn ($q) => $q->where('client_id', $clientId)),
             ],
         ]);
 

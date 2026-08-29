@@ -24,12 +24,12 @@ class UserProfileController extends Controller
         $client = Auth::guard('client')->user();
 
         $validated = $request->validate([
-            'first_name'        => 'required|string|max:255',
-            'last_name'         => 'required|string|max:255',
-            'phone'             => 'required|string|max:255',
-            'profile_photo'     => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'current_password'  => 'nullable|required_with:new_password|string',
-            'new_password'      => 'nullable|string|min:6',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'phone' => 'required|string|max:255',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'current_password' => 'nullable|required_with:new_password|string',
+            'new_password' => 'nullable|string|min:6',
         ]);
 
         // Profile photo
@@ -45,12 +45,12 @@ class UserProfileController extends Controller
         }
 
         // Password update
-        if (!empty($validated['new_password'])) {
+        if (! empty($validated['new_password'])) {
 
             // Verify current password
-            if (!Hash::check($validated['current_password'], $client->password)) {
+            if (! Hash::check($validated['current_password'], $client->password)) {
                 return back()->withErrors([
-                    'current_password' => 'Your current password is incorrect.'
+                    'current_password' => 'Your current password is incorrect.',
                 ]);
             }
 

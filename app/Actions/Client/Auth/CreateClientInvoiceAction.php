@@ -2,10 +2,10 @@
 
 namespace App\Actions\Client\Auth;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Actions\CreateInvoiceAction;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
+use App\Actions\Invoices\CreateInvoiceAction;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Package;
 
 class CreateClientInvoiceAction
 {

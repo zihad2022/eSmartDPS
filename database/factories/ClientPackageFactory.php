@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Clients\Models\ClientPackage;
-use App\Domain\Packages\Models\Package;
+use App\Models\Client;
+use App\Models\ClientPackage;
+use App\Models\Package;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\Clients\Models\ClientPackage>
+ * @extends Factory<ClientPackage>
  */
 class ClientPackageFactory extends Factory
 {

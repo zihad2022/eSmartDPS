@@ -2,7 +2,7 @@
 
 namespace App\Observers\Admin;
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Models\ClientSetting;
 use App\Services\ActivityLogger;
 

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\ProjectRequest;
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Models\ClientSetting;
 use App\Models\Project;
 use App\Models\ProjectCategory;
@@ -19,16 +19,15 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $clientId = owner_client_id();
-        $search   = $request->get('search');
-        $status   = $request->query('status');
+        $search = $request->get('search');
+        $status = $request->query('status');
 
         $projectsQuery = Project::with('projectCategory')
             ->where('client_id', $clientId)
             ->when($search, function ($q, $search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('name', 'like', "%{$search}%")
-                        ->orWhereHas('projectCategory', fn($q2) =>
-                            $q2->where('name', 'like', "%{$search}%")
+                        ->orWhereHas('projectCategory', fn ($q2) => $q2->where('name', 'like', "%{$search}%")
                         );
                 });
             })
@@ -47,7 +46,7 @@ class ProjectController extends Controller
             ->latest('id');
 
         $statusMap = [
-            'active'    => ProjectStatus::ACTIVE,
+            'active' => ProjectStatus::ACTIVE,
             'completed' => ProjectStatus::COMPLETED,
             'cancelled' => ProjectStatus::CANCELLED,
         ];
@@ -75,22 +74,22 @@ class ProjectController extends Controller
             ->first();
 
         $pageInvestmentAmount = $projects->sum('investment_amount');
-        $pageExpectedReturn   = $projects->sum('expected_return');
+        $pageExpectedReturn = $projects->sum('expected_return');
 
         $settings = ClientSetting::where('client_id', $clientId)->first();
 
         return view('client.project.index', [
-            'projects'              => $projects,
-            'totalProjects'         => $stats->total ?? 0,
-            'activeProjects'        => $stats->active_count ?? 0,
-            'completedProjects'     => $stats->completed_count ?? 0,
-            'cancelledProjects'     => $stats->cancelled_count ?? 0,
+            'projects' => $projects,
+            'totalProjects' => $stats->total ?? 0,
+            'activeProjects' => $stats->active_count ?? 0,
+            'completedProjects' => $stats->completed_count ?? 0,
+            'cancelledProjects' => $stats->cancelled_count ?? 0,
             'totalInvestmentAmount' => $stats->total_investment ?? 0,
-            'totalExpectedReturn'   => $stats->total_return ?? 0,
-            'pageInvestmentAmount'  => $pageInvestmentAmount,
-            'pageExpectedReturn'    => $pageExpectedReturn,
-            'settings'              => $settings,
-            'search'                => $search,
+            'totalExpectedReturn' => $stats->total_return ?? 0,
+            'pageInvestmentAmount' => $pageInvestmentAmount,
+            'pageExpectedReturn' => $pageExpectedReturn,
+            'settings' => $settings,
+            'search' => $search,
         ]);
     }
 
@@ -101,7 +100,7 @@ class ProjectController extends Controller
     {
         return view('client.project.form', [
             'categories' => $this->getClientCategories(),
-            'project'    => null,
+            'project' => null,
         ]);
     }
 
@@ -143,7 +142,7 @@ class ProjectController extends Controller
         $this->authorizeProject($project);
 
         return view('client.project.form', [
-            'project'    => $project,
+            'project' => $project,
             'categories' => $this->getClientCategories(),
         ]);
     }
@@ -192,5 +191,4 @@ class ProjectController extends Controller
             ->select('id', 'name')
             ->get();
     }
-
 }

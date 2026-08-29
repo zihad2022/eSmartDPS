@@ -2,7 +2,7 @@
 
 namespace App\Actions\Admin\Tickets;
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Models\Ticket;
 
 class GetTicketFormDataAction

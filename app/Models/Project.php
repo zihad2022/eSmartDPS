@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Concerns\HasSlug;
-use App\Domain\Clients\Models\Client;
 use App\Enums\ProjectStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;

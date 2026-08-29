@@ -1,8 +1,8 @@
 <?php
 
-use App\Domain\Packages\Models\Package;
 use App\Enums\Package\BillingCycle;
 use App\Enums\Package\DiscountType;
+use App\Models\Package;
 use Carbon\Carbon;
 
 test('calculates fixed discount amount correctly', function () {

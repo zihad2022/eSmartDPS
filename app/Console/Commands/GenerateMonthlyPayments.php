@@ -2,15 +2,16 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Enums\PaymentStatus;
 use App\Models\ClientSetting;
 use App\Models\Member;
 use App\Models\Payment;
-use App\Enums\PaymentStatus;
+use Illuminate\Console\Command;
 
 class GenerateMonthlyPayments extends Command
 {
     protected $signature = 'payments:generate';
+
     protected $description = 'Generate monthly due payments for all clients.';
 
     public function handle(): int
@@ -25,6 +26,7 @@ class GenerateMonthlyPayments extends Command
 
             if (! $settings) {
                 $this->warn("Skipping client {$clientId}: no settings found.");
+
                 continue;
             }
 
@@ -47,14 +49,14 @@ class GenerateMonthlyPayments extends Command
 
                 // Create new due payment
                 Payment::create([
-                    'payment_id'      => generate_payment_id(),
-                    'client_id'       => $member->client_id,
-                    'member_id'       => $member->id,
-                    'amount'          => $dueAmount,
-                    'status'          => PaymentStatus::DUE->value,
-                    'due_date'        => $monthStart->copy()->endOfMonth(),
-                    'payment_method'  => null,   // can fill later
-                    'meta'            => null,   // can store screenshot/comments later
+                    'payment_id' => generate_payment_id(),
+                    'client_id' => $member->client_id,
+                    'member_id' => $member->id,
+                    'amount' => $dueAmount,
+                    'status' => PaymentStatus::DUE->value,
+                    'due_date' => $monthStart->copy()->endOfMonth(),
+                    'payment_method' => null,   // can fill later
+                    'meta' => null,   // can store screenshot/comments later
                 ]);
 
                 $clientGenerated++;

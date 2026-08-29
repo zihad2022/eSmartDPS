@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
 use App\Models\Admin;
+use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\Ledger;
 use App\Models\Member;
+use App\Models\Package;
 use App\Models\Project;
 use App\Models\Ticket;
 use App\Observers\Admin\ClientObserver;
@@ -19,6 +19,7 @@ use App\Observers\Admin\UserObserver;
 use App\Observers\Client\LedgerObserver;
 use App\Observers\Client\MemberObserver;
 use App\Observers\Client\ProjectObserver;
+use App\Services\SubscriptionService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
@@ -37,8 +38,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::shouldBeStrict(! app()->isProduction());
 
-        Factory::guessFactoryNamesUsing(fn (string $modelName) =>
-            'Database\\Factories\\' . class_basename($modelName) . 'Factory'
+        Factory::guessFactoryNamesUsing(fn (string $modelName) => 'Database\\Factories\\'.class_basename($modelName).'Factory'
         );
 
         Client::observe(ClientObserver::class);
@@ -52,8 +52,7 @@ class AppServiceProvider extends ServiceProvider
         Project::observe(ProjectObserver::class);
         Ledger::observe(LedgerObserver::class);
 
-        Blade::if('adminCan', fn (string $permission): bool =>
-            auth('admin')->check() && auth('admin')->user()->can($permission)
+        Blade::if('adminCan', fn (string $permission): bool => auth('admin')->check() && auth('admin')->user()->can($permission)
         );
 
         Gate::define('access-feature', function ($client, string $featureSlug): bool {
@@ -61,7 +60,7 @@ class AppServiceProvider extends ServiceProvider
                 return false;
             }
 
-            return (new \App\Services\SubscriptionService($client))->canAccessFeature($featureSlug);
+            return (new SubscriptionService($client))->canAccessFeature($featureSlug);
         });
     }
 }

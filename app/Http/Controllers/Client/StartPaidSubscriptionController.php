@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
-use App\Domain\Clients\Models\Client;
-use App\Domain\Packages\Models\Package;
-use App\Domain\Clients\Services\PackageService;
+use App\Models\Client;
+use App\Models\Package;
+use App\Services\PackageService;
 use Illuminate\Http\Request;
 
 class StartPaidSubscriptionController extends Controller
@@ -30,8 +30,8 @@ class StartPaidSubscriptionController extends Controller
         // 1. Check downgrade constraints
         // -----------------------------
         if ($activePackage) {
-            $currentMembers  = $client->members()->count();
-            $currentUsers    = $client->users()->count();
+            $currentMembers = $client->members()->count();
+            $currentUsers = $client->users()->count();
             $currentProjects = $client->projects()->count();
 
             if ($currentMembers > $package->member_limit) {

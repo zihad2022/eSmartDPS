@@ -1,12 +1,12 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Clients\Models\ClientPackage;
-use App\Domain\Packages\Models\Package;
 use App\Enums\PaymentStatus;
 use App\Models\AdminSetting;
+use App\Models\Client;
+use App\Models\ClientPackage;
 use App\Models\ClientSetting;
 use App\Models\Member;
+use App\Models\Package;
 use Illuminate\Support\Facades\Artisan;
 
 test('payments:generate command creates monthly due payments for members', function () {

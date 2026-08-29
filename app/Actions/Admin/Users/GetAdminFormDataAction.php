@@ -10,6 +10,7 @@ class GetAdminFormDataAction
     public function __construct(
         private readonly GuardAdminAccountManagementAction $guardManagement,
     ) {}
+
     public function execute(Admin $actor, ?Admin $admin = null): array
     {
         if ($admin) {

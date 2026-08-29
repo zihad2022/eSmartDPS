@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Admin\Invoices\SendInvoiceAction;
-use App\Domain\Invoices\Models\Invoice;
 use App\Http\Controllers\Controller;
+use App\Models\Invoice;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 

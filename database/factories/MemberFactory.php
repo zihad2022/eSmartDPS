@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Models\Member;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Member>
+ * @extends Factory<Member>
  */
 class MemberFactory extends Factory
 {
@@ -20,7 +20,7 @@ class MemberFactory extends Factory
     {
         return [
             'client_id' => Client::factory(),
-            'member_id' => fn () => 'MID' . fake()->unique()->numerify('#####'),
+            'member_id' => fn () => 'MID'.fake()->unique()->numerify('#####'),
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'phone' => fake()->unique()->numerify('018########'),

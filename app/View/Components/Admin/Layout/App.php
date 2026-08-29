@@ -9,9 +9,7 @@ use Illuminate\View\Component;
 
 class App extends Component
 {
-    public function __construct(public string $title = '')
-    {
-    }
+    public function __construct(public string $title = '') {}
 
     public function render(): View|Closure|string
     {

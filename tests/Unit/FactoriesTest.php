@@ -1,15 +1,15 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Clients\Models\ClientPackage;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
 use App\Models\Admin;
 use App\Models\AdminSetting;
+use App\Models\Client;
+use App\Models\ClientPackage;
 use App\Models\ClientSetting;
+use App\Models\Invoice;
 use App\Models\Ledger;
 use App\Models\LedgerCategory;
 use App\Models\Member;
+use App\Models\Package;
 use App\Models\Payment;
 use App\Models\Project;
 use App\Models\ProjectCategory;

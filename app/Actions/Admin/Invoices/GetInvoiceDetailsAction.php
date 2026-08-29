@@ -3,7 +3,7 @@
 namespace App\Actions\Admin\Invoices;
 
 use App\Actions\Admin\Settings\GetAdminSettingsAction;
-use App\Domain\Invoices\Models\Invoice;
+use App\Models\Invoice;
 
 class GetInvoiceDetailsAction
 {

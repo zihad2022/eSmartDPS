@@ -1,7 +1,7 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Packages\Models\Package;
+use App\Models\Client;
+use App\Models\Package;
 use Illuminate\Support\Facades\Mail;
 
 test('admin can view clients list', function () {

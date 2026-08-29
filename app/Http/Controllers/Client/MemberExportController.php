@@ -17,17 +17,16 @@ class MemberExportController extends Controller
     {
         // Get the status query parameter from the request
         $status = $request->query('status');
-    
+
         // Prepare a log message based on the status
-        $logMessage = $status 
-            ? "Members Exported with status: {$status}" 
-            : "Members Exported";
-    
+        $logMessage = $status
+            ? "Members Exported with status: {$status}"
+            : 'Members Exported';
+
         // Log the activity
         ActivityLogger::log($logMessage);
-    
+
         // Return the Excel download with the given status filter
         return Excel::download(new MemberExport($status), 'members.xlsx');
     }
-    
 }

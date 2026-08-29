@@ -2,15 +2,15 @@
 
 namespace Database\Factories;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Package;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\Invoices\Models\Invoice>
+ * @extends Factory<Invoice>
  */
 class InvoiceFactory extends Factory
 {
@@ -30,7 +30,7 @@ class InvoiceFactory extends Factory
             'billing_start' => $start,
             'billing_end' => $end,
             'due_date' => $start->copy()->addDays(7),
-            'invoice_number' => fn () => 'INV' . fake()->unique()->numerify('#####'),
+            'invoice_number' => fn () => 'INV'.fake()->unique()->numerify('#####'),
             'invoice_amount' => 1000,
             'status' => InvoiceStatus::UNPAID,
             'paid_at' => null,

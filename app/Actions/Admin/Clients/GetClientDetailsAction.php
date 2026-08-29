@@ -2,14 +2,11 @@
 
 namespace App\Actions\Admin\Clients;
 
-use App\Domain\Clients\Actions\GuardRootClientAction;
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 
 class GetClientDetailsAction
 {
-    public function __construct(private readonly GuardRootClientAction $guard)
-    {
-    }
+    public function __construct(private readonly GuardRootClientAction $guard) {}
 
     public function execute(Client $client): Client
     {

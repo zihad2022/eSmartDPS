@@ -53,8 +53,8 @@ class SettingsSeeder extends Seeder
             'bkash_password' => env('BKASH_PASSWORD'),
             'bkash_app_key' => env('BKASH_APP_KEY'),
             'bkash_app_secret' => env('BKASH_APP_SECRET'),
-            'bkash_charge'     => 0.00,
-            'bkash_status'     => false, // false = disabled, true = active
+            'bkash_charge' => 0.00,
+            'bkash_status' => false, // false = disabled, true = active
 
             // SSLCommerz
             'sslcommerz_store_id' => env('SSLC_STORE_ID'),
@@ -67,7 +67,7 @@ class SettingsSeeder extends Seeder
             'sms_sender_id' => env('SMS_SENDER_ID'),
             'sms_api_url' => env('SMS_API_URL'),
             'sms_balance_api' => env('SMS_BALANCE_API_URL'),
-            'sms_message_template' => "Dear {name}, your One-Time Password (OTP) is {otp}. Please use this code to reset your password. This OTP will expire in 5 minutes. - {app_name} Security Team",
+            'sms_message_template' => 'Dear {name}, your One-Time Password (OTP) is {otp}. Please use this code to reset your password. This OTP will expire in 5 minutes. - {app_name} Security Team',
 
             /* ========== Email Settings ========== */
             'mail_host' => env('MAIL_HOST'),

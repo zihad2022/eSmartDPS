@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Admin\Exports\ExportTicketsAction;

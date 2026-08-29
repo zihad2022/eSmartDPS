@@ -38,8 +38,7 @@ class AdminSessionTimeout
     private function timeoutMinutes(): int
     {
         try {
-            return (int) Cache::remember('admin.session_timeout_minutes', now()->addMinutes(5), fn (): int =>
-                max(5, (int) (AdminSetting::query()->value('session_timeout_minutes') ?: 30))
+            return (int) Cache::remember('admin.session_timeout_minutes', now()->addMinutes(5), fn (): int => max(5, (int) (AdminSetting::query()->value('session_timeout_minutes') ?: 30))
             );
         } catch (Throwable) {
             return 30;

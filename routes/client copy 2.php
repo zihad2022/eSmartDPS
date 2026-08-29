@@ -1,46 +1,41 @@
 <?php
 
+use App\Http\Controllers\Client\Auth\ForgotPasswordPhoneController;
+use App\Http\Controllers\Client\Auth\LoginController;
+use App\Http\Controllers\Client\Auth\OtpVerifyController;
+use App\Http\Controllers\Client\Auth\RegisterController;
+use App\Http\Controllers\Client\Auth\ResetPasswordPhoneController;
+use App\Http\Controllers\Client\BkashPaymentController;
+use App\Http\Controllers\Client\DashboardController;
+use App\Http\Controllers\Client\InvoiceController;
+use App\Http\Controllers\Client\LedgerCategoryController;
+use App\Http\Controllers\Client\LedgerController;
+use App\Http\Controllers\Client\LedgerReportController;
+use App\Http\Controllers\Client\MemberController;
+use App\Http\Controllers\Client\MemberExportController;
+use App\Http\Controllers\Client\PaymentController;
+use App\Http\Controllers\Client\PaymentExportController;
+use App\Http\Controllers\Client\ProjectCategoryController;
+use App\Http\Controllers\Client\ProjectController;
+use App\Http\Controllers\Client\ProjectExportController;
+use App\Http\Controllers\Client\Settings\BackupSecurityController;
+use App\Http\Controllers\Client\Settings\GeneralController;
+use App\Http\Controllers\Client\Settings\NotificationController;
+use App\Http\Controllers\Client\Settings\PaymentController as SettingsPaymentController;
+use App\Http\Controllers\Client\Settings\ShareController;
+use App\Http\Controllers\Client\SslcommerzPaymentController;
+use App\Http\Controllers\Client\StartPaidSubscriptionController;
+use App\Http\Controllers\Client\StartTrailSubscriptionController;
+use App\Http\Controllers\Client\SubscriptionController;
+use App\Http\Controllers\Client\SubscriptionPaymentController;
+use App\Http\Controllers\Client\TicketChatController;
+use App\Http\Controllers\Client\TicketController;
+use App\Http\Controllers\Client\TicketExportController;
+use App\Http\Controllers\Client\UserActivityController;
+use App\Http\Controllers\Client\UserController;
+use App\Http\Controllers\Client\UserExportController;
+use App\Http\Controllers\Client\UserProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Client\Auth\{
-    ForgotPasswordPhoneController,
-    LoginController,
-    OtpVerifyController,
-    RegisterController,
-    ResetPasswordPhoneController
-};
-use App\Http\Controllers\Client\{
-    BkashPaymentController,
-    DashboardController,
-    InvoiceController,
-    LedgerCategoryController,
-    LedgerController,
-    LedgerReportController,
-    MemberController,
-    MemberExportController,
-    PaymentController,
-    PaymentExportController,
-    ProjectCategoryController,
-    ProjectController,
-    ProjectExportController,
-    Settings\BackupSecurityController,
-    Settings\GeneralController,
-    Settings\NotificationController,
-    Settings\PaymentController as SettingsPaymentController,
-    Settings\ShareController,
-    SslcommerzPaymentController,
-    StartPaidSubscriptionController,
-    StartSubscriptionController,
-    StartTrailSubscriptionController,
-    SubscriptionController,
-    SubscriptionPaymentController,
-    TicketChatController,
-    TicketController,
-    TicketExportController,
-    UserActivityController,
-    UserController,
-    UserExportController,
-    UserProfileController
-};
 
 /*
 |--------------------------------------------------------------------------
@@ -137,12 +132,12 @@ Route::prefix('client')->name('client.')->group(function () {
          */
         Route::middleware('subscription')->group(function () {
             Route::resources([
-                'members'            => MemberController::class,
-                'projects'           => ProjectController::class,
+                'members' => MemberController::class,
+                'projects' => ProjectController::class,
                 'project-categories' => ProjectCategoryController::class,
-                'ledger-categories'  => LedgerCategoryController::class,
-                'ledgers'            => LedgerController::class,
-                'tickets'            => TicketController::class,
+                'ledger-categories' => LedgerCategoryController::class,
+                'ledgers' => LedgerController::class,
+                'tickets' => TicketController::class,
             ]);
 
             // Additional routes

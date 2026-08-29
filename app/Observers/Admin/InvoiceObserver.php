@@ -2,7 +2,7 @@
 
 namespace App\Observers\Admin;
 
-use App\Domain\Invoices\Models\Invoice;
+use App\Models\Invoice;
 use App\Services\ActivityLogger;
 
 class InvoiceObserver

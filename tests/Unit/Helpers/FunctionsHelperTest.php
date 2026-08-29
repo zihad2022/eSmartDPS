@@ -1,6 +1,6 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Models\Member;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\HttpException;

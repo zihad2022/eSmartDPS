@@ -1,10 +1,10 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Clients\Models\ClientPackage;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
 use App\Models\AdminSetting;
+use App\Models\Client;
+use App\Models\ClientPackage;
+use App\Models\Invoice;
+use App\Models\Package;
 
 test('client can view packages list', function () {
     AdminSetting::factory()->create();

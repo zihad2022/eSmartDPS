@@ -13,22 +13,20 @@ use App\Http\Controllers\Admin\InvoiceSendToClientController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\PackageExportController;
 use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\Settings\{
-    BackupSecurityController,
-    ContactInfoController,
-    EmailController,
-    GeneralController,
-    PaymentController,
-    SmsController,
-    SocialMediaController
-};
-use App\Http\Controllers\Admin\TicketController;
+use App\Http\Controllers\Admin\Settings\BackupSecurityController;
+use App\Http\Controllers\Admin\Settings\ContactInfoController;
+use App\Http\Controllers\Admin\Settings\EmailController;
+use App\Http\Controllers\Admin\Settings\GeneralController;
+use App\Http\Controllers\Admin\Settings\PaymentController;
+use App\Http\Controllers\Admin\Settings\SmsController;
+use App\Http\Controllers\Admin\Settings\SocialMediaController;
 use App\Http\Controllers\Admin\TicketChatController;
+use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\TicketExportController;
+use App\Http\Controllers\Admin\User\ActivityController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserExportController;
 use App\Http\Controllers\Admin\UserProfileController;
-use App\Http\Controllers\Admin\User\ActivityController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -152,8 +150,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::put($uri, [$controller, 'update'])->name("$uri.update")->middleware('permission:edit settings,admin');
             }
         });
-
-
 
         Route::prefix('settings/backups')->name('settings.backups.')
             ->middleware('permission:edit settings,admin')

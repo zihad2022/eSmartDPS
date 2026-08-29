@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Domain\Clients\Actions;
+namespace App\Actions\Admin\Clients;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Clients\Services\PackageService;
-use App\Domain\Packages\Models\Package;
+use App\Models\Client;
+use App\Models\Package;
+use App\Services\PackageService;
 use Illuminate\Validation\ValidationException;
 
 class HandleClientPackageAction
 {
-    public function __construct(private readonly PackageService $service)
-    {
-    }
+    public function __construct(private readonly PackageService $service) {}
 
     public function execute(Client $client, ?int $packageId): void
     {

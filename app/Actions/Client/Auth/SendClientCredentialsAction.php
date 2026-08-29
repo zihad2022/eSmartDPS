@@ -2,7 +2,7 @@
 
 namespace App\Actions\Client\Auth;
 
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Services\MailService;
 
 class SendClientCredentialsAction

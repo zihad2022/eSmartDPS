@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Client\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Domain\Clients\Models\Client;
+use App\Models\Client;
 use App\Models\OtpCode;
 use App\Services\SmsService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class ForgotPasswordPhoneController extends Controller
@@ -42,7 +42,7 @@ class ForgotPasswordPhoneController extends Controller
         // 2. Find client by phone
         // -----------------------------
         $client = Client::where('phone', $request->phone)->first();
-        if (!$client) {
+        if (! $client) {
             return back()->with('error', 'Client not found');
         }
 

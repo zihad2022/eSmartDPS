@@ -7,7 +7,10 @@ use Illuminate\Validation\Rule;
 
 class EmailSettingsRequest extends FormRequest
 {
-    public function authorize(): bool { return auth('admin')->check(); }
+    public function authorize(): bool
+    {
+        return auth('admin')->check();
+    }
 
     public function rules(): array
     {

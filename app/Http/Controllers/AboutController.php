@@ -13,6 +13,7 @@ class AboutController extends Controller
     public function __invoke(Request $request)
     {
         SeoKit::title('About');
+
         return view('about');
     }
 }

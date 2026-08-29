@@ -2,9 +2,9 @@
 
 namespace App\Actions\Admin\Invoices;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Package;
 
 class GetInvoiceFormDataAction
 {

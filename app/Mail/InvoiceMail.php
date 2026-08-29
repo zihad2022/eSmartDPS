@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Domain\Invoices\Models\Invoice;
+use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -18,8 +18,7 @@ class InvoiceMail extends Mailable
         public Invoice $invoice,
         public string $currency = 'BDT',
         public string $siteName = 'eSmartDPS',
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {

@@ -8,6 +8,7 @@ use App\Models\ClientSetting;
 use App\Models\Ledger;
 use App\Models\LedgerCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class LedgerController extends Controller
@@ -33,15 +34,15 @@ class LedgerController extends Controller
         // -----------------------------
         $ledgers = Ledger::with('ledgerCategory')
             ->where('client_id', $clientId)
-            ->when($request->type && in_array($request->type, [LedgerType::INCOME->value, LedgerType::EXPENSE->value]), 
-                fn($q) => $q->where('type', $request->type)
+            ->when($request->type && in_array($request->type, [LedgerType::INCOME->value, LedgerType::EXPENSE->value]),
+                fn ($q) => $q->where('type', $request->type)
             )
-            ->when($request->date_from, fn($q) => $q->whereDate('entry_date', '>=', $request->date_from))
-            ->when($request->date_to, fn($q) => $q->whereDate('entry_date', '<=', $request->date_to))
-            ->when($search, fn($q) => $q->where(function($query) use ($search) {
+            ->when($request->date_from, fn ($q) => $q->whereDate('entry_date', '>=', $request->date_from))
+            ->when($request->date_to, fn ($q) => $q->whereDate('entry_date', '<=', $request->date_to))
+            ->when($search, fn ($q) => $q->where(function ($query) use ($search) {
                 $query->where('description', 'like', "%{$search}%")
-                      ->orWhere('notes', 'like', "%{$search}%")
-                      ->orWhere('amount', 'like', "%{$search}%");
+                    ->orWhere('notes', 'like', "%{$search}%")
+                    ->orWhere('amount', 'like', "%{$search}%");
             }))
             ->latest('entry_date')
             ->paginate(10)
@@ -56,7 +57,7 @@ class LedgerController extends Controller
         // -----------------------------
         // 5. Prepare monthly chart data
         // -----------------------------
-        $monthSelect = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite'
+        $monthSelect = DB::getDriverName() === 'sqlite'
             ? "CAST(strftime('%m', entry_date) AS INTEGER) as month, SUM(amount) as total"
             : 'MONTH(entry_date) as month, SUM(amount) as total';
 
@@ -74,11 +75,11 @@ class LedgerController extends Controller
             ->groupBy('month')
             ->pluck('total', 'month');
 
-        $incomeData = collect(range(1,12))->map(fn($month) => $monthlyIncome[$month] ?? 0)->toArray();
-        $expenseData = collect(range(1,12))->map(fn($month) => $monthlyExpense[$month] ?? 0)->toArray();
+        $incomeData = collect(range(1, 12))->map(fn ($month) => $monthlyIncome[$month] ?? 0)->toArray();
+        $expenseData = collect(range(1, 12))->map(fn ($month) => $monthlyExpense[$month] ?? 0)->toArray();
 
         $monthlyChartData = [
-            'labels' => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             'datasets' => [
                 [
                     'label' => 'Income',
@@ -102,7 +103,7 @@ class LedgerController extends Controller
         // -----------------------------
         // 5. Prepare yearly chart data
         // -----------------------------
-        $yearSelect = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite'
+        $yearSelect = DB::getDriverName() === 'sqlite'
             ? "CAST(strftime('%Y', entry_date) AS INTEGER) as year, SUM(amount) as total"
             : 'YEAR(entry_date) as year, SUM(amount) as total';
 
@@ -119,8 +120,8 @@ class LedgerController extends Controller
             ->pluck('total', 'year');
 
         $years = $yearlyIncome->keys()->merge($yearlyExpense->keys())->unique()->sort()->values();
-        $yearlyIncomeData = $years->map(fn($year) => $yearlyIncome[$year] ?? 0)->toArray();
-        $yearlyExpenseData = $years->map(fn($year) => $yearlyExpense[$year] ?? 0)->toArray();
+        $yearlyIncomeData = $years->map(fn ($year) => $yearlyIncome[$year] ?? 0)->toArray();
+        $yearlyExpenseData = $years->map(fn ($year) => $yearlyExpense[$year] ?? 0)->toArray();
 
         $yearlyChartData = [
             'labels' => $years->toArray(),
@@ -175,7 +176,7 @@ class LedgerController extends Controller
         // -----------------------------
         // 1. Fetch ledger categories
         // -----------------------------
-        $ledgerCategories = LedgerCategory::where('client_id', owner_client_id())->pluck('name','id');
+        $ledgerCategories = LedgerCategory::where('client_id', owner_client_id())->pluck('name', 'id');
 
         // -----------------------------
         // 2. Return create form view
@@ -198,7 +199,7 @@ class LedgerController extends Controller
                 Rule::exists('ledger_categories', 'id')
                     ->where(fn ($query) => $query->where('client_id', owner_client_id())),
             ],
-            'type' => 'required|in:' . LedgerType::INCOME->value . ',' . LedgerType::EXPENSE->value,
+            'type' => 'required|in:'.LedgerType::INCOME->value.','.LedgerType::EXPENSE->value,
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',
             'entry_date' => 'required|date',
@@ -228,6 +229,7 @@ class LedgerController extends Controller
     public function show(Ledger $ledger)
     {
         $this->authorizeLedger($ledger);
+
         return view('client.ledger.show', compact('ledger'));
     }
 
@@ -238,9 +240,9 @@ class LedgerController extends Controller
     {
         $this->authorizeLedger($ledger);
 
-        $ledgerCategories = LedgerCategory::where('client_id', owner_client_id())->pluck('name','id');
+        $ledgerCategories = LedgerCategory::where('client_id', owner_client_id())->pluck('name', 'id');
 
-        return view('client.ledger.form', compact('ledger','ledgerCategories'));
+        return view('client.ledger.form', compact('ledger', 'ledgerCategories'));
     }
 
     /**
@@ -260,7 +262,7 @@ class LedgerController extends Controller
                 Rule::exists('ledger_categories', 'id')
                     ->where(fn ($query) => $query->where('client_id', owner_client_id())),
             ],
-            'type' => 'required|in:' . LedgerType::INCOME->value . ',' . LedgerType::EXPENSE->value,
+            'type' => 'required|in:'.LedgerType::INCOME->value.','.LedgerType::EXPENSE->value,
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',
             'entry_date' => 'required|date',

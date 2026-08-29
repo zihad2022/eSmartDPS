@@ -2,14 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Domain\Clients\Models\Client;
 use App\Models\Admin;
+use App\Models\Client;
 use App\Models\Ticket;
 use App\Models\TicketReply;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\TicketReply>
+ * @extends Factory<TicketReply>
  */
 class TicketReplyFactory extends Factory
 {

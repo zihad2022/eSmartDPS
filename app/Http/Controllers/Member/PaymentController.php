@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Member;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
+use App\Models\ClientSetting;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use App\Models\ClientSetting;
-use App\Models\Payment;
 use Illuminate\Validation\Rule;
 
 class PaymentController extends Controller
@@ -47,11 +47,11 @@ class PaymentController extends Controller
 
         $validated = $request->validate([
             'payment_amount' => ['required', 'numeric', 'min:1'],
-            'payment_date' => ['required','date'],
+            'payment_date' => ['required', 'date'],
             'payment_method' => ['required', Rule::in($methodValues)],
-            'reference_number' => ['nullable','string','max:64'],
-            'payment_notes' => ['nullable','string','max:1000'],
-            'receipt_file' => ['required','file','mimes:jpg,jpeg,png,pdf','max:5120'],
+            'reference_number' => ['nullable', 'string', 'max:64'],
+            'payment_notes' => ['nullable', 'string', 'max:1000'],
+            'receipt_file' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ]);
 
         // Persist proof and record atomically
@@ -63,20 +63,20 @@ class PaymentController extends Controller
             $amount = (int) round((float) $validated['payment_amount']);
 
             Payment::create([
-                'payment_id'      => generate_payment_id(),
-                'client_id'       => $member->client_id,
-                'member_id'       => $member->id,
+                'payment_id' => generate_payment_id(),
+                'client_id' => $member->client_id,
+                'member_id' => $member->id,
                 'amount' => $amount,
-                'payment_method'  => (int) $validated['payment_method'],
-                'reference_number'=> $validated['reference_number'] ?? null,
-                'status'          => PaymentStatus::PENDING->value,
-                'paid_at'         => $validated['payment_date'],
-                'due_date'        => null,
-                'meta'            => [
+                'payment_method' => (int) $validated['payment_method'],
+                'reference_number' => $validated['reference_number'] ?? null,
+                'status' => PaymentStatus::PENDING->value,
+                'paid_at' => $validated['payment_date'],
+                'due_date' => null,
+                'meta' => [
                     'notes' => $validated['payment_notes'] ?? null,
                     'receipt_path' => $path,
                     'submitted_ip' => $request->ip(),
-                    'user_agent'   => $request->userAgent(),
+                    'user_agent' => $request->userAgent(),
                 ],
             ]);
 

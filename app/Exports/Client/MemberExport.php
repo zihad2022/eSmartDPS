@@ -3,6 +3,7 @@
 namespace App\Exports\Client;
 
 use App\Models\Member;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -17,23 +18,17 @@ class MemberExport implements FromCollection, WithHeadings, WithMapping
 {
     /**
      * Serial number counter (used for SL column).
-     *
-     * @var int
      */
     private int $sl = 1;
 
     /**
      * Member status filter.
      * Can be: "active", "inactive", or null (for all).
-     *
-     * @var string|null
      */
     private ?string $status = null;
 
     /**
      * Constructor to set the status filter.
-     *
-     * @param string|null $status
      */
     public function __construct(?string $status = null)
     {
@@ -43,7 +38,7 @@ class MemberExport implements FromCollection, WithHeadings, WithMapping
     /**
      * Fetch the data collection to be exported.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function collection()
     {
@@ -61,8 +56,6 @@ class MemberExport implements FromCollection, WithHeadings, WithMapping
 
     /**
      * Define the Excel file headings (columns).
-     *
-     * @return array
      */
     public function headings(): array
     {
@@ -82,13 +75,12 @@ class MemberExport implements FromCollection, WithHeadings, WithMapping
     /**
      * Map each member's data into the desired row format.
      *
-     * @param \App\Models\Member $member
-     * @return array
+     * @param  Member  $member
      */
     public function map($member): array
     {
         return [
-            '#' . $this->sl++,                            // Auto-incremented serial number
+            '#'.$this->sl++,                            // Auto-incremented serial number
             $member->member_id,                           // Member ID
             $member->name,                                // Member Name
             $member->email,                               // Email

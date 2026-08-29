@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Ticket;
-use App\Enums\TicketStatus;
 use App\Enums\TicketPriority;
-use Illuminate\View\View;
+use App\Enums\TicketStatus;
+use App\Http\Controllers\Controller;
+use App\Models\Ticket;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class TicketController extends Controller
 {
@@ -129,7 +129,7 @@ class TicketController extends Controller
             'ticket_number' => ['required', 'unique:tickets,ticket_number'],
             'subject' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string'],
-            'priority' => ['required', 'in:' . implode(',', array_column(TicketPriority::cases(), 'value'))],
+            'priority' => ['required', 'in:'.implode(',', array_column(TicketPriority::cases(), 'value'))],
         ]);
 
         // -----------------------------
@@ -181,10 +181,10 @@ class TicketController extends Controller
         // 2. Validate input
         // -----------------------------
         $validated = $request->validate([
-            'ticket_number' => ['required', 'unique:tickets,ticket_number,' . $id],
+            'ticket_number' => ['required', 'unique:tickets,ticket_number,'.$id],
             'subject' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string'],
-            'priority' => ['required', 'in:' . implode(',', array_column(TicketPriority::cases(), 'value'))],
+            'priority' => ['required', 'in:'.implode(',', array_column(TicketPriority::cases(), 'value'))],
         ]);
 
         // -----------------------------

@@ -1,11 +1,11 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
 use App\Mail\InvoiceMail;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Package;
 use Illuminate\Support\Facades\Mail;
 
 test('admin can list invoices', function () {

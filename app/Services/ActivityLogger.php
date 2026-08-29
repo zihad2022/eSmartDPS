@@ -28,7 +28,7 @@ class ActivityLogger
         }
 
         // Use Jenssegers Agent to detect browser, version, and OS platform.
-        $agent = new Agent();
+        $agent = new Agent;
 
         // Create a new activity record with relevant details.
         Activity::create([

@@ -8,8 +8,7 @@ class DeleteDatabaseBackupAction
 {
     public function __construct(
         private readonly ResolveDatabaseBackupAction $resolve,
-    ) {
-    }
+    ) {}
 
     public function execute(string $filename): void
     {

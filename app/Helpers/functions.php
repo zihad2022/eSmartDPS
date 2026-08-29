@@ -28,7 +28,7 @@ if (! function_exists('generate_sequential_id')) {
                 ->select($column)
                 ->where($column, 'like', $prefix.'%')
                 ->lockForUpdate()
-                ->orderByRaw("CAST(SUBSTRING($column, ".(strlen($prefix)+1).") AS UNSIGNED) DESC")
+                ->orderByRaw("CAST(SUBSTRING($column, ".(strlen($prefix) + 1).') AS UNSIGNED) DESC')
                 ->first();
 
             // Extract last number

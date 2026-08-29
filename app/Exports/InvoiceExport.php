@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Domain\Invoices\Models\Invoice;
+use App\Models\Invoice;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -12,9 +12,7 @@ class InvoiceExport implements FromQuery, WithHeadings, WithMapping
 {
     private int $sl = 1;
 
-    public function __construct(private readonly ?string $status = null)
-    {
-    }
+    public function __construct(private readonly ?string $status = null) {}
 
     public function query(): Builder
     {

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Domain\Clients\Models\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class TicketReply extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'ticket_id',
         'client_id',

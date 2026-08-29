@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Clients\Services\PackageService;
+use App\Models\Invoice;
+use App\Services\PackageService;
 use App\Services\Payments\SslcommerzService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,7 @@ class SslcommerzPaymentController extends Controller
      */
     public function pay(Invoice $invoice)
     {
-        if ($invoice->status === \App\Enums\InvoiceStatus::PAID) {
+        if ($invoice->status === InvoiceStatus::PAID) {
             return redirect()->route('client.invoices.index')
                 ->with('info', 'Invoice already paid.');
         }
@@ -56,10 +57,10 @@ class SslcommerzPaymentController extends Controller
         }
 
         $invoice->update([
-            'status'         => \App\Enums\InvoiceStatus::PAID,
-            'paid_at'        => now(),
+            'status' => InvoiceStatus::PAID,
+            'paid_at' => now(),
             'payment_method' => PaymentMethod::ONLINE,
-            'trx_id'         => $request->tran_id,
+            'trx_id' => $request->tran_id,
         ]);
 
         // Renew client’s subscription

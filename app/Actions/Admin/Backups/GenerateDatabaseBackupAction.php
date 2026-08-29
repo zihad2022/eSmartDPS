@@ -13,8 +13,7 @@ class GenerateDatabaseBackupAction
 {
     public function __construct(
         private readonly GetAdminSettingsAction $getSettings,
-    ) {
-    }
+    ) {}
 
     public function execute(): array
     {

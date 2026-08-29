@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Actions\Admin\Exports;
 
 use App\Exports\Admin\UserExport;
@@ -11,6 +12,7 @@ class ExportUsersAction
     public function execute(?string $status): BinaryFileResponse
     {
         ActivityLogger::log('Users exported'.($status ? " with status: {$status}" : '.'));
+
         return Excel::download(new UserExport($status), 'users.xlsx');
     }
 }

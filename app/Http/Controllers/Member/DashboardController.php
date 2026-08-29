@@ -24,9 +24,9 @@ class DashboardController extends Controller
         }
 
         // Basic member financial summary
-        $totalShares     = $member->share_quantity;
-        $monthlySavings  = $totalShares * $settings->share_price;
-        $totalBalance    = $member->total_balance;
+        $totalShares = $member->share_quantity;
+        $monthlySavings = $totalShares * $settings->share_price;
+        $totalBalance = $member->total_balance;
 
         return view('member.dashboard', compact(
             'totalShares',

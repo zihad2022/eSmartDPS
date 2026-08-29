@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Domain\Clients\Models\Client;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Actions\CreateInvoiceAction;
+use App\Actions\Invoices\CreateInvoiceAction;
 use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
-use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Packages\Models\Package;
 use App\Models\AdminSetting;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Package;
 use Illuminate\Http\Request;
 
 class SubscriptionPaymentController extends Controller
@@ -26,6 +26,7 @@ class SubscriptionPaymentController extends Controller
         $paymentMethods = $this->availableMethods();
 
         $settings = AdminSetting::first();
+
         return view('client.payments.select-method', compact('invoice', 'paymentMethods', 'settings'));
     }
 
@@ -58,7 +59,7 @@ class SubscriptionPaymentController extends Controller
             'payment_method' => 'required|in:bkash,sslcommerz',
         ]);
 
-        if ($invoice->status !== \App\Enums\InvoiceStatus::UNPAID) {
+        if ($invoice->status !== InvoiceStatus::UNPAID) {
             return redirect()->route('client.invoices.index')
                 ->with('info', 'This invoice is already paid.');
         }
@@ -68,13 +69,12 @@ class SubscriptionPaymentController extends Controller
                 // Directly trigger bKash payment logic
                 return app(BkashPaymentController::class)->pay($invoice);
             case 'sslcommerz':
-               // Directly trigger SSLCommerz payment logic
-               return app(SslcommerzPaymentController::class)->pay($invoice);
+                // Directly trigger SSLCommerz payment logic
+                return app(SslcommerzPaymentController::class)->pay($invoice);
         }
 
         return back()->with('error', 'Invalid payment method selected.');
     }
-
 
     /**
      * Helper: available payment methods
@@ -82,7 +82,7 @@ class SubscriptionPaymentController extends Controller
     private function availableMethods()
     {
         return [
-            'bkash'      => 'bKash',
+            'bkash' => 'bKash',
             'sslcommerz' => 'SSLCommerz',
         ];
     }

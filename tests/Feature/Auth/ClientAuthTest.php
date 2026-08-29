@@ -1,8 +1,8 @@
 <?php
 
-use App\Domain\Clients\Models\Client;
-use App\Domain\Packages\Models\Package;
 use App\Mail\ClientWelcomeMail;
+use App\Models\Client;
+use App\Models\Package;
 use Illuminate\Support\Facades\Mail;
 
 test('client login screen can be rendered', function () {
