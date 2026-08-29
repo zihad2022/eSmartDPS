@@ -82,6 +82,10 @@
             window.location.href = 'landing.html';
         }
     </script> --}}
+    {{-- Global Confirmation Modal --}}
+    <x-confirm-modal />
+
+    @stack('scripts')
 </body>
 
 </html>
