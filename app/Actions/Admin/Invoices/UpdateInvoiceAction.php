@@ -2,6 +2,7 @@
 
 namespace App\Actions\Admin\Invoices;
 
+use App\Actions\Client\Subscriptions\RenewSubscriptionAction;
 use App\Enums\InvoiceStatus;
 use App\Models\Client;
 use App\Models\Invoice;
@@ -11,12 +12,17 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateInvoiceAction
 {
+    public function __construct(
+        private readonly ?RenewSubscriptionAction $renewSubscriptionAction = null
+    ) {}
+
     public function execute(Invoice $invoice, array $data): Invoice
     {
         return DB::transaction(function () use ($invoice, $data): Invoice {
             $client = Client::query()->parents()->findOrFail($data['client_id']);
             $package = Package::query()->findOrFail($data['package_id']);
             $newStatus = InvoiceStatus::from((int) $data['status']);
+            $wasUnpaid = $invoice->status === InvoiceStatus::UNPAID;
 
             $this->guardTransition($invoice->status, $newStatus);
             $this->guardFinancialSnapshot($invoice, $data);
@@ -43,6 +49,12 @@ class UpdateInvoiceAction
                 'package_description' => $package->description,
                 'paid_at' => $this->resolvePaidAt($invoice, $newStatus),
             ]);
+
+            // If invoice transitioned from unpaid to paid, renew/activate subscription
+            if ($wasUnpaid && $newStatus === InvoiceStatus::PAID) {
+                $action = $this->renewSubscriptionAction ?? app(RenewSubscriptionAction::class);
+                $action->execute($client, $package);
+            }
 
             return $invoice->refresh();
         });
