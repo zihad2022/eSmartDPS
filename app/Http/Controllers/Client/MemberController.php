@@ -8,8 +8,10 @@ use App\Models\Client;
 use App\Models\ClientSetting;
 use App\Models\Member;
 use App\Services\ImageService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 class MemberController extends Controller
 {
@@ -23,7 +25,7 @@ class MemberController extends Controller
     /**
      * Display a paginated list of members with optional status filter.
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $ownerId = owner_client_id();
 
@@ -64,9 +66,9 @@ class MemberController extends Controller
                         ->orWhere('phone', 'like', "%{$search}%");
                 });
             })
-            ->selectRaw('COUNT(*) as total, 
-                         SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as active, 
-                         SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as inactive, 
+            ->selectRaw('COUNT(*) as total,
+                         SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as active,
+                         SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as inactive,
                          SUM(share_quantity) as total_shares')
             ->first();
 
@@ -92,7 +94,7 @@ class MemberController extends Controller
     /**
      * Show the form for creating a new member.
      */
-    public function create()
+    public function create(): View
     {
         // -----------------------------
         // 1. Generate a new member ID
@@ -105,7 +107,7 @@ class MemberController extends Controller
     /**
      * Store a newly created member.
      */
-    public function store(MemberRequest $request)
+    public function store(MemberRequest $request): RedirectResponse
     {
         $client = Client::findOrFail(owner_client_id());
 
@@ -155,7 +157,7 @@ class MemberController extends Controller
     /**
      * Display the specified member.
      */
-    public function show(Member $member)
+    public function show(Member $member): View
     {
         authorize_owner($member);
 
@@ -167,7 +169,7 @@ class MemberController extends Controller
     /**
      * Show the form for editing the specified member.
      */
-    public function edit(Member $member)
+    public function edit(Member $member): View
     {
         authorize_owner($member);
 
@@ -177,7 +179,7 @@ class MemberController extends Controller
     /**
      * Update the specified member.
      */
-    public function update(MemberRequest $request, Member $member)
+    public function update(MemberRequest $request, Member $member): RedirectResponse
     {
         authorize_owner($member);
 
@@ -219,7 +221,7 @@ class MemberController extends Controller
     /**
      * Remove the specified member.
      */
-    public function destroy(Member $member)
+    public function destroy(Member $member): RedirectResponse
     {
         authorize_owner($member);
 
