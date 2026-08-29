@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Models\ClientSetting;
 use App\Models\Ledger;
 use App\Models\LedgerCategory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class LedgerController extends Controller
 {
@@ -17,7 +19,7 @@ class LedgerController extends Controller
      * Display a listing of the ledgers.
      * Supports filtering by type, date range, and search query.
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         // -----------------------------
         // 1. Get main client ID which is parent client ID
@@ -49,10 +51,17 @@ class LedgerController extends Controller
             ->appends($request->query());
 
         // -----------------------------
-        // 4. Calculate total income and expense
+        // 4. Calculate total income and expense in a single query
         // -----------------------------
-        $totalIncome = Ledger::where('client_id', $clientId)->where('type', LedgerType::INCOME)->sum('amount');
-        $totalExpense = Ledger::where('client_id', $clientId)->where('type', LedgerType::EXPENSE)->sum('amount');
+        $summary = Ledger::where('client_id', $clientId)
+            ->selectRaw('
+                SUM(CASE WHEN type = ? THEN amount ELSE 0 END) as total_income,
+                SUM(CASE WHEN type = ? THEN amount ELSE 0 END) as total_expense
+            ', [LedgerType::INCOME->value, LedgerType::EXPENSE->value])
+            ->first();
+
+        $totalIncome = (float) ($summary->total_income ?? 0);
+        $totalExpense = (float) ($summary->total_expense ?? 0);
 
         // -----------------------------
         // 5. Prepare monthly chart data
@@ -171,7 +180,7 @@ class LedgerController extends Controller
     /**
      * Show the form to create a new ledger entry.
      */
-    public function create()
+    public function create(): View
     {
         // -----------------------------
         // 1. Fetch ledger categories
@@ -187,7 +196,7 @@ class LedgerController extends Controller
     /**
      * Store a newly created ledger entry.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         // -----------------------------
         // 1. Validate request data
@@ -226,7 +235,7 @@ class LedgerController extends Controller
     /**
      * Display a specific ledger entry.
      */
-    public function show(Ledger $ledger)
+    public function show(Ledger $ledger): View
     {
         $this->authorizeLedger($ledger);
 
@@ -236,7 +245,7 @@ class LedgerController extends Controller
     /**
      * Show the form for editing a ledger entry.
      */
-    public function edit(Ledger $ledger)
+    public function edit(Ledger $ledger): View
     {
         $this->authorizeLedger($ledger);
 
@@ -248,7 +257,7 @@ class LedgerController extends Controller
     /**
      * Update an existing ledger entry.
      */
-    public function update(Request $request, Ledger $ledger)
+    public function update(Request $request, Ledger $ledger): RedirectResponse
     {
         $this->authorizeLedger($ledger);
 
@@ -281,7 +290,7 @@ class LedgerController extends Controller
     /**
      * Delete a ledger entry.
      */
-    public function destroy(Ledger $ledger)
+    public function destroy(Ledger $ledger): RedirectResponse
     {
         $this->authorizeLedger($ledger);
 
@@ -294,7 +303,7 @@ class LedgerController extends Controller
     /**
      * Ensure the ledger belongs to the authenticated client.
      */
-    protected function authorizeLedger(Ledger $ledger)
+    protected function authorizeLedger(Ledger $ledger): void
     {
         if ($ledger->client_id !== owner_client_id()) {
             abort(403, 'Unauthorized action.');
