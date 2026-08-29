@@ -4,44 +4,21 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProjectCategory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class ProjectCategoryController extends Controller
 {
     /**
      * Display a paginated list of project categories.
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $clientId = owner_client_id();
-        $search = $request->get('search'); // Capture search query
+        $search = $request->get('search');
 
-        // -----------------------------
-        // 1. Check if editing a category
-        // -----------------------------
-        if ($request->has('edit')) {
-            $editCategory = ProjectCategory::where('client_id', $clientId)
-                ->findOrFail($request->edit);
-
-            $categories = ProjectCategory::where('client_id', $clientId)
-                ->when($search, function ($q, $search) {
-                    $q->where(function ($query) use ($search) {
-                        $query->where('name', 'like', "%{$search}%")
-                            ->orWhere('slug', 'like', "%{$search}%");
-                    });
-                })
-                ->select('id', 'name', 'slug', 'created_at')
-                ->latest()
-                ->paginate(10)
-                ->appends($request->query());
-
-            return view('client.project-category.index', compact('editCategory', 'categories', 'search'));
-        }
-
-        // -----------------------------
-        // 2. Default category list with search
-        // -----------------------------
         $categories = ProjectCategory::where('client_id', $clientId)
             ->when($search, function ($q, $search) {
                 $q->where(function ($query) use ($search) {
@@ -50,34 +27,32 @@ class ProjectCategoryController extends Controller
                 });
             })
             ->select('id', 'name', 'slug', 'created_at')
-            ->latest()
+            ->latest('id')
             ->paginate(10)
-            ->appends($request->query());
+            ->withQueryString();
 
-        return view('client.project-category.index', compact('categories', 'search'));
+        $editCategory = $request->filled('edit')
+            ? ProjectCategory::where('client_id', $clientId)->find($request->edit)
+            : null;
+
+        return view('client.project-category.index', compact('editCategory', 'categories', 'search'));
     }
 
     /**
      * Show the form to create a new category.
      */
-    public function create()
+    public function create(): View
     {
-        // -----------------------------
-        // 1. Return empty form
-        // -----------------------------
         return view('client.project-category.form', ['category' => null]);
     }
 
     /**
      * Store a new project category in the database.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $clientId = owner_client_id();
 
-        // -----------------------------
-        // 1. Validate category name unique per client
-        // -----------------------------
         $validated = $request->validate([
             'name' => [
                 'required',
@@ -87,17 +62,11 @@ class ProjectCategoryController extends Controller
             ],
         ]);
 
-        // -----------------------------
-        // 2. Create category
-        // -----------------------------
         ProjectCategory::create([
             'client_id' => $clientId,
             'name' => $validated['name'],
         ]);
 
-        // -----------------------------
-        // 3. Redirect with success
-        // -----------------------------
         return redirect()->route('client.project-categories.index')
             ->with('success', 'Category created successfully.');
     }
@@ -105,28 +74,22 @@ class ProjectCategoryController extends Controller
     /**
      * Show the form to edit an existing category.
      */
-    public function edit(ProjectCategory $projectCategory)
+    public function edit(ProjectCategory $projectCategory): View
     {
         $this->authorizeCategory($projectCategory);
 
-        // -----------------------------
-        // 1. Return edit form
-        // -----------------------------
         return view('client.project-category.form', ['category' => $projectCategory]);
     }
 
     /**
      * Update an existing project category.
      */
-    public function update(Request $request, ProjectCategory $projectCategory)
+    public function update(Request $request, ProjectCategory $projectCategory): RedirectResponse
     {
         $this->authorizeCategory($projectCategory);
 
         $clientId = owner_client_id();
 
-        // -----------------------------
-        // 1. Validate uniqueness per client
-        // -----------------------------
         $validated = $request->validate([
             'name' => [
                 'required',
@@ -138,14 +101,8 @@ class ProjectCategoryController extends Controller
             ],
         ]);
 
-        // -----------------------------
-        // 2. Update category
-        // -----------------------------
         $projectCategory->update(['name' => $validated['name']]);
 
-        // -----------------------------
-        // 3. Redirect with success
-        // -----------------------------
         return redirect()->route('client.project-categories.index')
             ->with('success', 'Category updated successfully.');
     }
@@ -153,7 +110,7 @@ class ProjectCategoryController extends Controller
     /**
      * Delete a project category.
      */
-    public function destroy(ProjectCategory $projectCategory)
+    public function destroy(ProjectCategory $projectCategory): RedirectResponse
     {
         $this->authorizeCategory($projectCategory);
 
@@ -163,9 +120,6 @@ class ProjectCategoryController extends Controller
 
         $projectCategory->delete();
 
-        // -----------------------------
-        // 2. Redirect with success
-        // -----------------------------
         return redirect()->route('client.project-categories.index')
             ->with('success', 'Category deleted successfully.');
     }
@@ -173,7 +127,7 @@ class ProjectCategoryController extends Controller
     /**
      * Helper: Authorize category belongs to current client.
      */
-    protected function authorizeCategory(ProjectCategory $category)
+    protected function authorizeCategory(ProjectCategory $category): void
     {
         abort_unless($category->client_id === owner_client_id(), 403);
     }
