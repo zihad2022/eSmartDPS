@@ -2,14 +2,14 @@
 
 namespace App\Actions\Client\Auth;
 
-use App\Actions\Invoices\CreateInvoiceAction;
+use App\Actions\Invoices\GenerateInvoiceAction;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Package;
 
 class CreateClientInvoiceAction
 {
-    public function __construct(private readonly CreateInvoiceAction $createInvoiceAction) {}
+    public function __construct(private readonly GenerateInvoiceAction $createInvoiceAction) {}
 
     /**
      * @param  array{billing_start?:mixed,billing_end?:mixed,due_date?:mixed,amount?:int}  $dates
