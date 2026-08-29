@@ -19,16 +19,9 @@ Route::prefix('member')->name('member.')->group(function () {
 
         // Payment Routes
         Route::get('payment', [PaymentController::class, 'create'])->name('payment.create');
-        Route::post('payment/step1', [PaymentController::class, 'step1'])->name('payment.step1');
-        Route::post('payment/step2', [PaymentController::class, 'step2'])->name('payment.step2');
-        Route::get('payment/back', [PaymentController::class, 'back'])->name('payment.back');
+        Route::post('payment', [PaymentController::class, 'store'])->name('payment.store');
 
         // Logout
         Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     });
 });
-
-Route::get('payment-success', function () {
-    // return all session
-    return session()->all();
-})->name('payment.success');
