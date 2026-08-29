@@ -37,4 +37,30 @@ class PackageService
     {
         $this->renewSubscriptionAction->execute($client, $package);
     }
+
+    /**
+     * Validate whether a client can switch/downgrade to a given package based on resource limits.
+     */
+    public function validatePackageSwitch(Client $client, Package $package): ?string
+    {
+        $activePackage = $client->activeClientPackage?->package;
+
+        if (! $activePackage) {
+            return null;
+        }
+
+        if ($client->members()->count() > $package->member_limit) {
+            return 'Cannot switch: the selected package allows fewer members than you currently have.';
+        }
+
+        if ($client->users()->count() > $package->user_limit) {
+            return 'Cannot switch: the selected package allows fewer users than you currently have.';
+        }
+
+        if ($client->projects()->count() > $package->project_limit) {
+            return 'Cannot switch: the selected package allows fewer projects than you currently have.';
+        }
+
+        return null;
+    }
 }
