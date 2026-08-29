@@ -241,7 +241,6 @@
                                         {{-- Delete --}}
                                         @include('client.payment.destroy')
                                     </div>
-                                    <x-confirm-modal />
                                 </td>
                             </tr>
                         @empty
