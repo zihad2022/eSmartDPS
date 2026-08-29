@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Actions\Invoices\CreateInvoiceAction;
+use App\Actions\Invoices\GenerateInvoiceAction;
 use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
 use App\Models\AdminSetting;
@@ -33,7 +33,7 @@ class SubscriptionPaymentController extends Controller
     /**
      * Start package subscription → generate invoice first, then go to select method.
      */
-    public function startPackage(Package $package, Request $request, CreateInvoiceAction $createInvoice)
+    public function startPackage(Package $package, Request $request, GenerateInvoiceAction $createInvoice)
     {
         $client = Client::findOrFail(owner_client_id());
         $billingStart = now()->startOfDay();
