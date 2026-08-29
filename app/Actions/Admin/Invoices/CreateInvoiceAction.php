@@ -2,6 +2,7 @@
 
 namespace App\Actions\Admin\Invoices;
 
+use App\Actions\Client\Subscriptions\RenewSubscriptionAction;
 use App\Enums\InvoiceStatus;
 use App\Models\Client;
 use App\Models\Invoice;
@@ -11,6 +12,10 @@ use Illuminate\Validation\ValidationException;
 
 class CreateInvoiceAction
 {
+    public function __construct(
+        private readonly ?RenewSubscriptionAction $renewSubscriptionAction = null
+    ) {}
+
     public function execute(array $data): Invoice
     {
         return DB::transaction(function () use ($data): Invoice {
@@ -32,7 +37,7 @@ class CreateInvoiceAction
 
             $status = InvoiceStatus::from((int) $data['status']);
 
-            return Invoice::query()->create([
+            $invoice = Invoice::query()->create([
                 ...$data,
                 'client_id' => $client->id,
                 'package_id' => $package->id,
@@ -41,6 +46,13 @@ class CreateInvoiceAction
                 'invoice_number' => $data['invoice_number'],
                 'paid_at' => in_array($status, [InvoiceStatus::PAID, InvoiceStatus::REFUND_REQUESTED, InvoiceStatus::REFUNDED], true) ? now() : null,
             ]);
+
+            if ($status === InvoiceStatus::PAID) {
+                $action = $this->renewSubscriptionAction ?? app(RenewSubscriptionAction::class);
+                $action->execute($client, $package);
+            }
+
+            return $invoice;
         });
     }
 }
