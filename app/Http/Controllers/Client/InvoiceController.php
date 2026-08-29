@@ -58,14 +58,24 @@ class InvoiceController extends Controller
         }
 
         // -----------------------------
-        // 5. Calculate statistics (for this client only)
+        // 5. Calculate statistics in a single aggregated query
         // -----------------------------
-        $totalInvoices = $client->invoices()->count();
-        $totalPaidInvoices = $client->invoices()->where('status', InvoiceStatus::PAID)->count();
-        $totalUnpaidInvoices = $client->invoices()->where('status', InvoiceStatus::UNPAID)->count();
-        $totalRefundedInvoices = $client->invoices()->where('status', InvoiceStatus::REFUNDED)->count();
-        $totalCancelledInvoices = $client->invoices()->where('status', InvoiceStatus::CANCELLED)->count();
-        $totalRefundRequestedInvoices = $client->invoices()->where('status', InvoiceStatus::REFUND_REQUESTED)->count();
+        $stats = Invoice::query()
+            ->where('client_id', $clientId)
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as paid', [InvoiceStatus::PAID->value])
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as unpaid', [InvoiceStatus::UNPAID->value])
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as refunded', [InvoiceStatus::REFUNDED->value])
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as cancelled', [InvoiceStatus::CANCELLED->value])
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as refund_requested', [InvoiceStatus::REFUND_REQUESTED->value])
+            ->first();
+
+        $totalInvoices = (int) ($stats->total ?? 0);
+        $totalPaidInvoices = (int) ($stats->paid ?? 0);
+        $totalUnpaidInvoices = (int) ($stats->unpaid ?? 0);
+        $totalRefundedInvoices = (int) ($stats->refunded ?? 0);
+        $totalCancelledInvoices = (int) ($stats->cancelled ?? 0);
+        $totalRefundRequestedInvoices = (int) ($stats->refund_requested ?? 0);
 
         // -----------------------------
         // 6. Paginate results
@@ -89,10 +99,7 @@ class InvoiceController extends Controller
 
     public function show(Invoice $invoice)
     {
-        // Ensure client can only see their own invoice
-        if ($invoice->client_id !== owner_client_id()) {
-            abort(403, 'Unauthorized access to this invoice.');
-        }
+        authorize_owner($invoice);
 
         return view('client.invoice.show', compact('invoice'));
     }
