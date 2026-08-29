@@ -245,8 +245,8 @@
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <form action="{{ route('client.ledgers.destroy', $ledger) }}"
-                                                method="POST" onsubmit="return confirm('Are you sure?');"
-                                                class="inline">
+                                                method="POST"
+                                                class="delete-form inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="button"
@@ -256,8 +256,6 @@
                                             </form>
                                         </div>
                                     </td>
-                                    {{-- Confirm modal component for deletion confirmation --}}
-                                    <x-confirm-modal />
                                 </tr>
                             @empty
                                 {{-- If no ledgers exist --}}
