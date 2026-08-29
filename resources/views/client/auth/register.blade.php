@@ -128,7 +128,7 @@
                             <div class="border-t pt-3">
                                 <div class="flex justify-between text-lg font-bold">
                                     <span>{{ $package->billing_cycle->label() }} Subscription</span>
-                                    <span id="totalAmount">{{ $settings->currency }}
+                                    <span id="totalAmount">{{ $settings?->currency ?? '$' }}
                                         {{ number_format($package->price) }}</span>
                                 </div>
                             </div>

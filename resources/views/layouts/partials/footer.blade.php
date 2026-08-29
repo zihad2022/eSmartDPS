@@ -10,52 +10,52 @@
                     <x-application-logo />
                 </div>
                 <p class="text-gray-300 mb-6 max-w-md">
-                    {{ $settings->site_description }}
+                    {{ $settings?->site_description }}
                 </p>
                 <div class="flex space-x-4">
-                    @if ($socialMedia->facebook_page)
+                    @if ($socialMedia?->facebook_page)
                         <a href="{{ $socialMedia->facebook_page }}"
                             class="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center hover:bg-accent-600 transition duration-300">
                             <i class="fab fa-facebook-f"></i>
                         </a>
                     @endif
-                @if ($socialMedia->facebook_group)
+                @if ($socialMedia?->facebook_group)
                         <a href="{{ $socialMedia->facebook_group }}"
                             class="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center hover:bg-accent-600 transition duration-300">
                             <i class="fab fa-facebook-f"></i>
                         </a>
                     @endif
-                    @if ($socialMedia->whatsapp_channel)
+                    @if ($socialMedia?->whatsapp_channel)
                         <a href="{{ $socialMedia->whatsapp_channel }}"
                             class="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center hover:bg-accent-600 transition duration-300">
                             <i class="fab fa-whatsapp"></i>
                         </a>
                     @endif
-                    @if ($socialMedia->telegram_channel)
+                    @if ($socialMedia?->telegram_channel)
                         <a href="{{ $socialMedia->telegram_channel }}"
                             class="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center hover:bg-accent-600 transition duration-300">
                             <i class="fab fa-telegram"></i>
                         </a>
                     @endif
-                    @if ($socialMedia->linkedin)
+                    @if ($socialMedia?->linkedin)
                         <a href="{{ $socialMedia->linkedin }}"
                             class="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center hover:bg-accent-600 transition duration-300">
                             <i class="fab fa-linkedin-in"></i>
                         </a>
                     @endif
-                        @if ($socialMedia->twitter_x)
+                        @if ($socialMedia?->twitter_x)
                         <a href="{{ $socialMedia->twitter_x }}"
                             class="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center hover:bg-accent-600 transition duration-300">
                             <i class="fab fa-twitter"></i>
                         </a>
                     @endif
-                    @if ($socialMedia->youtube)
+                    @if ($socialMedia?->youtube)
                         <a href="{{ $socialMedia->youtube }}"
                             class="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center hover:bg-accent-600 transition duration-300">
                             <i class="fab fa-youtube"></i>
                         </a>
                     @endif
-                    @if ($socialMedia->tiktok)
+                    @if ($socialMedia?->tiktok)
                         <a href="{{ $socialMedia->tiktok }}"
                             class="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center hover:bg-accent-600 transition duration-300">
                             <i class="fab fa-tiktok"></i>
