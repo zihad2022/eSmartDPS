@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\LedgerCategory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 /**
  * LedgerCategoryController
@@ -18,7 +21,7 @@ class LedgerCategoryController extends Controller
     /**
      * Display a paginated list of ledger categories for the logged-in client.
      */
-    public function index()
+    public function index(): View
     {
         $ledgerCategories = $this->getClientCategories();
 
@@ -28,7 +31,7 @@ class LedgerCategoryController extends Controller
     /**
      * Show the form for creating a new ledger category.
      */
-    public function create()
+    public function create(): View
     {
         return view('client.ledger-category.form');
     }
@@ -36,7 +39,7 @@ class LedgerCategoryController extends Controller
     /**
      * Store a newly created ledger category for the logged-in client.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $data = $this->validateRequest($request);
 
@@ -51,7 +54,7 @@ class LedgerCategoryController extends Controller
     /**
      * Show the form for editing a specific ledger category.
      */
-    public function edit(LedgerCategory $ledgerCategory)
+    public function edit(LedgerCategory $ledgerCategory): View
     {
         $this->authorizeOwner($ledgerCategory);
 
@@ -64,7 +67,7 @@ class LedgerCategoryController extends Controller
     /**
      * Update the given ledger category.
      */
-    public function update(Request $request, LedgerCategory $ledgerCategory)
+    public function update(Request $request, LedgerCategory $ledgerCategory): RedirectResponse
     {
         $this->authorizeOwner($ledgerCategory);
 
@@ -78,7 +81,7 @@ class LedgerCategoryController extends Controller
     /**
      * Delete the given ledger category.
      */
-    public function destroy(LedgerCategory $ledgerCategory)
+    public function destroy(LedgerCategory $ledgerCategory): RedirectResponse
     {
         $this->authorizeOwner($ledgerCategory);
 
@@ -130,7 +133,7 @@ class LedgerCategoryController extends Controller
      * Fetch paginated categories for the logged-in client.
      * Centralized so it's not repeated in multiple methods.
      */
-    protected function getClientCategories()
+    protected function getClientCategories(): LengthAwarePaginator
     {
         return LedgerCategory::where('client_id', owner_client_id())
             ->latest()
