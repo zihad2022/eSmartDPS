@@ -24,7 +24,7 @@ class UserExport implements FromCollection, WithHeadings, WithMapping
     /**
      * Return the collection of users to export
      */
-    public function collection()
+    public function collection(): \Illuminate\Support\Collection
     {
         $parent = Client::findOrFail(owner_client_id());
 
