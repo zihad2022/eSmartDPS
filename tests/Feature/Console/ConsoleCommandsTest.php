@@ -72,3 +72,35 @@ test('invoices:generate command generates invoice for expired trials and active 
 
     expect($exitCode)->toBe(0);
 });
+
+test('admin:backup command with force flag generates a database backup', function () {
+    \Illuminate\Support\Facades\Storage::fake('local');
+    AdminSetting::factory()->create();
+
+    $exitCode = Artisan::call('admin:backup', ['--force' => true]);
+
+    expect($exitCode)->toBe(0);
+    $files = \Illuminate\Support\Facades\Storage::disk('local')->files('private/admin-backups');
+    expect($files)->not->toBeEmpty();
+});
+
+test('payments:generate command is idempotent and does not create duplicate dues for the same month', function () {
+    $client = Client::factory()->create();
+    $setting = ClientSetting::where('client_id', $client->id)->first();
+    $setting->update(['share_price' => 1000]);
+
+    $member = Member::factory()->create([
+        'client_id' => $client->id,
+        'share_quantity' => 2,
+    ]);
+
+    Artisan::call('payments:generate');
+    $countFirst = \App\Models\Payment::where('member_id', $member->id)->count();
+
+    Artisan::call('payments:generate');
+    $countSecond = \App\Models\Payment::where('member_id', $member->id)->count();
+
+    expect($countFirst)->toBe(1)
+        ->and($countSecond)->toBe(1);
+});
+
