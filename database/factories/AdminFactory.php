@@ -23,8 +23,10 @@ class AdminFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'phone' => fake()->phoneNumber(),
             'password' => static::$password ??= Hash::make('password'),
+            'profile_photo' => null,
             'status' => true,
             'last_login' => now(),
+            'remember_token' => null,
         ];
     }
 
