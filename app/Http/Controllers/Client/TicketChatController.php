@@ -15,9 +15,10 @@ class TicketChatController extends Controller
         // -----------------------------
         // 1. Fetch ticket (only own)
         // -----------------------------
-        $ticket = Ticket::with(['replies' => function ($q) {
-            $q->orderBy('created_at', 'asc');
-        }, 'client'])->findOrFail($id);
+        $ticket = Ticket::where('client_id', owner_client_id())
+            ->with(['replies' => function ($q) {
+                $q->orderBy('created_at', 'asc');
+            }, 'client'])->findOrFail($id);
 
         // -----------------------------
         // 2. Return chat view
