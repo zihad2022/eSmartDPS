@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Log;
 
 class SslcommerzService
 {
-    protected string $storeId;
+    protected ?string $storeId = null;
 
-    protected string $storePassword;
+    protected ?string $storePassword = null;
 
     protected bool $sandbox;
 
