@@ -28,6 +28,8 @@ class MemberFactory extends Factory
             'status' => true,
             'share_quantity' => 1,
             'total_balance' => 5000,
+            'profile_photo' => null,
+            'remember_token' => null,
         ];
     }
 
