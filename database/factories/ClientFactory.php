@@ -32,6 +32,8 @@ class ClientFactory extends Factory
             'postal_code' => '1200',
             'role' => 'super-admin',
             'status' => true,
+            'profile_photo' => null,
+            'remember_token' => null,
         ];
     }
 
