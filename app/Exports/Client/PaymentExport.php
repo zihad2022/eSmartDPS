@@ -22,7 +22,7 @@ class PaymentExport implements FromCollection, WithHeadings, WithMapping
     /**
      * @return Collection
      */
-    public function collection()
+    public function collection(): \Illuminate\Support\Collection
     {
         if ($this->status === 'pending') {
             return Payment::pending()->where('client_id', owner_client_id())->get();
