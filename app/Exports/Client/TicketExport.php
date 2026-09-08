@@ -21,7 +21,7 @@ class TicketExport implements FromCollection, WithHeadings, WithMapping
     /**
      * Return tickets filtered by status if provided.
      */
-    public function collection()
+    public function collection(): \Illuminate\Support\Collection
     {
         return match ($this->status) {
             'open' => Ticket::open()->get(),
