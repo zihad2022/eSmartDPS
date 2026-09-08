@@ -8,7 +8,7 @@ use App\Actions\Admin\Backups\ResolveDatabaseBackupAction;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
 class AdminBackupController extends Controller
@@ -26,7 +26,7 @@ class AdminBackupController extends Controller
         return back()->with('success', "Database backup [{$backup['name']}] created successfully.");
     }
 
-    public function download(string $backup, ResolveDatabaseBackupAction $resolve): BinaryFileResponse
+    public function download(string $backup, ResolveDatabaseBackupAction $resolve): StreamedResponse
     {
         return Storage::disk('local')->download($resolve->execute($backup));
     }
