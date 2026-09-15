@@ -9,6 +9,7 @@ use App\Models\AdminSetting;
 use App\Models\Invoice;
 use App\Services\PackageService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -78,7 +79,7 @@ class BkashPaymentController extends Controller
         if ($request->status === 'cancel' || $request->has('cancel')) {
             Log::warning('[bKash Callback] Payment cancelled', $request->all());
 
-            return redirect()->route('client.invoices.index')->with('info', 'Payment was cancelled.');
+            return redirect()->route('client.invoices.index')->with('info', 'bKash payment was cancelled.');
         }
 
         $paymentID = $request->paymentID ?? $request->trxID;
@@ -97,13 +98,20 @@ class BkashPaymentController extends Controller
             return redirect()->route('client.invoices.index')->with('error', 'Invalid payment reference.');
         }
 
+        if ($request->status === 'failure') {
+            Log::warning('[bKash Callback] Payment failed from bKash gateway', $request->all());
+
+            return redirect()->route('client.payments.select', $invoice->id)
+                ->with('error', 'Payment failed on bKash. Please try again.');
+        }
+
         $token = $this->getAccessToken();
         if (! $token) {
             Log::error('[bKash Callback] Token fetch failed for invoice', [
                 'invoice_id' => $invoice->id,
             ]);
 
-            return redirect()->route('client.invoices.index')->with('error', 'Payment verification failed.');
+            return redirect()->route('client.invoices.index')->with('error', 'bKash gateway authorization failed.');
         }
 
         $verification = $this->executePayment($paymentID, $token);
@@ -132,28 +140,31 @@ class BkashPaymentController extends Controller
 
             $client = $invoice->client;
             $clientPackage = $client->activeClientPackage ?? $client->latestClientPackage;
+            $packageToActivate = $invoice->package ?? $clientPackage?->package;
 
-            if ($clientPackage && $clientPackage->package) {
-                Log::info('[bKash] Renewing subscription', [
+            if ($packageToActivate) {
+                Log::info('[bKash] Activating package subscription', [
                     'client_id' => $client->id,
-                    'package_id' => $clientPackage->package->id,
+                    'package_id' => $packageToActivate->id,
                 ]);
-                $packageService->renewSubscription($client, $clientPackage->package);
+                $packageService->renewSubscription($client, $packageToActivate);
             }
 
-            return redirect()->route('client.dashboard')->with('success', 'Payment successful and subscription renewed!');
+            return redirect()->route('client.dashboard')->with('success', 'bKash payment successful! Your subscription is now active.');
         }
 
-        Log::error('[bKash Callback] Payment failed', [
+        Log::error('[bKash Callback] Payment execution not completed', [
             'invoice_id' => $invoice->id,
             'verification' => $verification,
         ]);
 
-        return redirect()->route('client.invoices.index')->with('error', 'Payment not successful: '.($verification['statusMessage'] ?? 'Unknown error'));
+        return redirect()->route('client.invoices.index')->with('error', 'bKash payment not successful: '.($verification['statusMessage'] ?? 'Transaction was not completed.'));
     }
 
     /**
      * Step 3: Get Access Token
+     * Retrieves token from database/cache if still valid (stored for 55 minutes)
+     * to avoid unnecessary calls to bKash /token/grant.
      */
     protected function getAccessToken(): ?string
     {
@@ -165,6 +176,26 @@ class BkashPaymentController extends Controller
             return null;
         }
 
+        // 1. Check database token first
+        $settings = AdminSetting::query()->first();
+        if ($settings && filled($settings->bkash_id_token) && $settings->bkash_token_expires_at && now()->lt($settings->bkash_token_expires_at)) {
+            Log::info('[bKash] Reusing valid cached database token', [
+                'expires_at' => $settings->bkash_token_expires_at->toDateTimeString(),
+                'remaining_seconds' => now()->diffInSeconds($settings->bkash_token_expires_at),
+            ]);
+
+            return (string) $settings->bkash_id_token;
+        }
+
+        // 2. Check application cache fallback
+        $cachedToken = Cache::get('bkash_access_token');
+        if (filled($cachedToken)) {
+            Log::info('[bKash] Reusing valid cache fallback token');
+
+            return (string) $cachedToken;
+        }
+
+        // 3. Request fresh token from bKash server
         try {
             $response = Http::timeout($config['timeout'])
                 ->withHeaders([
@@ -179,7 +210,26 @@ class BkashPaymentController extends Controller
             $data = (array) $response->json();
             Log::info('[bKash] Token Response', $data);
 
-            return filled($data['id_token'] ?? null) ? (string) $data['id_token'] : null;
+            $idToken = filled($data['id_token'] ?? null) ? (string) $data['id_token'] : null;
+
+            if ($idToken) {
+                $expiresAt = now()->addMinutes(55);
+
+                if ($settings) {
+                    $settings->update([
+                        'bkash_id_token' => $idToken,
+                        'bkash_token_expires_at' => $expiresAt,
+                    ]);
+                }
+
+                Cache::put('bkash_access_token', $idToken, $expiresAt);
+
+                Log::info('[bKash] Fresh token obtained and cached in database for 55 minutes', [
+                    'expires_at' => $expiresAt->toDateTimeString(),
+                ]);
+            }
+
+            return $idToken;
         } catch (\Exception $e) {
             Log::error('[bKash] Token Error', [
                 'message' => $e->getMessage(),
@@ -187,6 +237,22 @@ class BkashPaymentController extends Controller
 
             return null;
         }
+    }
+
+    /**
+     * Invalidate access token from DB and cache if gateway rejects it
+     */
+    protected function invalidateAccessToken(): void
+    {
+        Cache::forget('bkash_access_token');
+        $settings = AdminSetting::query()->first();
+        if ($settings) {
+            $settings->update([
+                'bkash_id_token' => null,
+                'bkash_token_expires_at' => null,
+            ]);
+        }
+        Log::warning('[bKash] Access token invalidated from database and cache.');
     }
 
     /**
@@ -216,6 +282,10 @@ class BkashPaymentController extends Controller
 
             $responseData = (array) $response->json();
             Log::info('[bKash] CreatePayment Response', $responseData);
+
+            if ($this->isTokenError($responseData)) {
+                $this->invalidateAccessToken();
+            }
 
             return $responseData;
         } catch (\Exception $e) {
@@ -247,6 +317,10 @@ class BkashPaymentController extends Controller
             $data = (array) $response->json();
             Log::info('[bKash] ExecutePayment Raw Response', $data);
 
+            if ($this->isTokenError($data)) {
+                $this->invalidateAccessToken();
+            }
+
             return $data;
         } catch (\Exception $e) {
             Log::error('[bKash] ExecutePayment Error', [
@@ -256,6 +330,15 @@ class BkashPaymentController extends Controller
 
             return [];
         }
+    }
+
+    private function isTokenError(array $data): bool
+    {
+        $code = (string) ($data['statusCode'] ?? '');
+        $msg = (string) ($data['statusMessage'] ?? '');
+
+        return in_array($code, ['2006', '2008', '5001'], true) ||
+            stripos($msg, 'token') !== false;
     }
 
     /**
@@ -270,8 +353,13 @@ class BkashPaymentController extends Controller
 
         $settings = AdminSetting::query()->first();
 
+        $rawUrl = (string) ($settings?->bkash_base_url ?: config('payments.bkash.base_url'));
+        $baseUrl = rtrim($rawUrl, '/');
+        // Clean off any trailing specific endpoints if someone entered a full endpoint URL
+        $baseUrl = preg_replace('#/(create|execute|token/grant|payment/status)$#i', '', $baseUrl);
+
         return $this->resolvedBkashConfig = [
-            'base_url' => rtrim((string) ($settings?->bkash_base_url ?: config('payments.bkash.base_url')), '/'),
+            'base_url' => $baseUrl,
             'username' => (string) ($settings?->bkash_username ?: config('payments.bkash.username')),
             'password' => (string) ($settings?->bkash_password ?: config('payments.bkash.password')),
             'app_key' => (string) ($settings?->bkash_app_key ?: config('payments.bkash.app_key')),
