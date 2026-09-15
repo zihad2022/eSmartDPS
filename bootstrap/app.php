@@ -36,6 +36,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'sslcommerz/*',
+            'client/payments/bkash/callback',
+            '*/payments/bkash/callback',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
