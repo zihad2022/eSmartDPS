@@ -23,9 +23,9 @@ class SubscriptionPaymentController extends Controller
                 ->with('info', 'This invoice is already paid.');
         }
 
-        $paymentMethods = $this->availableMethods();
-
         $settings = AdminSetting::first();
+
+        $paymentMethods = $this->availableMethods($settings);
 
         return view('client.payments.select-method', compact('invoice', 'paymentMethods', 'settings'));
     }
@@ -77,13 +77,25 @@ class SubscriptionPaymentController extends Controller
     }
 
     /**
-     * Helper: available payment methods
+     * Helper: available payment methods based on system settings
      */
-    private function availableMethods()
+    private function availableMethods(?AdminSetting $settings = null): array
     {
-        return [
-            'bkash' => 'bKash',
-            'sslcommerz' => 'SSLCommerz',
-        ];
+        $settings ??= AdminSetting::first();
+        $methods = [];
+
+        if ($settings?->bkash_status ?? true) {
+            $methods['bkash'] = 'bKash';
+        }
+
+        if (filled($settings?->sslcommerz_store_id) || filled(config('payments.sslcommerz.store_id'))) {
+            $methods['sslcommerz'] = 'SSLCommerz';
+        }
+
+        if (empty($methods)) {
+            $methods['bkash'] = 'bKash';
+        }
+
+        return $methods;
     }
 }
