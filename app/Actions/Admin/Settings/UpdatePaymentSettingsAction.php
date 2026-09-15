@@ -34,6 +34,12 @@ class UpdatePaymentSettingsAction
             }
         }
 
+        if ($section === 'bkash') {
+            $payload['bkash_id_token'] = null;
+            $payload['bkash_token_expires_at'] = null;
+            Cache::forget('bkash_access_token');
+        }
+
         $settings->update($payload);
         Cache::forget('admin_settings_first');
         ActivityLogger::log(ucfirst($section).' payment settings updated.');
