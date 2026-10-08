@@ -84,6 +84,8 @@ Route::prefix('client')->name('client.')->group(function () {
 
         // Dashboard
         Route::get('/', DashboardController::class)->name('dashboard')->middleware('subscription');
+        Route::view('menu', 'client.menu')->name('menu')->middleware('subscription');
+        Route::view('settings', 'client.settings.index')->name('settings.index')->middleware(['subscription','client.role:super-admin,admin']);
 
         /**
          * Subscription Management
