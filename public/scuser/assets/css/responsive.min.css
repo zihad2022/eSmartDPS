@@ -1,0 +1,340 @@
+/*!
+ * Name			: Responsive
+ * Author		: Md Maruf Adnan Sami
+ * Author URL	: https://facebook.com/RealboyAdnan
+ * Website		: https://softclever.com
+ * Copyright	: 2018 SoftClever Limited.
+   _____        __ _    _____ _                     
+  / ____|      / _| |  / ____| |                    
+ | (___   ___ | |_| |_| |    | | _____   _____ _ __ 
+  \___ \ / _ \|  _| __| |    | |/ _ \ \ / / _ \ '__|
+  ____) | (_) | | | |_| |____| |  __/\ V /  __/ |   
+ |_____/ \___/|_|  \__|\_____|_|\___| \_/ \___|_|   
+
+*/
+
+.w-80 {
+  width: 80px;
+}
+.w-full {
+  width: 100%;
+}
+.h-full {
+  height: 100%;
+}
+.flex {
+  display: flex;
+}
+.flex-1 {
+  flex: 1;
+}
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+.flex-gap-10 {
+  display: flex;
+  gap: 10px;
+}
+.flex-gap-12 {
+  display: flex;
+  gap: 12px;
+}
+.flex-gap-12-mt30 {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+}
+.flex-items-center-gap12 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.flex-between-mb0 {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0px;
+}
+.flex-between-mt5 {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+.flex-between-mb10 {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 20px;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+.hidden {
+  display: none !important;
+}
+.disabled {
+  background: #e1e1e1;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.gap-10 {
+  gap: 10px;
+}
+.gap-12 {
+  gap: 12px;
+}
+.gap-15 {
+  gap: 15px;
+}
+.gap-20 {
+  gap: 20px;
+}
+.top-10 {
+  top: 10px;
+}
+.top-20 {
+  top: 20px;
+}
+.bottom-10 {
+  bottom: 10px;
+}
+.bottom-20 {
+  bottom: 20px;
+}
+.m-0 {
+  margin: 0 !important;
+}
+.m-30 {
+  margin: 30px;
+}
+.mt-0 {
+  margin-top: 0 !important;
+}
+.mt-5 {
+  margin-top: 5px;
+}
+.mt-10 {
+  margin-top: 10px;
+}
+.mt-15 {
+  margin-top: 15px;
+}
+.mt-20 {
+  margin-top: 20px;
+}
+.mt-25 {
+  margin-top: 25px;
+}
+.mt-30 {
+  margin-top: 30px;
+}
+.mt-50 {
+  margin-top: 50px;
+}
+.mt-100 {
+  margin-top: 100px;
+}
+.mt-120 {
+  margin-top: 120px;
+}
+.mb-0 {
+  margin-bottom: 0 !important;
+}
+.mb-5 {
+  margin-bottom: 5px;
+}
+.mb-10 {
+  margin-bottom: 10px;
+}
+.mb-15 {
+  margin-bottom: 15px;
+}
+.mb-20 {
+  margin-bottom: 20px;
+}
+.mb-25 {
+  margin-bottom: 25px;
+}
+.mb-30 {
+  margin-bottom: 30px;
+}
+.mb-50 {
+  margin-bottom: 50px;
+}
+.mb-100 {
+  margin-bottom: 100px;
+}
+.mb-120 {
+  margin-bottom: 120px;
+}
+.p-0 {
+  padding: 0 !important;
+}
+.p-30 {
+  padding: 30px;
+}
+.pt-0 {
+  padding-top: 0 !important;
+}
+.pt-5 {
+  padding-top: 5px;
+}
+.pt-10 {
+  padding-top: 10px;
+}
+.pt-15 {
+  padding-top: 15px;
+}
+.pt-20 {
+  padding-top: 20px;
+}
+.pt-25 {
+  padding-top: 25px;
+}
+.pt-30 {
+  padding-top: 30px;
+}
+.pt-50 {
+  padding-top: 50px;
+}
+.pt-100 {
+  padding-top: 100px;
+}
+.pt-120 {
+  padding-top: 120px;
+}
+.pb-0 {
+  padding-bottom: 0 !important;
+}
+.pb-5 {
+  padding-bottom: 5px;
+}
+.pb-10 {
+  padding-bottom: 10px;
+}
+.pb-15 {
+  padding-bottom: 15px;
+}
+.pb-20 {
+  padding-bottom: 20px;
+}
+.pb-25 {
+  padding-bottom: 25px;
+}
+.pb-30 {
+  padding-bottom: 30px;
+}
+.pb-50 {
+  padding-bottom: 50px;
+}
+.pb-100 {
+  padding-bottom: 100px;
+}
+.pb-120 {
+  padding-bottom: 120px;
+}
+.text-center {
+  text-align: center;
+}
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.text-xs-bold-muted {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.text-xs-bold-800 {
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.border-top-dashed {
+  border-top: 1px dashed var(--border);
+}
+.font-bold {
+  font-weight: 700;
+}
+.font-black {
+  font-weight: 900;
+}
+.text-xs {
+  font-size: 0.75rem;
+}
+.text-sm {
+  font-size: 0.875rem;
+}
+.text-uppercase {
+    text-transform: uppercase;
+}
+.text-primary {
+  color: var(--text-primary);
+}
+.text-secondary {
+  color: var(--text-secondary);
+}
+.text-white {
+  color: var(--text-light);
+}
+.text-muted {
+  color: var(--text-muted);
+}
+.relative {
+  position: relative;
+}
+.relative-flex-1 {
+  position: relative;
+  flex: 1;
+}
+.justify-end {
+  justify-content: flex-end;
+}
+.post-btn {
+  width: auto !important;
+  padding: 10px 24px !important;
+}
+.inline-block {
+  display: inline-block;
+}
+
+/* Screen */
+@media (max-width: 767px) {
+    .hero {
+        padding: 25px 18px 20px;
+        border-radius: var(--radius-12);
+    }
+    .hero h1 {
+        font-size: 1.5rem;
+    }
+    .hero p {
+        font-size: 0.95rem;
+    }
+}
+@media (min-width: 992px) {
+  .scw-mobile-ad {
+    display: none;
+  }
+  .scw-desktop-ad {
+    display: block;
+  }
+}
+@media (min-width: 576px) {
+  .social-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 992px) {
+  .social-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
