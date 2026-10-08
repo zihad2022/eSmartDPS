@@ -1,5 +1,5 @@
 <x-client.layout.app title="Menu">
-<h3 class="section-title"><i class="fas fa-th-large"></i> Menu</h3>
+<h3 class="section-title"><i class="fas fa-bars"></i> Menu</h3>
 
 <h3 class="profile-heading">Management</h3>
 <div class="menu-list">
