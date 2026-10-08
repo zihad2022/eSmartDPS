@@ -152,6 +152,20 @@ class TicketController extends Controller
     }
 
     /**
+     * Display a ticket owned by the logged-in client account.
+     */
+    public function show(int $id): View
+    {
+        $ticket = Ticket::where('client_id', owner_client_id())
+            ->with(['replies' => function ($query) {
+                $query->oldest();
+            }, 'client'])
+            ->findOrFail($id);
+
+        return view('client.ticket.show', compact('ticket'));
+    }
+
+    /**
      * Show the form to edit an existing ticket.
      */
     public function edit(int $id): View
