@@ -1,10 +1,10 @@
-<x-app-layout>
-    {{-- Hero Section --}}
-    <x-home.sections.hero />
-
-    {{-- About Section --}}
-    <x-home.sections.about />
-
-    {{-- Contact Section --}}
-    <x-home.sections.contact />
-</x-app-layout>
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SMART DPS</title><link rel="stylesheet" href="{{ asset('scuser/assets/css/frontend.min.css') }}"><link rel="stylesheet" href="{{ asset('scuser/assets/css/responsive.min.css') }}"><link rel="stylesheet" href="{{ asset('scuser/assets/css/font-awesome.min.css') }}"><link rel="stylesheet" href="{{ asset('scuser/assets/css/smart-dps.css') }}"></head>
+<body>
+<header><a href="{{ route('home') }}"><div class="logo"><i class="fas fa-piggy-bank"></i> SMART DPS</div></a><div class="header-actions"><a href="{{ route('client.login') }}" class="icon-btn"><i class="fas fa-sign-in-alt"></i></a><a href="{{ route('client.register') }}" class="icon-btn"><i class="fas fa-user-plus"></i></a></div></header>
+<main class="container">
+<section class="hero"><div class="hero-content"><h1>SMART DPS</h1><p>Manage organization savings, members, projects and payments in one place.</p></div></section>
+<section class="counter-grid"><div class="counter-card"><span class="counter-value">Simple</span><span class="counter-label">Management</span></div><div class="counter-card"><span class="counter-value">Secure</span><span class="counter-label">Records</span></div></section>
+<section class="feature-list"><h3 class="section-title"><i class="fas fa-th-large"></i> Features</h3><div class="feature-item"><div class="feature-icon"><i class="fas fa-users"></i></div><div class="feature-text"><h4>Members</h4><p>Manage organization members and shares.</p></div></div><div class="feature-item"><div class="feature-icon"><i class="fas fa-project-diagram"></i></div><div class="feature-text"><h4>Projects</h4><p>Track projects, investment and returns.</p></div></div><div class="feature-item"><div class="feature-icon"><i class="fas fa-credit-card"></i></div><div class="feature-text"><h4>Payments</h4><p>Keep payment and collection records organized.</p></div></div><div class="feature-item"><div class="feature-icon"><i class="fas fa-book"></i></div><div class="feature-text"><h4>Ledgers</h4><p>Track income and expenses clearly.</p></div></div></section>
+<section class="cta-section"><a href="{{ route('client.register') }}" class="btn btn-primary">Create New Account <i class="fas fa-arrow-right"></i></a><p class="cta-footer">Already have an account? <a href="{{ route('client.login') }}" class="text-primary">Login</a></p></section>
+</main><script src="{{ asset('scuser/assets/js/global.min.js') }}"></script></body></html>
