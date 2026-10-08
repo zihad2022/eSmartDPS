@@ -54,3 +54,4 @@ Required PHP extensions include PDO for the selected database, mbstring, DOM/XML
 
 Do not run `php artisan migrate:fresh` on production. Back up the existing database, review forward migrations, run `php artisan migrate`, and verify admin roles/permissions after deployment.
 
+# eSmartDPS
