@@ -1,223 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    {{-- Vite Assets --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/custom-styles.css'])
-
-    <title>{{ $title ?? 'Dashboard' }} - {{ $settings->site_name ?? config('app.name') }}</title>
-
-    {{-- Fonts & Icons --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    {{-- Vendor Scripts --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{ asset('assets/js/countdown.js') }}"></script>
-</head>
-
-<body class="font-sans bg-gray-50 text-primary-900">
-    <div class="flex h-screen bg-gray-100 overflow-hidden">
-
-        {{-- Mobile Sidebar Overlay --}}
-        <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
-
-        {{-- Sidebar --}}
-        @include('client.layout.partials.sidebar')
-
-        {{-- Main Content --}}
-        <main class="flex-1 transition-all duration-300 overflow-y-auto w-full">
-
-            @include('client.layout.partials.topbar')
-
-            {{-- Payment Banner (Dynamic) --}}
-            @if (!request()->is('client/checkout*'))
-                @php
-                    $client = Auth::guard('client')->user();
-                    $latestUnpaidInvoice = $client?->invoices()->where('status', \App\Enums\InvoiceStatus::UNPAID)->latest()->first();
-                @endphp
-
-                @if ($latestUnpaidInvoice)
-                    <x-client.banners.payment-required-banner />
-                @endif
-            @endif
-
-            {{-- Page Content --}}
-            <div class="{{ url()->current() === url('client/subscription/expired') ? '' : 'p-4 md:p-6' }}">
-                {{ $slot }}
-            </div>
-
-            @include('client.layout.partials.footer')
-
-        </main>
-
-    </div>
-
-    {{-- Layout Scripts --}}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ $title ?: 'SMART DPS' }} - SMART DPS</title>
     <script>
-        /* -------------------------------
-         * Sidebar Handling (Mobile)
-         * ------------------------------ */
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebar = document.getElementById('sidebar');
-        const mobileOverlay = document.getElementById('mobileOverlay');
-        const closeSidebar = document.getElementById('closeSidebar');
-
-        function toggleSidebar(show) {
-            sidebar.classList.toggle('active', show);
-            mobileOverlay.classList.toggle('hidden', !show);
-        }
-
-        sidebarToggle?.addEventListener('click', () => toggleSidebar(true));
-        closeSidebar?.addEventListener('click', () => toggleSidebar(false));
-        mobileOverlay?.addEventListener('click', () => toggleSidebar(false));
-
-        /* -------------------------------
-         * Sidebar Dropdown Menus
-         * ------------------------------ */
-        document.querySelectorAll('.dropdown-toggle').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const target = document.getElementById(btn.dataset.target);
-                const rotationIcon = btn.querySelector('.fa-chevron-down');
-
-                // Close all other dropdowns first
-                document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                    if (menu !== target) {
-                        menu.classList.remove('active');
-                        const icon = document.querySelector(`[data-target="${menu.id}"] .fa-chevron-down`);
-                        if (icon) icon.style.transform = 'rotate(0deg)';
-                    }
-                });
-
-                // Toggle current dropdown
-                target.classList.toggle('active');
-                rotationIcon.style.transform = target.classList.contains('active')
-                    ? 'rotate(180deg)' : 'rotate(0deg)';
-            });
-        });
-
-        /* -------------------------------
-         * Notification & Profile Menus
-         * ------------------------------ */
-        const notificationBtn = document.getElementById('notificationBtn');
-        const notificationDropdown = document.getElementById('notificationDropdown');
-        const profileBtn = document.getElementById('profileBtn');
-        const profileDropdown = document.getElementById('profileDropdown');
-
-        notificationBtn?.addEventListener('click', e => {
-            e.stopPropagation();
-            notificationDropdown.classList.toggle('active');
-            profileDropdown?.classList.remove('active');
-        });
-
-        profileBtn?.addEventListener('click', e => {
-            e.stopPropagation();
-            profileDropdown.classList.toggle('active');
-            notificationDropdown?.classList.remove('active');
-        });
-
-        document.addEventListener('click', () => {
-            notificationDropdown?.classList.remove('active');
-            profileDropdown?.classList.remove('active');
-        });
-
-        /* -------------------------------
-         * Charts Initialization
-         * ------------------------------ */
-        const renderChart = (id, config) => {
-            const canvas = document.getElementById(id);
-            if (canvas) {
-                new Chart(canvas.getContext('2d'), config);
-            }
-        };
-
-        // Financial Chart
-        renderChart('financialChart', {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [
-                    {
-                        label: 'Income',
-                        data: [200000, 250000, 220000, 280000, 320000, 350000],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Expenses',
-                        data: [80000, 95000, 70000, 110000, 130000, 120000],
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Loans',
-                        data: [50000, 75000, 60000, 85000, 90000, 82000],
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { position: 'top' } },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { callback: value => '৳' + (value / 1000) + 'K' }
-                    }
-                }
-            }
-        });
-
-        // Loan Chart
-        renderChart('loanChart', {
-            type: 'doughnut',
-            data: {
-                labels: ['Quick Loans', 'Personal Loans', 'Business Loans', 'Emergency Loans'],
-                datasets: [{
-                    data: [35, 25, 25, 15],
-                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'],
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-        });
-
-        // Member Growth Chart
-        renderChart('memberGrowthChart', {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'New Members',
-                    data: [5, 8, 6, 10, 7, 9],
-                    backgroundColor: '#10b981',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 2 } }
-                }
-            }
-        });
+        (function () {
+            const savedTheme = localStorage.getItem('smart-dps-theme') || localStorage.getItem('free-sms-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
     </script>
+    <link rel="stylesheet" href="{{ asset('scuser/assets/css/frontend.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('scuser/assets/css/responsive.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('scuser/assets/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('scuser/assets/css/smart-dps.css') }}">
+    @stack('styles')
+</head>
+<body>
+<header>
+    <a href="{{ route('client.dashboard') }}">
+        <div class="logo"><i class="fas fa-piggy-bank"></i> SMART DPS</div>
+    </a>
+    <div class="header-actions">
+        <button type="button" class="icon-btn" id="theme-toggle" aria-label="Toggle light and dark mode" title="Light / Dark mode">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+</header>
 
-    {{-- Global Confirmation Modal --}}
-    <x-confirm-modal />
+@if (!request()->is('client/checkout*'))
+    @php
+        $client = Auth::guard('client')->user();
+        $latestUnpaidInvoice = $client?->invoices()->where('status', \App\Enums\InvoiceStatus::UNPAID)->latest()->first();
+    @endphp
+    @if ($latestUnpaidInvoice)
+    @endif
+@endif
 
-    @stack('scripts')
+<main class="container pb-100 smart-client-main">
+    @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+    @if (session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+    {{ $slot }}
+</main>
 
+<nav class="bottom-nav">
+    <a href="{{ route('client.dashboard') }}" class="nav-item"><i class="fas fa-home"></i>Home</a>
+    <a href="{{ route('client.members.index') }}" class="nav-item"><i class="fas fa-users"></i>Members</a>
+    <a href="{{ route('client.projects.index') }}" class="nav-item"><i class="fas fa-project-diagram"></i>Projects</a>
+    <a href="{{ route('client.payments.index') }}" class="nav-item"><i class="fas fa-credit-card"></i>Payments</a>
+    <a href="{{ route('client.menu') }}" class="nav-item"><i class="fas fa-th-large"></i>Menu</a>
+</nav>
+
+<div class="modal-overlay" id="record-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="recordConfirmTitle" onclick="if(event.target===this) closeRecordConfirmModal()">
+    <div class="modal-content confirm-modal-card">
+        <h3 class="modal-title-bold" id="recordConfirmTitle">Confirm Delete</h3>
+        <p class="modal-desc" id="recordConfirmMessage">Are you sure you want to delete this item? This action cannot be undone.</p>
+        <div class="confirm-modal-actions">
+            <button type="button" class="confirm-btn confirm-btn-cancel" id="recordConfirmCancel">Cancel</button>
+            <button type="button" class="confirm-btn confirm-btn-danger" id="recordConfirmDelete">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="logout-modal" onclick="if(event.target===this) closeModal('logout-modal')">
+    <div class="modal-content confirm-modal-card">
+        <h3 class="modal-title-bold">Confirm Sign Out</h3>
+        <p class="modal-desc">Are you sure you want to sign out?</p>
+        <div class="confirm-modal-actions">
+            <button type="button" class="confirm-btn confirm-btn-cancel" onclick="closeModal('logout-modal')">Cancel</button>
+            <button type="button" class="confirm-btn confirm-btn-primary" onclick="document.getElementById('logoutForm').submit()">Sign out</button>
+        </div>
+    </div>
+</div>
+<form id="logoutForm" method="POST" action="{{ route('client.logout') }}" class="hidden">@csrf</form>
+
+<script src="{{ asset('scuser/assets/js/global.min.js') }}"></script>
+@vite(['resources/js/app.js'])
+<script>
+let pendingDeleteForm = null;
+let pendingDeleteTrigger = null;
+
+function isDeleteForm(form) {
+    if (!form) return false;
+    const methodField = form.querySelector('input[name="_method"]');
+    return methodField && methodField.value.toUpperCase() === 'DELETE';
+}
+
+function openDeleteConfirm(form, trigger = null) {
+    if (!form) return;
+    pendingDeleteForm = form;
+    pendingDeleteTrigger = trigger;
+
+    const title = 'Confirm Delete';
+    const message = trigger?.dataset.confirmMessage || form.dataset.confirmMessage || 'Are you sure you want to delete this record? This action cannot be undone.';
+
+    document.getElementById('recordConfirmTitle').textContent = title;
+    document.getElementById('recordConfirmMessage').textContent = message;
+    const confirmButton = document.getElementById('recordConfirmDelete');
+    if (confirmButton) {
+        confirmButton.disabled = false;
+        confirmButton.textContent = 'Delete';
+    }
+    openModal('record-confirm-modal');
+}
+
+function closeRecordConfirmModal(){
+    pendingDeleteForm = null;
+    pendingDeleteTrigger = null;
+    closeModal('record-confirm-modal');
+}
+
+document.addEventListener('click', function(e){
+    const trigger = e.target.closest('[data-logout]');
+    if(trigger){
+        e.preventDefault();
+        openModal('logout-modal');
+        return;
+    }
+
+    const deleteBtn = e.target.closest('.delete-btn, [data-delete-confirm]');
+    if(deleteBtn){
+        const form = deleteBtn.closest('form');
+        if (!form || !isDeleteForm(form)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        openDeleteConfirm(form, deleteBtn);
+    }
+});
+
+// Enforce the custom modal for every DELETE form in the client area,
+// including forms added later that do not have a dedicated delete button hook.
+document.addEventListener('submit', function(e){
+    const form = e.target;
+    if (!isDeleteForm(form) || form.dataset.confirmed === 'true') return;
+    e.preventDefault();
+    openDeleteConfirm(form, form.querySelector('.delete-btn, [data-delete-confirm]'));
+}, true);
+
+document.getElementById('recordConfirmCancel')?.addEventListener('click', closeRecordConfirmModal);
+document.getElementById('recordConfirmDelete')?.addEventListener('click', function(){
+    if(!pendingDeleteForm) return;
+    const form = pendingDeleteForm;
+    form.dataset.confirmed = 'true';
+    this.disabled = true;
+    this.textContent = 'Deleting...';
+    closeModal('record-confirm-modal');
+    form.submit();
+});
+</script>
+@stack('scripts')
 </body>
 </html>
