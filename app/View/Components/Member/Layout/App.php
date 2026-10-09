@@ -8,17 +8,13 @@ use Illuminate\View\Component;
 
 class App extends Component
 {
-    /**
-     * Create a new component instance.
-     */
-    public function __construct()
+    public string $title;
+
+    public function __construct(string $title = '')
     {
-        //
+        $this->title = $title;
     }
 
-    /**
-     * Get the view / contents that represent the component.
-     */
     public function render(): View|Closure|string
     {
         return view('member.layout.app');
