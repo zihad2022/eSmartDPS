@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
+use App\Models\AdminSetting;
 use App\Models\Invoice;
 use App\Services\PackageService;
 use App\Services\Payments\SslcommerzService;
@@ -25,6 +26,10 @@ class SslcommerzPaymentController extends Controller
      */
     public function pay(Invoice $invoice)
     {
+        if (! (bool) (AdminSetting::query()->value('sslcommerz_status') ?? false)) {
+            return back()->with('error', 'SSLCommerz payment is currently unavailable.');
+        }
+
         if ($invoice->status === InvoiceStatus::PAID) {
             return redirect()->route('client.invoices.index')
                 ->with('info', 'Invoice already paid.');
