@@ -92,7 +92,6 @@ Route::prefix('client')->name('client.')->group(function () {
          */
         Route::prefix('subscription')->name('subscription.')->group(function () {
             Route::get('expired', [SubscriptionController::class, 'expired'])->name('expired');
-            Route::get('renew/{invoice?}', [SubscriptionController::class, 'renew'])->name('renew');
             Route::get('packages', [SubscriptionController::class, 'packages'])->name('packages');
 
             Route::get('start-trial/{package}', StartTrailSubscriptionController::class)->name('start.trial');
@@ -103,7 +102,6 @@ Route::prefix('client')->name('client.')->group(function () {
          * Payments & Invoices
          */
         Route::prefix('payments')->name('payments.')->group(function () {
-            Route::get('select/{invoice}', [SubscriptionPaymentController::class, 'selectMethod'])->name('select');
             Route::post('process/{invoice}', [SubscriptionPaymentController::class, 'processPayment'])->name('process');
 
             // bKash callback
