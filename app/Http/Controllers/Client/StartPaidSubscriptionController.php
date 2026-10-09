@@ -78,7 +78,7 @@ class StartPaidSubscriptionController extends Controller
             }
 
             if ($paymentMethod === 'sslcommerz') {
-                $sslActive = filled($settings?->sslcommerz_store_id) || filled(config('payments.sslcommerz.store_id'));
+                $sslActive = (bool) ($settings?->sslcommerz_status ?? false);
                 if (! $sslActive) {
                     return back()->with('error', 'SSLCommerz payment is currently unavailable.');
                 }
