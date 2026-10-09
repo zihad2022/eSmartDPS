@@ -37,6 +37,7 @@ class PaymentSettingsRequest extends FormRequest
                 'sslcommerz_store_id' => ['required', 'string', 'max:255'],
                 'sslcommerz_store_password' => ['nullable', 'string', 'max:1000'],
                 'sslcommerz_mode' => ['required', Rule::in(['live', 'sandbox'])],
+                'sslcommerz_status' => ['required', 'boolean'],
             ],
             default => [
                 'section' => ['required', Rule::in(['general', 'bkash', 'sslcommerz'])],
