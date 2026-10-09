@@ -22,6 +22,10 @@ class BkashPaymentController extends Controller
      */
     public function pay(Invoice $invoice)
     {
+        if (! (bool) (AdminSetting::query()->value('bkash_status') ?? false)) {
+            return back()->with('error', 'bKash payment is currently unavailable.');
+        }
+
         if ($invoice->status === InvoiceStatus::PAID) {
             Log::warning('[bKash] Attempted to pay already paid invoice', [
                 'invoice_id' => $invoice->id,
