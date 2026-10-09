@@ -1,91 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Portal - DYDS</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    {{-- <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet"> --}}
-    <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
-        }
-
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .progress-bar {
-            transition: width 1s ease-in-out;
-        }
-    </style>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ $title ?? 'Member Portal' }} - SMART DPS</title>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('smart-dps-theme') || localStorage.getItem('free-sms-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+    <link rel="stylesheet" href="{{ asset('scuser/assets/css/frontend.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('scuser/assets/css/responsive.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('scuser/assets/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('scuser/assets/css/smart-dps.css') }}">
+    @stack('styles')
 </head>
+<body>
+<header>
+    <a href="{{ route('member.dashboard') }}">
+        <div class="logo"><i class="fas fa-piggy-bank"></i> SMART DPS</div>
+    </a>
+    <div class="header-actions">
+        <button type="button" class="icon-btn" id="theme-toggle" aria-label="Toggle light and dark mode" title="Light / Dark mode">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+</header>
 
-<body class="font-sans bg-gray-50 text-primary-900">
-    <!-- Header -->
-    @include('member.layout.partials.navbar')
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {{ $slot }}
-    </main>
-    <!-- Footer -->
-    @include('member.layout.partials.footer')
-    {{-- <script>
-        // Check if user is logged in
-        window.onload = function() {
-            const memberId = sessionStorage.getItem('memberId');
-            const memberPin = sessionStorage.getItem('memberPin');
+<main class="container pb-100 smart-client-main smart-member-main">
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+    @if ($errors->has('general'))
+        <div class="alert alert-danger">{{ $errors->first('general') }}</div>
+    @endif
+    {{ $slot }}
+</main>
 
-            if (!memberId || !memberPin) {
-                window.location.href = 'landing.html';
-                return;
-            }
+<nav class="bottom-nav">
+    <a href="{{ route('member.dashboard') }}" class="nav-item"><i class="fas fa-home"></i>Home</a>
+    <a href="{{ route('member.payment.create') }}" class="nav-item"><i class="fas fa-credit-card"></i>Payment</a>
+    <button type="button" class="nav-item member-nav-button" data-member-logout><i class="fas fa-sign-out-alt"></i>Logout</button>
+</nav>
 
-            // Update member information
-            document.getElementById('memberIdDisplay').textContent = `ID: ${memberId}`;
-            document.getElementById('welcomeName').textContent = getMemberName(memberId);
-            document.getElementById('memberName').textContent = getMemberName(memberId);
-        };
+<div class="modal-overlay" id="member-logout-modal" onclick="if(event.target===this) closeModal('member-logout-modal')">
+    <div class="modal-content confirm-modal-card">
+        <h3 class="modal-title-bold">Confirm Sign Out</h3>
+        <p class="modal-desc">Are you sure you want to sign out of the member portal?</p>
+        <div class="confirm-modal-actions">
+            <button type="button" class="confirm-btn confirm-btn-cancel" onclick="closeModal('member-logout-modal')">Cancel</button>
+            <button type="button" class="confirm-btn confirm-btn-primary" onclick="document.getElementById('memberLogoutForm').submit()">Sign out</button>
+        </div>
+    </div>
+</div>
+<form id="memberLogoutForm" method="POST" action="{{ route('member.logout') }}" class="hidden">@csrf</form>
 
-        function getMemberName(memberId) {
-            // Simulate member data lookup
-            const memberData = {
-                'M001': 'John Doe',
-                'M002': 'Jane Smith',
-                'M003': 'Robert Johnson'
-            };
-            return memberData[memberId] || 'Member';
-        }
-
-        function submitPaymentProof() {
-            window.location.href = 'payment-proof.html';
-        }
-
-        function logout() {
-            sessionStorage.removeItem('memberId');
-            sessionStorage.removeItem('memberPin');
-            window.location.href = 'landing.html';
-        }
-    </script> --}}
-    {{-- Global Confirmation Modal --}}
-    <x-confirm-modal />
-
-    @stack('scripts')
+<script src="{{ asset('scuser/assets/js/global.min.js') }}"></script>
+<script>
+    document.addEventListener('click', function (event) {
+        const trigger = event.target.closest('[data-member-logout]');
+        if (!trigger) return;
+        event.preventDefault();
+        openModal('member-logout-modal');
+    });
+</script>
+@stack('scripts')
 </body>
-
 </html>
