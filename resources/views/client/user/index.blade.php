@@ -2,7 +2,32 @@
 <div class="smart-page-head"><h3 class="section-title"><i class="fas fa-user-cog"></i> Users</h3><div class="smart-page-actions"><a class="btn btn-primary" href="{{ route('client.users.create') }}"><i class="fas fa-plus"></i> Add User</a></div></div>
 <div class="smart-filter"><a class="{{ !request('status')?'active':'' }}" href="{{ route('client.users.index') }}">All</a><a class="{{ request('status')==='active'?'active':'' }}" href="{{ route('client.users.index',['status'=>'active']) }}">Active</a><a class="{{ request('status')==='inactive'?'active':'' }}" href="{{ route('client.users.index',['status'=>'inactive']) }}">Inactive</a></div>
 <form class="smart-search" method="GET"><i class="fas fa-search"></i><input name="search" value="{{ request('search') }}" placeholder="Search users..."></form>
-<div class="template-list">@forelse($users as $user)
-<div class="template-item"><h4 class="template-name">{{ trim($user->first_name.' '.$user->last_name) }} <span class="custom-badge {{ $user->status?'badge-approved':'badge-rejected' }}">{{ $user->status?'Active':'Inactive' }}</span></h4><p class="template-excerpt">{{ ucfirst(str_replace('-',' ',$user->role)) }} · {{ $user->email }}</p><div class="template-footer"><span>{{ $user->phone ?: 'No phone' }}</span><div class="template-actions"><a class="view-btn" href="{{ route('client.users.show',$user) }}"><i class="fas fa-eye"></i></a><a class="view-btn" href="{{ route('client.users.edit',$user) }}"><i class="fas fa-edit"></i></a>@if($user->role!=='super-admin')<form method="POST" action="{{ route('client.users.destroy',$user) }}">@csrf @method('DELETE')<button class="btn-contact-action btn-delete-mini delete-btn" type="button" data-confirm-title="Delete User" data-confirm-message="Are you sure you want to delete this user?"><i class="fas fa-trash"></i></button></form>@endif</div></div></div>
-@empty<div class="smart-empty">No users found.</div>@endforelse</div><div class="mt-20"><x-pagination :paginator="$users" /></div>
+<div class="template-list">
+@forelse($users as $user)
+<div class="template-item">
+    <h4 class="template-name">{{ trim($user->first_name.' '.$user->last_name) }} <span class="custom-badge {{ $user->status?'badge-approved':'badge-rejected' }}">{{ $user->status?'Active':'Inactive' }}</span></h4>
+    <p class="template-excerpt">{{ ucfirst(str_replace('-',' ',$user->role)) }} · {{ $user->email }}</p>
+    <div class="template-footer"><span>{{ $user->phone ?: 'No phone' }}</span><div class="template-actions">
+        <button class="view-btn" type="button" onclick="openModal('user-view-{{ $user->id }}')"><i class="fas fa-eye"></i></button>
+        <a class="view-btn" href="{{ route('client.users.edit',$user) }}"><i class="fas fa-edit"></i></a>
+        @if($user->role!=='super-admin')<form method="POST" action="{{ route('client.users.destroy',$user) }}">@csrf @method('DELETE')<button class="btn-contact-action btn-delete-mini delete-btn" type="button" data-confirm-title="Delete User" data-confirm-message="Are you sure you want to delete this user?"><i class="fas fa-trash"></i></button></form>@endif
+    </div></div>
+</div>
+<x-client.record-modal
+    :id="'user-view-'.$user->id"
+    title="User Details"
+    :fields="[
+        ['label'=>'Full Name','value'=>trim($user->first_name.' '.$user->last_name),'full'=>true],
+        ['label'=>'User ID','value'=>$user->user_id ?: '—'],
+        ['label'=>'Status','value'=>$user->status ? 'Active' : 'Inactive'],
+        ['label'=>'Email','value'=>$user->email ?: '—'],
+        ['label'=>'Mobile','value'=>$user->phone ?: '—'],
+        ['label'=>'Role','value'=>ucfirst(str_replace('-',' ',$user->role))],
+        ['label'=>'District','value'=>$user->district ?: '—'],
+        ['label'=>'Address','value'=>$user->address ?: '—','full'=>true],
+    ]"
+    :actions="[['label'=>'Edit User','url'=>route('client.users.edit',$user)]]"
+/>
+@empty<div class="smart-empty">No users found.</div>@endforelse
+</div><div class="mt-20"><x-pagination :paginator="$users" /></div>
 </x-client.layout.app>
