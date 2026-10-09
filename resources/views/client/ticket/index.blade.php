@@ -2,7 +2,37 @@
 <div class="smart-page-head"><h3 class="section-title"><i class="fas fa-ticket-alt"></i> Tickets</h3><div class="smart-page-actions"><a class="btn btn-primary" href="{{ route('client.tickets.create') }}"><i class="fas fa-plus"></i> New Ticket</a></div></div>
 <div class="smart-filter"><a class="{{ !request('status')?'active':'' }}" href="{{ route('client.tickets.index') }}">All</a><a class="{{ request('status')==='open'?'active':'' }}" href="{{ route('client.tickets.index',['status'=>'open']) }}">Open</a><a class="{{ request('status')==='in_progress'?'active':'' }}" href="{{ route('client.tickets.index',['status'=>'in_progress']) }}">In Progress</a><a class="{{ request('status')==='resolved'?'active':'' }}" href="{{ route('client.tickets.index',['status'=>'resolved']) }}">Resolved</a><a class="{{ request('status')==='closed'?'active':'' }}" href="{{ route('client.tickets.index',['status'=>'closed']) }}">Closed</a></div>
 <form class="smart-search" method="GET"><i class="fas fa-search"></i><input name="search" value="{{ request('search') }}" placeholder="Search tickets..."></form>
-<div class="template-list">@forelse($tickets as $ticket)@php($statusValue=$ticket->status->value ?? (string)$ticket->status)@php($statusLabel=method_exists($ticket->status,'label')?$ticket->status->label():ucfirst(str_replace('_',' ',$statusValue)))
-<div class="template-item"><h4 class="template-name">{{ $ticket->subject }} <span class="custom-badge {{ in_array($statusValue,['resolved'])?'badge-approved':(in_array($statusValue,['closed'])?'badge-rejected':'badge-pending') }}">{{ $statusLabel }}</span></h4><p class="template-excerpt">#{{ $ticket->ticket_number }} · {{ method_exists($ticket->priority,'label')?$ticket->priority->label():ucfirst($ticket->priority->value ?? $ticket->priority) }}</p><div class="template-footer"><span>{{ $ticket->created_at?->diffForHumans() }}</span><div class="template-actions"><a class="btn-contact-action btn-contact-send" href="{{ route('client.tickets.chat',$ticket) }}"><i class="fas fa-comments"></i></a><a class="view-btn" href="{{ route('client.tickets.show',$ticket) }}"><i class="fas fa-eye"></i></a><a class="view-btn" href="{{ route('client.tickets.edit',$ticket) }}"><i class="fas fa-edit"></i></a><form method="POST" action="{{ route('client.tickets.destroy',$ticket) }}">@csrf @method('DELETE')<button class="btn-contact-action btn-delete-mini delete-btn" type="button" data-confirm-title="Delete Ticket" data-confirm-message="Are you sure you want to delete this ticket?"><i class="fas fa-trash"></i></button></form></div></div></div>
-@empty<div class="smart-empty">No tickets found.</div>@endforelse</div><div class="mt-20"><x-pagination :paginator="$tickets" /></div>
+<div class="template-list">
+@forelse($tickets as $ticket)
+@php($statusValue=$ticket->status->value ?? (string)$ticket->status)
+@php($statusLabel=method_exists($ticket->status,'label')?$ticket->status->label():ucfirst(str_replace('_',' ',$statusValue)))
+@php($priorityLabel=method_exists($ticket->priority,'label')?$ticket->priority->label():ucfirst($ticket->priority->value ?? $ticket->priority))
+<div class="template-item">
+    <h4 class="template-name">{{ $ticket->subject }} <span class="custom-badge {{ in_array($statusValue,['resolved'])?'badge-approved':(in_array($statusValue,['closed'])?'badge-rejected':'badge-pending') }}">{{ $statusLabel }}</span></h4>
+    <p class="template-excerpt">#{{ $ticket->ticket_number }} · {{ $priorityLabel }}</p>
+    <div class="template-footer"><span>{{ $ticket->created_at?->diffForHumans() }}</span><div class="template-actions">
+        <a class="btn-contact-action btn-contact-send" href="{{ route('client.tickets.chat',$ticket) }}"><i class="fas fa-comments"></i></a>
+        <button class="view-btn" type="button" onclick="openModal('ticket-view-{{ $ticket->id }}')"><i class="fas fa-eye"></i></button>
+        <a class="view-btn" href="{{ route('client.tickets.edit',$ticket) }}"><i class="fas fa-edit"></i></a>
+        <form method="POST" action="{{ route('client.tickets.destroy',$ticket) }}">@csrf @method('DELETE')<button class="btn-contact-action btn-delete-mini delete-btn" type="button" data-confirm-title="Delete Ticket" data-confirm-message="Are you sure you want to delete this ticket?"><i class="fas fa-trash"></i></button></form>
+    </div></div>
+</div>
+<x-client.record-modal
+    :id="'ticket-view-'.$ticket->id"
+    title="Ticket Details"
+    :fields="[
+        ['label'=>'Ticket','value'=>'#'.$ticket->ticket_number],
+        ['label'=>'Status','value'=>$statusLabel],
+        ['label'=>'Subject','value'=>$ticket->subject ?: '—','full'=>true],
+        ['label'=>'Priority','value'=>$priorityLabel],
+        ['label'=>'Created','value'=>$ticket->created_at?->format('d M Y') ?? '—'],
+        ['label'=>'Message','value'=>$ticket->message ?: '—','full'=>true],
+    ]"
+    :actions="[
+        ['label'=>'Open Chat','url'=>route('client.tickets.chat',$ticket)],
+        ['label'=>'Edit Ticket','url'=>route('client.tickets.edit',$ticket)],
+    ]"
+/>
+@empty<div class="smart-empty">No tickets found.</div>@endforelse
+</div><div class="mt-20"><x-pagination :paginator="$tickets" /></div>
 </x-client.layout.app>
