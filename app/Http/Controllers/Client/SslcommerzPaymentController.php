@@ -63,12 +63,10 @@ class SslcommerzPaymentController extends Controller
             'trx_id' => $request->tran_id,
         ]);
 
-        // Renew client’s subscription
+        // Activate/schedule the exact billing period represented by this invoice.
         $client = $invoice->client;
-        $clientPackage = $client->activeClientPackage ?? $client->latestClientPackage;
-
-        if ($clientPackage && $clientPackage->package) {
-            $packageService->renewSubscription($client, $clientPackage->package);
+        if ($invoice->package) {
+            $packageService->activateSubscriptionFromInvoice($client, $invoice);
         }
 
         // Ensure the client is authenticated in this browser session.
