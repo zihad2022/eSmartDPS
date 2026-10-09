@@ -28,58 +28,9 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * Renew the client's subscription.
-     */
-    public function renew(PackageService $packageService, $invoiceId = null)
-    {
-        // -----------------------------
-        // 1. If invoice is passed, mark it as PAID
-        // -----------------------------
-        if ($invoiceId) {
-            $invoice = Invoice::findOrFail($invoiceId);
-
-            if ($invoice->status !== InvoiceStatus::PAID) {
-                $invoice->update([
-                    'status' => InvoiceStatus::PAID,
-                    'paid_at' => now(),
-                ]);
-            }
-        }
-
-        // -----------------------------
-        // 2. Get authenticated client with packages
-        // -----------------------------
-        $client = Client::with(['activeClientPackage.package', 'latestClientPackage.package'])
-            ->findOrFail(owner_client_id());
-
-        // -----------------------------
-        // 3. Determine the package to renew
-        // -----------------------------
-        $clientPackage = $client->activeClientPackage ?? $client->latestClientPackage;
-
-        if (! $clientPackage || ! $clientPackage->package) {
-            return redirect()
-                ->route('client.subscription.packages')
-                ->with('error', 'No active or previous package found. Please choose a package to subscribe.');
-        }
-
-        // -----------------------------
-        // 4. Renew subscription via service
-        // -----------------------------
-        $packageService->renewSubscription($client, $clientPackage->package);
-
-        // -----------------------------
-        // 5. Redirect with success message
-        // -----------------------------
-        return redirect()
-            ->route('client.dashboard')
-            ->with('success', 'Your subscription has been successfully renewed.');
-    }
-
-    /**
      * Display all available packages for the client.
      */
-    public function packages()
+    public function packages(PackageService $packageService)
     {
         // -----------------------------
         // 1. Fetch active packages
@@ -96,10 +47,22 @@ class SubscriptionController extends Controller
         $settings = AdminSetting::first();
 
         // -----------------------------
-        // 3. Return packages view
+        // 3. Calculate package-switch eligibility for the current client.
         // -----------------------------
-        // Pass the packages and settings to the view
-        // for display to the client.
-        return view('client.subscription.packages', compact('packages', 'settings'));
+        $client = Client::findOrFail(owner_client_id());
+        $packageEligibility = $packages->mapWithKeys(function (Package $package) use ($client, $packageService) {
+            $issues = $packageService->packageSwitchIssues($client, $package);
+
+            return [$package->id => [
+                'eligible' => $issues === [],
+                'message' => $issues === [] ? null : $packageService->validatePackageSwitch($client, $package),
+                'issues' => $issues,
+            ]];
+        });
+
+        // -----------------------------
+        // 4. Return packages view
+        // -----------------------------
+        return view('client.subscription.packages', compact('packages', 'settings', 'packageEligibility'));
     }
 }
