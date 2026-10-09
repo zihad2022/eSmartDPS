@@ -7,7 +7,7 @@
 
     $gatewaySettings = \App\Models\AdminSetting::first();
     $bkashActive = $gatewaySettings?->bkash_status ?? true;
-    $sslActive = filled($gatewaySettings?->sslcommerz_store_id) || filled(config('payments.sslcommerz.store_id'));
+    $sslActive = (bool) ($gatewaySettings?->sslcommerz_status ?? false);
     $activeGatewayCount = ($bkashActive ? 1 : 0) + ($sslActive ? 1 : 0);
     $hasAnyGateway = $activeGatewayCount > 0;
     $defaultGateway = $bkashActive ? 'bkash' : ($sslActive ? 'sslcommerz' : '');
