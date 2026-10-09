@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
+use App\Models\AdminSetting;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 
@@ -23,12 +24,18 @@ class SubscriptionPaymentController extends Controller
                 ->with('info', 'This invoice is already paid.');
         }
 
+        $settings = AdminSetting::query()->first();
+
         switch ($request->payment_method) {
             case 'bkash':
-                // Directly trigger bKash payment logic
+                if (! (bool) ($settings?->bkash_status ?? false)) {
+                    return back()->with('error', 'bKash payment is currently unavailable.');
+                }
                 return app(BkashPaymentController::class)->pay($invoice);
             case 'sslcommerz':
-                // Directly trigger SSLCommerz payment logic
+                if (! (bool) ($settings?->sslcommerz_status ?? false)) {
+                    return back()->with('error', 'SSLCommerz payment is currently unavailable.');
+                }
                 return app(SslcommerzPaymentController::class)->pay($invoice);
         }
 
