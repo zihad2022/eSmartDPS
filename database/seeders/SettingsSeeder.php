@@ -48,18 +48,19 @@ class SettingsSeeder extends Seeder
             'late_fee' => 50.00,
 
             // bKash
-            'bkash_base_url' => env('BKASH_BASE_URL'),
-            'bkash_username' => env('BKASH_USERNAME'),
-            'bkash_password' => env('BKASH_PASSWORD'),
-            'bkash_app_key' => env('BKASH_APP_KEY'),
-            'bkash_app_secret' => env('BKASH_APP_SECRET'),
+            'bkash_base_url' => 'https://tokenized.sandbox.bka.sh/v1.2.0-beta',
+            'bkash_username' => 'sandboxTokenizedUser02',
+            'bkash_password' => 'sandboxTokenizedUser02@12345',
+            'bkash_app_key' => '4f6o0cjiki2rfm34kfdadl1eqq',
+            'bkash_app_secret' => '2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4b',
             'bkash_charge' => 0.00,
-            'bkash_status' => false, // false = disabled, true = active
+            'bkash_status' => true, // SC SMS sandbox credential is enabled by default
 
             // SSLCommerz
-            'sslcommerz_store_id' => env('SSLC_STORE_ID'),
-            'sslcommerz_store_password' => env('SSLC_STORE_PASSWORD'),
-            'sslcommerz_mode' => env('SSLC_SANDBOX', true) ? 'sandbox' : 'live',
+            'sslcommerz_store_id' => 'softc6610e80407051',
+            'sslcommerz_store_password' => 'softc6610e80407051@ssl',
+            'sslcommerz_mode' => 'sandbox',
+            'sslcommerz_status' => true, // SC SMS sandbox gateway enabled by default
 
             /* ========== SMS Settings ========== */
             'sms_api_key' => env('SMS_API_KEY'),
