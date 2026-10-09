@@ -17,7 +17,7 @@ class UpdatePaymentSettingsAction
                 'bkash_base_url', 'bkash_username', 'bkash_password', 'bkash_app_key',
                 'bkash_app_secret', 'bkash_charge', 'bkash_status',
             ],
-            'sslcommerz' => ['sslcommerz_store_id', 'sslcommerz_store_password', 'sslcommerz_mode'],
+            'sslcommerz' => ['sslcommerz_store_id', 'sslcommerz_store_password', 'sslcommerz_mode', 'sslcommerz_status'],
         ];
 
         if (! isset($allowed[$section])) {
