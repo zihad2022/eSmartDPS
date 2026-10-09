@@ -33,7 +33,7 @@ class PaymentController extends Controller
         $methods = collect($settings->payment_methods)
             ->map(fn ($value) => PaymentMethod::from($value));
 
-        return view('member.payment', compact('methods'));
+        return view('member.payment', compact('methods', 'settings'));
     }
 
     public function store(MemberPaymentRequest $request): RedirectResponse
