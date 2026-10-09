@@ -11,17 +11,21 @@ class GenerateUpcomingInvoices extends Command
 {
     protected $signature = 'saas:generate-upcoming-invoices';
 
-    protected $description = 'Generate invoices for upcoming trial-ending or paid package-ending clients';
+    protected $description = 'Generate unpaid renewal invoices for paid subscriptions entering their final 7 days';
 
     public function handle(CreateClientInvoiceAction $createInvoice)
     {
-        $daysBeforeExpiry = 3;
-        $targetDate = now()->addDays($daysBeforeExpiry)->toDateString();
+        $invoiceWindowEndsAt = now()->addDays(7)->endOfDay();
 
-        // Query packages ending exactly after the given number of days
+        // Generate the next invoice as soon as a paid subscription enters the
+        // final 7 days. The range (instead of one exact date) makes the job safe
+        // if the scheduler misses a run. Trials are handled separately.
         $endingPackages = ClientPackage::with(['client', 'package'])
             ->where('is_active', true)
-            ->whereDate('ends_at', '=', $targetDate)
+            ->where('is_trial', false)
+            ->where('status', ClientPackage::STATUS_ACTIVE)
+            ->where('ends_at', '>', now())
+            ->where('ends_at', '<=', $invoiceWindowEndsAt)
             ->get();
 
         Log::info('Upcoming invoice generation started.');
@@ -53,6 +57,9 @@ class GenerateUpcomingInvoices extends Command
             $invoice = $createInvoice->execute($client, $package, [
                 'billing_start' => $billingStart,
                 'billing_end' => $billingEnd,
+                // The renewal invoice is issued up to 7 days early and is due
+                // when the current subscription period ends.
+                'due_date' => $billingStart,
             ]);
 
             $this->info("Invoice {$invoice->invoice_number} created for Client {$client->id}");
