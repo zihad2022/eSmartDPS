@@ -30,12 +30,14 @@ class DashboardController extends Controller
         $totalShares = $member->share_quantity;
         $monthlySavings = $totalShares * $settings->share_price;
         $totalBalance = $member->total_balance;
+        $recentPayments = $member->payments()->latest()->limit(5)->get();
 
         return view('member.dashboard', compact(
             'totalShares',
             'monthlySavings',
             'totalBalance',
-            'settings'
+            'settings',
+            'recentPayments'
         ));
     }
 }
