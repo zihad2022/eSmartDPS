@@ -125,6 +125,14 @@
                         :value="old('sslcommerz_store_password', '')" placeholder="Leave blank to keep the current password" />
                     <x-form.select name="sslcommerz_mode" label="Mode" :options="['live' => 'Live', 'sandbox' => 'Sandbox']" :selected="old('sslcommerz_mode', $settings->sslcommerz_mode ?? 'sandbox')"
                         required />
+                    <div>
+                        <label for="sslcommerz_status" class="block text-sm font-medium text-primary-700 mb-2">Status</label>
+                        <select id="sslcommerz_status" name="sslcommerz_status"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-accent-500">
+                            <option value="1" {{ old('sslcommerz_status', $settings->sslcommerz_status ?? false) ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ old('sslcommerz_status', $settings->sslcommerz_status ?? false) ? '' : 'selected' }}>Inactive</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="flex justify-end pt-4">
                     <button type="submit" name="section" value="sslcommerz"
