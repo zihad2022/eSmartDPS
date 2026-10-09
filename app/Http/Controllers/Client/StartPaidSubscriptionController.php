@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Actions\Invoices\GenerateInvoiceAction;
 use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
+use App\Models\AdminSetting;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Package;
@@ -24,6 +25,10 @@ class StartPaidSubscriptionController extends Controller
      */
     public function __invoke(Request $request, Package $package): RedirectResponse
     {
+        $validated = $request->validate([
+            'payment_method' => ['nullable', 'in:bkash,sslcommerz'],
+        ]);
+
         $client = Client::findOrFail(owner_client_id());
 
         if ($error = $this->packageService->validatePackageSwitch($client, $package)) {
@@ -58,6 +63,31 @@ class StartPaidSubscriptionController extends Controller
             );
         }
 
-        return redirect()->route('client.payments.select', $invoice->id);
+        $paymentMethod = $validated['payment_method'] ?? null;
+
+        if ($paymentMethod) {
+            $settings = AdminSetting::first();
+
+            if ($paymentMethod === 'bkash') {
+                $bkashActive = $settings?->bkash_status ?? true;
+                if (! $bkashActive) {
+                    return back()->with('error', 'bKash payment is currently unavailable.');
+                }
+
+                return app(BkashPaymentController::class)->pay($invoice);
+            }
+
+            if ($paymentMethod === 'sslcommerz') {
+                $sslActive = filled($settings?->sslcommerz_store_id) || filled(config('payments.sslcommerz.store_id'));
+                if (! $sslActive) {
+                    return back()->with('error', 'SSLCommerz payment is currently unavailable.');
+                }
+
+                return app(SslcommerzPaymentController::class)->pay($invoice);
+            }
+        }
+
+        return redirect()->route('client.subscription.packages')
+            ->with('error', 'Please select a payment method from the subscription popup.');
     }
 }
