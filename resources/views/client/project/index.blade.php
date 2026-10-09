@@ -2,7 +2,34 @@
 <div class="smart-page-head"><h3 class="section-title"><i class="fas fa-project-diagram"></i> Projects</h3><div class="smart-page-actions"><a class="btn btn-primary" href="{{ route('client.projects.create') }}"><i class="fas fa-plus"></i> New Project</a></div></div>
 <div class="smart-filter"><a class="{{ !request('status')?'active':'' }}" href="{{ route('client.projects.index') }}">All</a><a class="{{ request('status')==='active'?'active':'' }}" href="{{ route('client.projects.index',['status'=>'active']) }}">Active</a><a class="{{ request('status')==='completed'?'active':'' }}" href="{{ route('client.projects.index',['status'=>'completed']) }}">Completed</a><a class="{{ request('status')==='cancelled'?'active':'' }}" href="{{ route('client.projects.index',['status'=>'cancelled']) }}">Cancelled</a></div>
 <form class="smart-search" method="GET"><i class="fas fa-search"></i><input name="search" value="{{ request('search') }}" placeholder="Search projects..."></form>
-<div class="template-list">@forelse($projects as $project)@php($statusValue=$project->status->value ?? (string)$project->status)@php($statusLabel=method_exists($project->status,'label')?$project->status->label():ucfirst($statusValue))
-<div class="template-item"><h4 class="template-name">{{ $project->name }} <span class="custom-badge {{ $statusValue==='active'?'badge-approved':($statusValue==='completed'?'badge-delivered':'badge-rejected') }}">{{ $statusLabel }}</span></h4><p class="template-excerpt">{{ $project->projectCategory->name ?? 'Uncategorized' }} · {{ $currency }} {{ number_format($project->investment_amount) }}</p><div class="template-footer"><span>{{ optional($project->start_date)->format('d M Y') ?: 'No date' }}</span><div class="template-actions"><a class="view-btn" href="{{ route('client.projects.show',$project) }}"><i class="fas fa-eye"></i></a><a class="view-btn" href="{{ route('client.projects.edit',$project) }}"><i class="fas fa-edit"></i></a><form method="POST" action="{{ route('client.projects.destroy',$project) }}">@csrf @method('DELETE')<button class="btn-contact-action btn-delete-mini delete-btn" type="button" data-confirm-title="Delete Project" data-confirm-message="Are you sure you want to delete this project?"><i class="fas fa-trash"></i></button></form></div></div></div>
-@empty<div class="smart-empty">No projects found.</div>@endforelse</div><div class="mt-20"><x-pagination :paginator="$projects" /></div>
+<div class="template-list">
+@forelse($projects as $project)
+@php($statusValue=$project->status->value ?? (string)$project->status)
+@php($statusLabel=method_exists($project->status,'label')?$project->status->label():ucfirst($statusValue))
+<div class="template-item">
+    <h4 class="template-name">{{ $project->name }} <span class="custom-badge {{ $statusValue==='active'?'badge-approved':($statusValue==='completed'?'badge-delivered':'badge-rejected') }}">{{ $statusLabel }}</span></h4>
+    <p class="template-excerpt">{{ $project->projectCategory->name ?? 'Uncategorized' }} · {{ $currency }} {{ number_format($project->investment_amount) }}</p>
+    <div class="template-footer"><span>{{ optional($project->start_date)->format('d M Y') ?: 'No date' }}</span><div class="template-actions">
+        <button class="view-btn" type="button" onclick="openModal('project-view-{{ $project->id }}')"><i class="fas fa-eye"></i></button>
+        <a class="view-btn" href="{{ route('client.projects.edit',$project) }}"><i class="fas fa-edit"></i></a>
+        <form method="POST" action="{{ route('client.projects.destroy',$project) }}">@csrf @method('DELETE')<button class="btn-contact-action btn-delete-mini delete-btn" type="button" data-confirm-title="Delete Project" data-confirm-message="Are you sure you want to delete this project?"><i class="fas fa-trash"></i></button></form>
+    </div></div>
+</div>
+<x-client.record-modal
+    :id="'project-view-'.$project->id"
+    title="Project Details"
+    :fields="[
+        ['label'=>'Project Name','value'=>$project->name ?: '—','full'=>true],
+        ['label'=>'Category','value'=>$project->projectCategory->name ?? '—'],
+        ['label'=>'Status','value'=>$statusLabel],
+        ['label'=>'Investment','value'=>$currency.' '.number_format($project->investment_amount ?? 0)],
+        ['label'=>'Expected Return','value'=>number_format($project->expected_return ?? 0)],
+        ['label'=>'Start Date','value'=>optional($project->start_date)->format('d M Y') ?: '—'],
+        ['label'=>'End Date','value'=>optional($project->end_date)->format('d M Y') ?: '—'],
+        ['label'=>'Description','value'=>$project->description ?: '—','full'=>true],
+    ]"
+    :actions="[['label'=>'Edit Project','url'=>route('client.projects.edit',$project)]]"
+/>
+@empty<div class="smart-empty">No projects found.</div>@endforelse
+</div><div class="mt-20"><x-pagination :paginator="$projects" /></div>
 </x-client.layout.app>
