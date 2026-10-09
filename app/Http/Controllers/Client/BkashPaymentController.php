@@ -101,7 +101,7 @@ class BkashPaymentController extends Controller
         if ($request->status === 'failure') {
             Log::warning('[bKash Callback] Payment failed from bKash gateway', $request->all());
 
-            return redirect()->route('client.payments.select', $invoice->id)
+            return redirect()->route('client.invoices.show', $invoice)
                 ->with('error', 'Payment failed on bKash. Please try again.');
         }
 
@@ -139,15 +139,14 @@ class BkashPaymentController extends Controller
             ]);
 
             $client = $invoice->client;
-            $clientPackage = $client->activeClientPackage ?? $client->latestClientPackage;
-            $packageToActivate = $invoice->package ?? $clientPackage?->package;
-
-            if ($packageToActivate) {
-                Log::info('[bKash] Activating package subscription', [
+            if ($invoice->package) {
+                Log::info('[bKash] Activating invoice subscription period', [
                     'client_id' => $client->id,
-                    'package_id' => $packageToActivate->id,
+                    'package_id' => $invoice->package_id,
+                    'billing_start' => $invoice->billing_start?->toDateString(),
+                    'billing_end' => $invoice->billing_end?->toDateString(),
                 ]);
-                $packageService->renewSubscription($client, $packageToActivate);
+                $packageService->activateSubscriptionFromInvoice($client, $invoice);
             }
 
             return redirect()->route('client.dashboard')->with('success', 'bKash payment successful! Your subscription is now active.');
